@@ -1,0 +1,16 @@
+services:
+  base-de-datos:
+    image: mysql:9.6.0
+    container_name: juegorol-mysql
+    environment:
+      MYSQL_DATABASE: juegorol_db
+      MYSQL_USER: equipo10
+      MYSQL_PASSWORD: password123
+      MYSQL_ROOT_PASSWORD: root_password_secreta
+    ports:
+      - "3307:3306"
+    volumes:
+      - datos_mysql:/var/lib/mysql
+
+volumes:
+  datos_mysql:
