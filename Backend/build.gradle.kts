@@ -25,6 +25,7 @@ extra["netflixDgsVersion"] = "11.0.0"
 extra["vaadinVersion"] = "25.0.7"
 
 dependencies {
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-data-rest")
     implementation("org.springframework.boot:spring-boot-starter-graphql")
     implementation("org.springframework.boot:spring-boot-starter-hateoas")
