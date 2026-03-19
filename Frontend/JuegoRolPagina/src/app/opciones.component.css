@@ -1,0 +1,118 @@
+#ContenedorPrincipal {
+    display: flex;
+}
+
+#ContenedorIzquierda {
+    width: 300px;
+    background-color: aqua;
+    height: 100vh;
+}
+
+#ContenedorDerecha {
+    background-color: brown;
+    flex: 1;
+    display: flex;            
+    flex-direction: column;
+    align-items: center;        
+    justify-content: flex-start;  
+}
+
+.wrapper {
+    width: 100%;
+}
+
+.step {
+    padding: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    background-color: cream;
+}
+
+.v-stepper {
+    position: relative;
+}
+
+.step .circle {
+    background-color: white;
+    border: 3px solid gray;
+    border-radius: 100%;
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+}
+
+.step .line {
+    top: 23px;
+    left: 12px;
+    height: 100%;
+    position: absolute;
+    border-left: 3px solid gray;
+}
+
+.step.completed .circle {
+    display:inline-block;
+    visibility: visible;
+    background-color: #7500C0;
+    border-color: white;
+}
+
+.step.completed .line {
+    border-left: 3px solid white;
+}
+
+.step.active .circle {
+    visibility: visible;
+    background-color: #7500C0;
+    border-color: white;
+    border-radius:20px;
+}
+
+.step.empty .circle {
+    visibility: hidden;
+}
+
+.step.empty .line {
+    top: 0;
+    height: 150%;
+}
+
+.step:last-child .line {
+    border-left: 3px solid white;
+    z-index: -1;
+}
+
+.content {
+    margin-left: 20px;
+    display: inline-block;
+}
+
+.Contenedor1 {
+    background-color: #7500C0;
+    width: 85%;
+    align-items: center;
+}
+
+.CajaTexto {
+    border-radius: 4px;
+    margin-top: 0px;
+}
+
+.ClaseGeneralEstadisticas {
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+    background-color: aliceblue;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 6px;
+}
+
+.BotonAñadir {
+    align-items: center;  
+}
+
+p {
+    margin-bottom: 2px;
+    margin-top: 0px;
+}
