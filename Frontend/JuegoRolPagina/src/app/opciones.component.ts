@@ -15,7 +15,13 @@ export class OpcionesComponent {
   nombre = '';
   paso = 1;
   estadisticas = [{ nombre: '', palabra: '' }]
+  ataques = [{nombre: '', dano: '', tipo: ''}]
+  personajes = [{ nombre: '', ataquesDelPersonaje: [''] }];
+
+  tiposDeAtaque = ['Ninguno', 'Físico', 'Magia', 'Fuego', 'Veneno'];
   faltanEstadisticas = false;
+  faltasAtaques = false;
+  ataquesConNumeros = false;
 
   irSiguiente() {
     if(this.paso == 1) {
@@ -38,6 +44,19 @@ export class OpcionesComponent {
       }
     }
 
+    if(this.paso == 3) {
+        for(let ataque of this.ataques) {
+            if(ataque.nombre == '' || ataque.dano == null || ataque.tipo == '') {
+               this.faltasAtaques = true; 
+            }
+        }
+        if(this.faltasAtaques == true) {
+            alert('Faltan campos')
+            this.faltasAtaques = false;
+            return;
+        }
+    }
+
     if (this.paso < 4) {
       this.paso = this.paso + 1;
     }
@@ -55,6 +74,38 @@ export class OpcionesComponent {
 
   eliminarEstadistica(posicion: number) {
     this.estadisticas.splice(posicion, 1);
+  }
+
+  agregarAtaque() {
+    this.ataques.push({ nombre: '', dano: '', tipo: '' });
+  }
+
+  eliminarAtaque(posicion: number) {
+    this.ataques.splice(posicion, 1);
+  }
+
+  agregarPersonaje() {
+    this.personajes.push({ nombre: '', ataquesDelPersonaje: [''] });
+  }
+
+  eliminarPersonaje(posicion: number) {
+    if (this.personajes.length > 1) {
+      this.personajes.splice(posicion, 1);
+    } else {
+      alert('Debe haber al menos un personaje.');
+    }
+  }
+
+  agregarAtaqueAPersonaje(posicionPersonaje: number) {
+    this.personajes[posicionPersonaje].ataquesDelPersonaje.push('');
+  }
+
+  eliminarAtaqueDePersonaje(posicionPersonaje: number, posicionAtaque: number) {
+    this.personajes[posicionPersonaje].ataquesDelPersonaje.splice(posicionAtaque, 1);
+  }
+
+  trackByFn(index: any, item: any) {
+    return index;
   }
 
 }
