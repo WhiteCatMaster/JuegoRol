@@ -15,8 +15,8 @@ export class OpcionesComponent {
   nombre = '';
   paso = 1;
   estadisticas = [{ nombre: '', palabra: '' }]
-  ataques = [{nombre: '', dano: '', tipo: ''}]
-  personajes = [{ nombre: '', ataquesDelPersonaje: [''] }];
+  ataques = [{nombre: '', sujeto: '', tipo: '', factor: '', umbral: ''}]
+  personajes = [{ nombre: '', ataquesDelPersonaje: [''], estadisticasDelPersonaje: [''] }];
 
   tiposDeAtaque = ['Ninguno', 'Físico', 'Magia', 'Fuego', 'Veneno'];
   faltanEstadisticas = false;
@@ -46,7 +46,7 @@ export class OpcionesComponent {
 
     if(this.paso == 3) {
         for(let ataque of this.ataques) {
-            if(ataque.nombre == '' || ataque.dano == null || ataque.tipo == '') {
+            if(ataque.nombre == '' || ataque.sujeto== '' || ataque.tipo == ''  || ataque.factor == '' || ataque.umbral == '') {
                this.faltasAtaques = true; 
             }
         }
@@ -77,7 +77,7 @@ export class OpcionesComponent {
   }
 
   agregarAtaque() {
-    this.ataques.push({ nombre: '', dano: '', tipo: '' });
+    this.ataques.push({ nombre: '', sujeto: '', tipo: '', factor: '', umbral: '' });
   }
 
   eliminarAtaque(posicion: number) {
@@ -85,14 +85,14 @@ export class OpcionesComponent {
   }
 
   agregarPersonaje() {
-    this.personajes.push({ nombre: '', ataquesDelPersonaje: [''] });
+    this.personajes.push({ nombre: '', ataquesDelPersonaje: [''], estadisticasDelPersonaje: ['']  });
   }
 
   eliminarPersonaje(posicion: number) {
     if (this.personajes.length > 1) {
       this.personajes.splice(posicion, 1);
     } else {
-      alert('Debe haber al menos un personaje.');
+      alert('Debe haber al menos un personaje');
     }
   }
 
@@ -102,6 +102,14 @@ export class OpcionesComponent {
 
   eliminarAtaqueDePersonaje(posicionPersonaje: number, posicionAtaque: number) {
     this.personajes[posicionPersonaje].ataquesDelPersonaje.splice(posicionAtaque, 1);
+  }
+
+  agregarEstadisticaAPersonaje(posicionPersonaje: number) {
+    this.personajes[posicionPersonaje].estadisticasDelPersonaje.push('');
+  }
+
+  eliminarEstadisticaDePersonaje(posicionPersonaje: number, posicionEstadistica: number) {
+    this.personajes[posicionPersonaje].estadisticasDelPersonaje.splice(posicionEstadistica, 1);
   }
 
   trackByFn(index: any, item: any) {

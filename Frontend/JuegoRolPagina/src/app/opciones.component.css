@@ -98,6 +98,7 @@
 }
 
 .TopeContenedor1 {
+    margin-top: 20px;
     width: 85%;
     border: 5px solid #5B3124;
     box-sizing: border-box;
@@ -147,6 +148,7 @@ p {
 .ClaseGeneralAtaques {
     margin-top: 5px;
     display: flex;
+    flex-wrap: wrap; 
     justify-content: center;
     margin-left: 10px;
     margin-right: 10px;
