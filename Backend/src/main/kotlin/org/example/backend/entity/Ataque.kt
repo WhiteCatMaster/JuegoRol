@@ -14,14 +14,16 @@ import jakarta.persistence.OneToMany
 class Ataque(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
-    val name: String,
+    var name: String,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "personaje_id")
-    var owner: Personaje,
+    var owner: Personaje? = null,
 
-    @OneToMany(mappedBy = "action", cascade = [CascadeType.ALL])
-    val rules: MutableList<ReglaAtaque> = mutableListOf(),
 
-    val targetStatToReduce: String = "Vida"
+    @OneToMany(mappedBy = "action", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var rules: MutableList<ReglaAtaque> = mutableListOf(),
+
+    var targetStatToReduce: String = "Vida",
+    var dadoBase: Int = 10
 )

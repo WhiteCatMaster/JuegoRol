@@ -7,5 +7,4 @@ import org.springframework.stereotype.Repository
 @Repository
 interface AtaqueRepository : JpaRepository<Ataque, Long> {
     fun findByOwnerId(personajeId: Long): List<Ataque>
-    fun findByTipo(tipo: String): List<Ataque>
 }

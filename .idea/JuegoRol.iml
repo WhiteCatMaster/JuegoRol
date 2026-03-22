@@ -13,5 +13,6 @@
     <orderEntry type="library" name="Gradle: org.glassfish.hk2:hk2-core:4.0.0-M3" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.data:spring-data-jpa:4.0.3" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework:spring-context:7.0.5" level="project" />
+    <orderEntry type="library" name="Gradle: jakarta.transaction:jakarta.transaction-api:2.0.1" level="project" />
   </component>
 </module>

@@ -7,5 +7,4 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface JugadorJuegoRepository : JpaRepository<JugadorJuego, Long> {
-    fun findByNombre(nombre: String): JugadorJuego?
 }
