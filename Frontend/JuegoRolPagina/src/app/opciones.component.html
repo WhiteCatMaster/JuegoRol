@@ -1,4 +1,6 @@
 <div id="ContenedorPrincipal">
+
+  <!-- CONTENEDOR IZQUIERDA -->
   <div id="ContenedorIzquierda">
     <div class="wrapper">   
       <div class="step" [class.active]="paso === 1" [class.completed]="paso > 1">
@@ -35,20 +37,28 @@
   </div>
 </div>
   
+<!-- CONTENEDOR DERECHA -->
 <div id="ContenedorDerecha">
+  
+  <div class="TopeContenedor1" [hidden]="paso !== 1">
+    <h2>NOMBRE DE LA PARTIDA</h2>
+  </div>
   <div class="Contenedor1" [hidden]="paso !== 1">
-    <h3>NOMBRE DE LA PARTIDA</h3>
     <div class="ClaseGeneralEstadisticas">
     <input class="CajaTexto" type="text" [(ngModel)]="nombre">
     <div data-bind="css: css.footer" class="sv_nav">
     </div>
   </div>
-  <input type="button" value="Siguiente" class="sv_next_btn" (click)="irSiguiente()">
+  </div>
+  <div class="BotonesMovimiento" [hidden]="paso !== 1">
+    <input type="button" value="Siguiente" class="sv_next_btn" (click)="irSiguiente()">
   </div>
 
+  <!-- VENTANA ESTADISTICAS -->
+  <div class="TopeContenedor1" [hidden]="paso !== 2">
+    <h2>ESTADÍSTICAS</h2>
+  </div>
   <div class="Contenedor1" [hidden]="paso !== 2">
-    <h3>ESTADISTICAS</h3>
-    <!-- Lo de ngFor es para duplicar la caja -->
     <div class="ClaseGeneralEstadisticas" *ngFor="let caja of estadisticas; let i = index">
       <div>
         <p>Nombre:</p>
@@ -62,17 +72,21 @@
     </div>
 
     <input class="BotonAñadir" type="button" value="+" (click)="agregarEstadistica()">
-    <br><br>
+    <br>
+  </div>
+
+  <div class="BotonesMovimiento" [hidden]="paso !== 2">
     <input type="button" value="Atras" class="sv_prev_btn" (click)="irAtras()">
     <input type="button" value="Siguiente" class="sv_next_btn" (click)="irSiguiente()">
   </div>
 
+  <!-- VENTANA CREACIÓN PERSONAJES -->
+  <div class="TopeContenedor1" [hidden]="paso !== 4">
+    <h2>PERSONAJES</h2>
+  </div>
   <div class="Contenedor1" [hidden]="paso !== 4">
-    <h3>PERSONAJES</h3>
     <div class="ClaseGeneralPersonajes" *ngFor="let personaje of personajes; let i = index">
-      <div>
-        <img class="ImagenPersonaje" src="https://i.pinimg.com/474x/9c/0f/06/9c0f06b14aba220811331c49718d6b93.jpg">
-      </div>
+      <img class="ImagenPersonaje" src="https://i.pinimg.com/474x/9c/0f/06/9c0f06b14aba220811331c49718d6b93.jpg">
       <div>
         <p>Nombre:</p>
         <input class="CajaTexto" type="text" [(ngModel)]="personaje.nombre"> 
@@ -96,13 +110,19 @@
     </div>
 
     <input class="BotonAñadir" type="button" value="+" (click)="agregarPersonaje()">
-    <br><br>
+    <br>
+  </div>
+
+  <div class="BotonesMovimiento" [hidden]="paso !== 4">
     <input type="button" value="Atras" class="sv_prev_btn" (click)="irAtras()">
     <input type="button" value="Finalizar" class="sv_next_btn"> 
   </div>
 
+  <!-- VENTANA ATAQUES -->
+  <div class="TopeContenedor1" [hidden]="paso !== 3">
+    <h2>ATAQUES</h2>
+  </div>
   <div class="Contenedor1" [hidden]="paso !== 3">
-    <h3>ATAQUES</h3>
     <div class="ClaseGeneralAtaques" *ngFor="let caja of ataques; let i = index">
       <div>
         <p>Nombre:</p>
@@ -124,7 +144,10 @@
     </div>
 
     <input class="BotonAñadir" type="button" value="+" (click)="agregarAtaque()">
-    <br><br>
+    <br>
+  </div>
+
+  <div class="BotonesMovimiento" [hidden]="paso !== 3">
     <input type="button" value="Atras" class="sv_prev_btn" (click)="irAtras()">
     <input type="button" value="Siguiente" class="sv_next_btn" (click)="irSiguiente()">
   </div>
