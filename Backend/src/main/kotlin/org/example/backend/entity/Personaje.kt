@@ -41,7 +41,7 @@ class Personaje(
     // Añadir Ataque
     fun añadirAtaque(ataque: Ataque) {
         ataques.add(ataque)
-        ataque.personaje = this
+        ataque.owner = this
     }
 }
 

@@ -9,5 +9,9 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="KotlinJavaRuntime" level="project" />
     <orderEntry type="library" name="Gradle: jakarta.persistence:jakarta.persistence-api:3.2.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework.data:spring-data-commons:4.0.3" level="project" />
+    <orderEntry type="library" name="Gradle: org.glassfish.hk2:hk2-core:4.0.0-M3" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework.data:spring-data-jpa:4.0.3" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-context:7.0.5" level="project" />
   </component>
 </module>
