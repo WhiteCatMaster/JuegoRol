@@ -1,0 +1,41 @@
+header{
+    height: 10vh;
+    background-color: brown;
+}
+main {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);  
+    height: 90vh;
+    
+}
+/* Selector*/
+#selector{
+background-color: beige;
+display: flex;
+flex-direction: column;
+}
+
+#estadisticas, #tipo, #condicion {
+    flex: 1;
+}
+#estadisticas{
+    background-color: blueviolet;    
+}
+#tipo{
+    background-color: cadetblue;
+}
+#condicion{
+    background-color: rgb(182, 137, 94) ;
+}
+
+
+/*Mezclador */
+#mezclador{
+    background-color: aliceblue;
+}
+/* Resultado*/
+#resultado{
+    background-color: red;
+}
+
+        

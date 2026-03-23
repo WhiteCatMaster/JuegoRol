@@ -159,40 +159,125 @@
 
   <!-- VENTANA ATAQUES -->
   <div class="TopeContenedor1" [hidden]="paso !== 3">
-    <h1>ATAQUES</h1>
+    <h1> CREA TUS ATAQUES</h1>
   </div>
-  <div class="Contenedor1" [hidden]="paso !== 3">
-    <div class="ClaseGeneralAtaques" *ngFor="let caja of ataques; let i = index">
-      <div>
-        <p>Nombre:</p>
-        <input class="CajaTexto" type="text" [(ngModel)]="caja.nombre">    
-      </div>
-      <div>
-        <p>Sujeto:</p>
-        <input class="CajaTexto" type="text" [(ngModel)]="caja.sujeto">
-      </div>
-      <div>
-        <p>Tipo operación:</p>
-        <input class="CajaTexto" type="text" [(ngModel)]="caja.tipo">
-      </div>
-      <div>
-        <p>Factor:</p>
-        <input class="CajaTexto" type="number" [(ngModel)]="caja.factor">
-      </div>
-      <div>
-        <p>Umbral condición:</p>
-        <input class="CajaTexto" type="number" [(ngModel)]="caja.umbral">
-      </div>
+  
+  <div id="creador">
+    <div id="selector">
+      <h2>CREADOR DE ATAQUE</h2>
+      <div class="mitad">
+        <h3>Tus Estadisticas</h3>
+        <div class="carrusel">
+          <div class="caja-stat">
+            <div class="icono"></div>
+            <p>Vida</p>
+          </div>
+          <div class="caja-stat">
+            <div class="icono"></div>
+            <p>Fuerza</p>
+          </div>
+          <div class="caja-stat">
+            <div class="icono"></div>
+            <p>Magia</p>
+          </div>
+          <div class="caja-stat">
+            <div class="icono"></div>
+            <p>Defensa</p>
+          </div>
+          <div class="caja-stat">
+            <div class="icono"></div>
+            <p>Agilidad</p>
+          </div>
 
-      <input type="button" value="Eliminar" (click)="eliminarAtaque(i)">
+        </div>
     </div>
 
-    <input class="BotonAñadir" type="button" value="+" (click)="agregarAtaque()">
-    <br>
+    <div class="mitad">
+      <h3>Estadisticas del rival</h3>
+      <div class="carrusel">
+        
+        <div class="caja-stat">
+          <div class="icono"></div>
+          <p>Vida</p>
+        </div>
+        <div class="caja-stat">
+          <div class="icono"></div>
+          <p>Fuerza</p>
+        </div>
+        <div class="caja-stat">
+          <div class="icono"></div>
+          <p>Magia</p>
+        </div> 
+      </div>
+    </div>
+  </div>
+    <div id="mezclador">
+      <div id="mesa-trabajo">
+        <h2>Mesa de Trabajo</h2>
+        
+        <div id="contenedor-split">
+          <div class="zona-drop">
+            <h3>Coste</h3>
+            
+            <div class="grid-items">
+              <div class="item-arrastrado">
+                <div class="item-icono"></div>
+                <div class="item-info">
+                  <span class="item-nombre">Coste de maná</span>
+                  <div class="item-controles">
+                    <span class="btn-control">-</span>
+                    <span class="valor-control">10</span>
+                    <span class="btn-control">+</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="item-arrastrado">
+                <div class="item-icono"></div>
+                <div class="item-info">
+                  <span class="item-nombre">Coste de energía</span>
+                  <div class="item-controles">
+                    <span class="btn-control">-</span>
+                    <span class="valor-control">5</span>
+                    <span class="btn-control">+</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="zona-drop">
+            <h3>Efecto al rival</h3>
+            
+            <div class="grid-items">
+              <div class="item-arrastrado">
+                <div class="item-icono"></div>
+                <div class="item-info">
+                  <span class="item-nombre">Daño Físico</span>
+                  <div class="item-controles">
+                    <span class="btn-control">-</span>
+                    <span class="valor-control">50</span>
+                    <span class="btn-control">+</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="resultado">
+      <h2>Pergamino Final</h2>
+      <div id="contenedor-pergamino">
+        
+        <span id="placeholder-resultado">Arrastra ingredientes y ajusta el coste para ver el hechizo final</span>
+  </div>
+    </div>
   </div>
 
   <div class="BotonesMovimiento" [hidden]="paso !== 3">
     <input type="button" value="Atras" class="sv_prev_btn" (click)="irAtras()">
     <input type="button" value="Siguiente" class="sv_next_btn" (click)="irSiguiente()">
   </div>
+</div> 
  
