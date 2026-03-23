@@ -13,10 +13,14 @@ import { FormsModule } from '@angular/forms';
 
 export class OpcionesComponent {
   nombre = '';
+  descripcion = '';
+  idioma = '';
+  maxJugadores = 0;
+
   paso = 1;
-  estadisticas = [{ nombre: '', palabra: '' }]
+  estadisticas = [{ nombre: '', valor: 0, consumible: false }];
   ataques = [{nombre: '', sujeto: '', tipo: '', factor: '', umbral: ''}]
-  personajes = [{ nombre: '', ataquesDelPersonaje: [''], estadisticasDelPersonaje: [''] }];
+  personajes = [{nombre: '', urlSprite: 'https://i.pinimg.com/474x/9c/0f/06/9c0f06b14aba220811331c49718d6b93.jpg', vida: 100, ataquesDelPersonaje: [''], estadisticasDelPersonaje: ['']}];
 
   tiposDeAtaque = ['Ninguno', 'Físico', 'Magia', 'Fuego', 'Veneno'];
   faltanEstadisticas = false;
@@ -33,7 +37,7 @@ export class OpcionesComponent {
 
     if(this.paso == 2) {
       for(let estadistica of this.estadisticas) {
-        if(estadistica.nombre == '' || estadistica.palabra == '') {
+        if(estadistica.nombre == '' || estadistica.valor == null) {
           this.faltanEstadisticas = true;
         }
       }
@@ -69,7 +73,7 @@ export class OpcionesComponent {
   }
 
   agregarEstadistica() {
-    this.estadisticas.push({ nombre: '', palabra: '' });
+    this.estadisticas.push({ nombre: '', valor: 0, consumible: false });
   }
 
   eliminarEstadistica(posicion: number) {
@@ -85,7 +89,7 @@ export class OpcionesComponent {
   }
 
   agregarPersonaje() {
-    this.personajes.push({ nombre: '', ataquesDelPersonaje: [''], estadisticasDelPersonaje: ['']  });
+    this.personajes.push({nombre: '', urlSprite: 'https://i.pinimg.com/474x/9c/0f/06/9c0f06b14aba220811331c49718d6b93.jpg', vida: 0, ataquesDelPersonaje: [''], estadisticasDelPersonaje: ['']});
   }
 
   eliminarPersonaje(posicion: number) {

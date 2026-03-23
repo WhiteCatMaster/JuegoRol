@@ -41,11 +41,27 @@
 <div id="ContenedorDerecha">
   
   <div class="TopeContenedor1" [hidden]="paso !== 1">
-    <h2>NOMBRE DE LA PARTIDA</h2>
+    <h1>Configuración</h1>
   </div>
   <div class="Contenedor1" [hidden]="paso !== 1">
     <div class="ClaseGeneralEstadisticas">
-    <input class="CajaTexto" type="text" [(ngModel)]="nombre">
+
+    <div>
+      <p>Nombre partida:</p>
+      <input class="CajaTexto" type="text" [(ngModel)]="nombre">
+    </div>
+    <div>
+      <p>Descripción:</p>
+      <input class="CajaTexto" type="text" [(ngModel)]="descripcion">
+    </div>
+    <div>
+      <p>Idioma:</p>
+      <input class="CajaTexto" type="text" [(ngModel)]="idioma">
+    </div>
+    <div>
+      <p>Max. jugadores:</p>
+      <input class="CajaTexto" type="number" [(ngModel)]="maxJugadores">
+    </div>
     <div data-bind="css: css.footer" class="sv_nav">
     </div>
   </div>
@@ -56,7 +72,7 @@
 
   <!-- VENTANA ESTADISTICAS -->
   <div class="TopeContenedor1" [hidden]="paso !== 2">
-    <h2>ESTADÍSTICAS</h2>
+    <h1>ESTADÍSTICAS</h1>
   </div>
   <div class="Contenedor1" [hidden]="paso !== 2">
     <div class="ClaseGeneralEstadisticas" *ngFor="let caja of estadisticas; let i = index">
@@ -65,8 +81,12 @@
         <input class="CajaTexto" type="text" [(ngModel)]="caja.nombre">    
       </div>
       <div>
-        <p>Palabra:</p>
-        <input class="CajaTexto" type="text" [(ngModel)]="caja.palabra">
+        <p>Valor:</p>
+        <input class="CajaTexto" type="number" [(ngModel)]="caja.valor">
+      </div>
+      <div>
+        <p>¿Es consumible?</p>
+        <input type="checkbox" [(ngModel)]="caja.consumible">
       </div>
       <input type="button" value="Eliminar" (click)="eliminarEstadistica(i)">
     </div>
@@ -82,20 +102,26 @@
 
   <!-- VENTANA CREACIÓN PERSONAJES -->
   <div class="TopeContenedor1" [hidden]="paso !== 4">
-    <h2>PERSONAJES</h2>
+    <h1>PERSONAJES</h1>
   </div>
   <div class="Contenedor1" [hidden]="paso !== 4">
     <div class="ClaseGeneralPersonajes" *ngFor="let personaje of personajes; let i = index">
-      <img class="ImagenPersonaje" src="https://i.pinimg.com/474x/9c/0f/06/9c0f06b14aba220811331c49718d6b93.jpg">
+      <div>
+        <img class="ImagenPersonaje" [src]="personaje.urlSprite">
+        <p>URL del sprite</p>
+        <input class="CajaTexto" type="text" [(ngModel)]="personaje.urlSprite"> 
+      </div>
       <div>
         <p>Nombre:</p>
-        <input class="CajaTexto" type="text" [(ngModel)]="personaje.nombre"> 
+        <input class="CajaTexto" type="text" [(ngModel)]="personaje.nombre">
+        <br><br>
+        <p>Vida:</p>
+        <input class="CajaTexto" type="number" [(ngModel)]="personaje.vida"> 
       </div>
-      
       <div>
         <p>Ataques:</p>
         <div *ngFor="let huecoAtaque of personaje.ataquesDelPersonaje; let j = index; trackBy: trackByFn">    
-          <select class="CajaTexto" [(ngModel)]="personaje.ataquesDelPersonaje[j]">
+          <select class="Opcion" [(ngModel)]="personaje.ataquesDelPersonaje[j]">
             <option *ngFor="let ataqueCreado of ataques" [value]="ataqueCreado.nombre">
               {{ ataqueCreado.nombre }}
             </option>
@@ -108,7 +134,7 @@
       <div>
         <p>Estadisticas:</p>
         <div *ngFor="let huecoAtaque of personaje.estadisticasDelPersonaje; let j = index; trackBy: trackByFn">    
-          <select class="CajaTexto" [(ngModel)]="personaje.estadisticasDelPersonaje[j]">
+          <select class="Opcion" [(ngModel)]="personaje.estadisticasDelPersonaje[j]">
             <option *ngFor="let estadisticaCreada of estadisticas" [value]="estadisticaCreada.nombre">
               {{ estadisticaCreada.nombre }}
             </option>
@@ -133,7 +159,7 @@
 
   <!-- VENTANA ATAQUES -->
   <div class="TopeContenedor1" [hidden]="paso !== 3">
-    <h2>ATAQUES</h2>
+    <h1>ATAQUES</h1>
   </div>
   <div class="Contenedor1" [hidden]="paso !== 3">
     <div class="ClaseGeneralAtaques" *ngFor="let caja of ataques; let i = index">

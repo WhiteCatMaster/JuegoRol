@@ -12,12 +12,15 @@
 
 #ContenedorDerecha {
     width: 100%;
-    background-color: #b4aca0;
     flex: 1;
     display: flex;            
     flex-direction: column;
     align-items: center;        
-    justify-content: flex-start;  
+    justify-content: flex-start;
+    background-image: linear-gradient(rgba(255, 255, 255, 0.172), rgba(255, 255, 255, 0.172)), url('https://i.imgur.com/L6ux5lw.jpeg');
+    background-size: cover; 
+    background-position: center; 
+    background-repeat: no-repeat;  
 }
 
 #ContenedorDerecha p {
@@ -106,6 +109,7 @@
     border-top-left-radius: 30px;
     border-top-right-radius: 30px;  
     text-align: center;
+    box-shadow: 0px 0px 15px black;
 }
 
 .Contenedor1 {
@@ -114,11 +118,20 @@
     align-items: center;
     border-bottom-left-radius: 30px;
     border-bottom-right-radius: 30px;
+    box-shadow: 
+    -15px 10px 15px -10px rgba(0, 0, 0, 0.5), 
+    15px 10px 15px -10px rgba(0, 0, 0, 0.5);  
 }
 
 .CajaTexto {
     border-radius: 4px;
     margin-top: 0px;
+}
+
+.Opcion {
+    border-radius: 4px;
+    margin-top: 0px;
+    width: 100px;
 }
 
 .ClaseGeneralEstadisticas {
@@ -175,7 +188,8 @@ p {
 }
 
 .ImagenPersonaje {
-    width: 13%;
+    width: 100px;
+    height: 100px;
     border-radius: 4px;
     margin-right: 0px;
 }
@@ -183,4 +197,10 @@ p {
 .BotonesMovimiento {
     margin-top: 10px;
     justify-content: center;
+}
+
+h1 {
+    margin-top: 13px;
+    margin-bottom: 13px;
+    font-family: "Pirata One", system-ui;
 }
