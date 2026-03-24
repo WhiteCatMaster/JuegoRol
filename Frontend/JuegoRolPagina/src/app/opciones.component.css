@@ -215,32 +215,36 @@ h2 {
 }
 
 .carrusel {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    
-    overflow-y: auto; 
-    overflow-x: hidden; 
-    
-    padding-right: 10px;
-    align-content: start; 
+    display: flex;
+    flex-wrap: wrap;
     gap: 15px;
-    padding-bottom: 10px;;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 10px;
+    align-content: start;
 }
 
 .caja-stat {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-    flex-shrink: 0; 
+    flex-shrink: 0;
 }
 
 .icono {
-    width: 60px;
-    height: 60px;
-    background-color:#E6D8BF;
-    border-radius: 15px;                         
+    width: auto;
+    min-width: 50px;
+    height: 50px;
+    padding: 0 15px;
+    background-color: #E6D8BF;
+    border-radius: 15px;
     border: 2px solid #3e2723;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #61312E;
+    font-weight: bold;
+    font-size: 13px;
+    text-align: center;
+    box-sizing: border-box;
 }
 
 .caja-stat p {
@@ -365,7 +369,7 @@ no funciona de momento
 */
     #contenedor-pergamino {
     flex: 1;
-    background-image: url('https://imgur.com/BiORbcB');
+    background-image: url('https://i.imgur.com/BiORbcB.png');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center top;
