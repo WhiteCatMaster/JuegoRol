@@ -1,25 +1,31 @@
 package org.example.backend.entity
 
+import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
-import jakarta.persistence.FetchType
 
 @Entity
 class Estadistica(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var id: Long? = null,
 
-    var nombre: String, // No cambia (Nombre de la stat)
+    @Column(nullable = false)
+    var nombre: String,
 
-    var valor: String, // Sí cambia, por eso es 'var' (Hibernate genera el set)
+    @Column(nullable = false)
+    var valor: String,
+
+    @Column(nullable = false)
+    var consumible: Boolean = false,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "character_id")
+    @JoinColumn(name = "personaje_id")
     var personaje: Personaje? = null
-) {
+)
 
-}

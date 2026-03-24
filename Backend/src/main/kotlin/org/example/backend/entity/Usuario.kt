@@ -3,6 +3,7 @@ package org.example.backend.entity
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
@@ -16,18 +17,18 @@ class Usuario(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
 
-    // Este es el ID único que te da Google al iniciar sesión (el campo "sub" del token)
     @Column(unique = true, nullable = false)
     val googleId: String,
 
     @Column(unique = true, nullable = false)
     var email: String,
+
+    @Column(nullable = false)
     var nombre: String,
 
-    // Google suele devolver la foto de perfil, ¡queda genial para el frontend!
     var fotoUrl: String? = null,
 
-    // Relación con la tabla intermedia que dice en qué partidas está y qué rol tiene
-    @OneToMany(mappedBy = "usuario", cascade = [CascadeType.ALL], orphanRemoval = true)
+    @OneToMany(mappedBy = "usuario", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
     val partidasParticipa: MutableList<JugadorJuego> = mutableListOf()
 )
+

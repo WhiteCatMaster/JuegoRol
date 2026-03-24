@@ -1,15 +1,14 @@
 package org.example.backend.entity
 
-import org.example.backend.entity.Ataque
 import jakarta.persistence.CascadeType
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.Id
+import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
+import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.OneToMany
-import jakarta.persistence.Entity
 import jakarta.persistence.Table
 
 
@@ -18,32 +17,22 @@ import jakarta.persistence.Table
 class Personaje(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
+    var id: Long? = null,
 
-    var nombre : String,
+    var nombre: String,
+    var fotoUrl: String? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "jugador_juego_id")
     var jugadorJuego: JugadorJuego? = null,
 
-
-    // Estadíscicas
+    // Estadisticas
     @OneToMany(mappedBy = "personaje", cascade = [CascadeType.ALL], orphanRemoval = true)
     var estadisticas: MutableList<Estadistica> = mutableListOf(),
 
     // Ataques
     @OneToMany(mappedBy = "owner", cascade = [CascadeType.ALL], orphanRemoval = true)
     var ataques: MutableList<Ataque> = mutableListOf()
-)  {
-    // Sumar estadística
-    fun añadirEstadística(Estadistica: Estadistica) {
-        estadisticas.add(Estadistica)
-        Estadistica.personaje = this
-    }
-    // Añadir Ataque
-    fun añadirAtaque(ataque: Ataque) {
-        ataques.add(ataque)
-        ataque.owner = this
-    }
-}
+)
+
 
