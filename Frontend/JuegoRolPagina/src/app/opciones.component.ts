@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { empty } from 'rxjs';
 import { FormsModule } from '@angular/forms';
+import { Estadistica } from './models/estadistica';
+import { Personaje, EstadisticaPersonaje } from './models/personaje';
 
 @Component({
   selector: 'app-opciones',
@@ -20,9 +22,8 @@ export class OpcionesComponent {
   paso = 1;
   estadisticas = [{ nombre: '', valor: 0, consumible: false }];
   ataques = [{nombre: '', sujeto: '', tipo: '', factor: '', umbral: ''}]
-  personajes = [{nombre: '', urlSprite: 'https://i.pinimg.com/474x/9c/0f/06/9c0f06b14aba220811331c49718d6b93.jpg', vida: 100, ataquesDelPersonaje: [''], estadisticasDelPersonaje: ['']}];
+  personajes: Personaje[] = [{nombre: '', urlSprite: 'https://i.pinimg.com/474x/9c/0f/06/9c0f06b14aba220811331c49718d6b93.jpg', vida: 100, ataquesDelPersonaje: [''], estadisticasDelPersonaje: [{ nombreEstadistica: '', valorPropio: 0 }]}];
 
-  tiposDeAtaque = ['Ninguno', 'Físico', 'Magia', 'Fuego', 'Veneno'];
   faltanEstadisticas = false;
   faltasAtaques = false;
   ataquesConNumeros = false;
@@ -55,9 +56,9 @@ export class OpcionesComponent {
             }
         }
         if(this.faltasAtaques == true) {
-            alert('Faltan campos')
+            //alert('Faltan campos')
             this.faltasAtaques = false;
-            return;
+           // return;
         }
     }
 
@@ -69,6 +70,7 @@ export class OpcionesComponent {
   irAtras() {
     if (this.paso > 1) {
       this.paso = this.paso - 1;
+      console.log(this.personajes);
     }
   }
 
@@ -89,7 +91,7 @@ export class OpcionesComponent {
   }
 
   agregarPersonaje() {
-    this.personajes.push({nombre: '', urlSprite: 'https://i.pinimg.com/474x/9c/0f/06/9c0f06b14aba220811331c49718d6b93.jpg', vida: 0, ataquesDelPersonaje: [''], estadisticasDelPersonaje: ['']});
+    this.personajes.push({nombre: '', urlSprite: 'https://i.pinimg.com/474x/9c/0f/06/9c0f06b14aba220811331c49718d6b93.jpg', vida: 0, ataquesDelPersonaje: [''], estadisticasDelPersonaje: [{ nombreEstadistica: '', valorPropio: 0 }]});
   }
 
   eliminarPersonaje(posicion: number) {
@@ -109,11 +111,19 @@ export class OpcionesComponent {
   }
 
   agregarEstadisticaAPersonaje(posicionPersonaje: number) {
-    this.personajes[posicionPersonaje].estadisticasDelPersonaje.push('');
+    this.personajes[posicionPersonaje].estadisticasDelPersonaje.push({ nombreEstadistica: '', valorPropio: 0 }); // Actualizado
   }
 
   eliminarEstadisticaDePersonaje(posicionPersonaje: number, posicionEstadistica: number) {
     this.personajes[posicionPersonaje].estadisticasDelPersonaje.splice(posicionEstadistica, 1);
+  }
+
+  alCambiarEstadistica(nombreElegido: string, posicionPersonaje: number, posicionEstadistica: number) {
+    const estOriginal = this.estadisticas.find(e => e.nombre === nombreElegido);
+    
+    if (estOriginal) {
+      this.personajes[posicionPersonaje].estadisticasDelPersonaje[posicionEstadistica].valorPropio = estOriginal.valor;
+    }
   }
 
   trackByFn(index: any, item: any) {

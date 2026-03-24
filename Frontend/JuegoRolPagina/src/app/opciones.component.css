@@ -407,3 +407,10 @@ h1 {
     margin-bottom: 13px;
     font-family: "Pirata One", system-ui;
 }
+
+.EstadisticasPersonaje {
+    display: flex;       
+    align-items: center; 
+    gap: 5px;           
+    margin-bottom: 5px;
+}
