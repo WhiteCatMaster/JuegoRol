@@ -1,24 +1,19 @@
 package org.example.backend.dto
 
+import org.example.backend.entity.Estadistica
 import org.example.backend.entity.RolJugador
 import java.io.Serializable
 
 
-data class JuegoDto(
+data class CrearPartidaDto(
     val nombre: String? = null,
     val descripcion: String? = null,
     val idioma: String? = null,
     val maximoJugadores: Int? = null,
-    val jugadores: MutableList<JugadorJuegoDto> = mutableListOf()
+    val jugadores: MutableList<PersonajeDto> = mutableListOf()
 ) : Serializable {
 
-    data class JugadorJuegoDto(
-        val id: Long? = null,
-        val usuarioGoogleId: String? = null,
-        val usuarioEmail: String? = null,
-        val usuarioNombre: String? = null,
-        val usuarioFotoUrl: String? = null,
-        val rol: RolJugador? = null,
+    data class PersonajeDto(
         val personajeNombre: String? = null,
         val personajeVida: Int? = null,
         val personajeFotoUrl: String? = null,
@@ -27,19 +22,19 @@ data class JuegoDto(
     ) : Serializable {
 
         data class EstadisticaDto(
-            val id: Long? = null,
             val nombre: String? = null,
             val valor: String? = null,
             val consumible: Boolean = false
-        ) : Serializable
+        ) :
+            Serializable
 
         data class AtaqueDto(
             val id: Long? = null,
             val nombre: String? = null,
-            val manaAtacante: MutableMap<EstadisticaDto, Int> = mutableMapOf(),
-            val estadisticasDefensor: MutableMap<EstadisticaDto, Double> = mutableMapOf(),
+            val manaAtacante: MutableMap<Estadistica, Int> = mutableMapOf(),
+            val estadisticasDefensor: MutableMap<Estadistica, Double> = mutableMapOf(),
             val dadoBase: Int = 10,
-            val ratioDado: MutableList<Int> = mutableListOf()
+            val ratioDado: MutableList<Int>
         ) : Serializable
     }
 }

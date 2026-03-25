@@ -1,6 +1,5 @@
 package org.example.backend.entity
 
-import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.CollectionTable
 import jakarta.persistence.ElementCollection
@@ -10,8 +9,8 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
+import jakarta.persistence.MapKeyColumn
 import jakarta.persistence.ManyToOne
-import jakarta.persistence.MapKeyJoinColumn
 
 @Entity
 class Ataque(
@@ -24,15 +23,15 @@ class Ataque(
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "ataque_mana_atacante", joinColumns = [JoinColumn(name = "ataque_id")])
-    @MapKeyJoinColumn(name = "estadistica_id")
+    @MapKeyColumn(name = "estadistica_id")
     @Column(name = "valor")
-    val manaAtacante: MutableMap<Estadistica, Int> = mutableMapOf(),
+    val manaAtacante: MutableMap<Long, Int> = mutableMapOf(),
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "ataque_estadisticas_defensor", joinColumns = [JoinColumn(name = "ataque_id")])
-    @MapKeyJoinColumn(name = "estadistica_id")
+    @MapKeyColumn(name = "estadistica_id")
     @Column(name = "valor")
-    val estadisticasDefensor: MutableMap<Estadistica, Double> = mutableMapOf(),
+    val estadisticasDefensor: MutableMap<Long, Double> = mutableMapOf(),
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "personaje_id")

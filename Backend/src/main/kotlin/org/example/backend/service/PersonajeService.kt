@@ -8,27 +8,31 @@ import org.springframework.stereotype.Service
 @Service
 class PersonajeService(private val personajeRepo: PersonajeRepository) {
 
-    fun obtenerPersonaje(id: Long): Personaje =
-        personajeRepo.findById(id).orElseThrow { Exception("Personaje no encontrado") }
+    fun getAllPersonajes(): List<Personaje> {
+        return personajeRepo.findAll()
+    }
 
-    fun obtenerValorStat(personaje: Personaje, nombreStat : String): Int {
-        val stat = personaje.estadisticas.find { it.nombre == nombreStat }
-        if (stat != null) {
-            return stat.valor.toInt()
-        } else {
-            throw Exception("Estadística no encontrada")
-        }
+    fun getPersonajeById(id: Long): Personaje? {
+        return personajeRepo.findById(id).orElse(null)
     }
 
     @Transactional
-    fun actualizarValorStat(personaje: Personaje, nombreStat : String, nuevoValor: Int) {
-        val stat = personaje.estadisticas.find { it.nombre == nombreStat }
-        if (stat != null) {
-            stat.valor = nuevoValor.toString()
-            personajeRepo.save(personaje)
-        } else {
-            throw Exception("Estadística no encontrada")
-        }
+    fun createPersonaje(personaje: Personaje): Personaje {
+        return personajeRepo.save(personaje)
+    }
+
+    @Transactional
+    fun updatePersonaje(id: Long, updatedPersonaje: Personaje): Personaje? {
+        val existingPersonaje = personajeRepo.findById(id).orElse(null) ?: return null
+        existingPersonaje.nombre = updatedPersonaje.nombre
+        existingPersonaje.jugadorJuego = updatedPersonaje.jugadorJuego
+        // Actualiza otros campos según sea necesario
+        return personajeRepo.save(existingPersonaje)
+    }
+
+    @Transactional
+    fun deletePersonaje(id: Long) {
+        personajeRepo.deleteById(id)
     }
 
 }
