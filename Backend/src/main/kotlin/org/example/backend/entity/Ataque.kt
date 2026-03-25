@@ -9,6 +9,7 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
+import jakarta.persistence.MapKeyColumn
 import jakarta.persistence.ManyToOne
 
 @Entity
@@ -22,11 +23,13 @@ class Ataque(
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "ataque_mana_atacante", joinColumns = [JoinColumn(name = "ataque_id")])
+    @MapKeyColumn(name = "estadistica_id")
     @Column(name = "valor")
     val manaAtacante: MutableMap<Long, Int> = mutableMapOf(),
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "ataque_estadisticas_defensor", joinColumns = [JoinColumn(name = "ataque_id")])
+    @MapKeyColumn(name = "estadistica_id")
     @Column(name = "valor")
     val estadisticasDefensor: MutableMap<Long, Double> = mutableMapOf(),
 

@@ -27,6 +27,7 @@ data class JuegoDto(
     ) : Serializable {
 
         data class EstadisticaDto(
+            val id: Long? = null,
             val nombre: String? = null,
             val valor: String? = null,
             val consumible: Boolean = false
@@ -35,8 +36,8 @@ data class JuegoDto(
         data class AtaqueDto(
             val id: Long? = null,
             val nombre: String? = null,
-            val manaAtacante: MutableMap<Long, Int> = mutableMapOf(),
-            val estadisticasDefensor: MutableMap<Long, Double> = mutableMapOf(),
+            val manaAtacante: MutableMap<EstadisticaDto, Int> = mutableMapOf(),
+            val estadisticasDefensor: MutableMap<EstadisticaDto, Double> = mutableMapOf(),
             val dadoBase: Int = 10,
             val ratioDado: MutableList<Int> = mutableListOf()
         ) : Serializable

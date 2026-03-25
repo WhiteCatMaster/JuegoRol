@@ -63,11 +63,30 @@ class JuegoService(
                     )
                 }?.toMutableList() ?: mutableListOf(),
                 personajeAtaques = jugadorJuego.personaje?.ataques?.map { ataque ->
+                    // Convertir Long IDs de vuelta a EstadisticaDto
+                    val manaAtacanteDTO = ataque.manaAtacante.mapKeys { (id, _) ->
+                        JuegoDto.JugadorJuegoDto.EstadisticaDto(
+                            id = id,
+                            nombre = null, // Se puede rellenar desde la BD si es necesario
+                            valor = null,
+                            consumible = false
+                        )
+                    }.toMutableMap()
+
+                    val estadisticasDefensorDTO = ataque.estadisticasDefensor.mapKeys { (id, _) ->
+                        JuegoDto.JugadorJuegoDto.EstadisticaDto(
+                            id = id,
+                            nombre = null,
+                            valor = null,
+                            consumible = false
+                        )
+                    }.toMutableMap()
+
                     JuegoDto.JugadorJuegoDto.AtaqueDto(
                         id = ataque.id,
                         nombre = ataque.nombre,
-                        manaAtacante = ataque.manaAtacante.toMutableMap(),
-                        estadisticasDefensor = ataque.estadisticasDefensor.toMutableMap(),
+                        manaAtacante = manaAtacanteDTO,
+                        estadisticasDefensor = estadisticasDefensorDTO,
                         dadoBase = ataque.dadoBase,
                         ratioDado = ataque.ratioDado.toMutableList()
                     )
@@ -162,10 +181,19 @@ class JuegoService(
 
                 // Crear Ataques del Personaje
                 for (ataqueDTO in jugadorDTO.personajeAtaques) {
+                    // Convertir EstadisticaDto a Long (usar el ID si existe, o generar uno temporal)
+                    val manaAtacanteLong = ataqueDTO.manaAtacante.mapKeys { (estadistica, _) ->
+                        estadistica.id ?: 0L
+                    }.toMutableMap()
+
+                    val estadisticasDefensorLong = ataqueDTO.estadisticasDefensor.mapKeys { (estadistica, _) ->
+                        estadistica.id ?: 0L
+                    }.toMutableMap()
+
                     val ataque = Ataque(
                         nombre = ataqueDTO.nombre ?: "",
-                        manaAtacante = ataqueDTO.manaAtacante, // Usa Map<Long, Int>
-                        estadisticasDefensor = ataqueDTO.estadisticasDefensor, // Usa Map<Long, Double>
+                        manaAtacante = manaAtacanteLong,
+                        estadisticasDefensor = estadisticasDefensorLong,
                         owner = personajeGuardado,
                         dadoBase = ataqueDTO.dadoBase,
                         ratioDado = ataqueDTO.ratioDado
