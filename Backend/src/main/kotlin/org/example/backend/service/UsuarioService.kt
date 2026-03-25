@@ -24,7 +24,7 @@ class UsuarioService(private val usuarioRepo: UsuarioRepository){
         usuarioRepo.deleteById(id)
     }
 
-    fun findByGoogleId(googleId: String) = usuarioRepo.encontrarxGoogleId(googleId)
+    fun findByGoogleId(googleId: String) = usuarioRepo.findByGoogleId(googleId)
 
     fun agregarFotoUsuario(id: Long, fotoUrl: String): Usuario? {
         val existingUsuario = usuarioRepo.findById(id).orElse(null) ?: return null

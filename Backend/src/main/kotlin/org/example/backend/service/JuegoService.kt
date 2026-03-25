@@ -138,7 +138,7 @@ class JuegoService(
         // Crear los jugadores del DTO
         for (jugadorDTO in juegoDTO.jugadores) {
             // Crear o buscar el Usuario
-            val usuario = usuarioRepo.encontrarxGoogleId(jugadorDTO.usuarioGoogleId ?: "")
+            val usuario = usuarioRepo.findByGoogleId(jugadorDTO.usuarioGoogleId ?: "")
                 .orElseGet {
                     Usuario(
                         googleId = jugadorDTO.usuarioGoogleId ?: "",
