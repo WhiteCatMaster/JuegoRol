@@ -27,6 +27,10 @@ class JugadorJuego(
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    val rol: RolJugador
+    val rol: RolJugador,
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "personaje_id", nullable = true)
+    var personaje: Personaje? = null
 )
 
