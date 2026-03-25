@@ -1,12 +1,10 @@
-import { Component, signal } from '@angular/core';
-import { OpcionesComponent } from './opciones.component';
+import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  imports: [OpcionesComponent],
-  templateUrl: './app.html',
-  styleUrl: './app.css'
+  standalone: true,
+  imports: [RouterOutlet],   // 👈 ESTO ES CLAVE
+  templateUrl: './app.html'
 })
-export class App {
-  protected readonly title = signal('JuegoRolPagina');
-}
+export class App {}
