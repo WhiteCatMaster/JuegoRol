@@ -3,6 +3,6 @@ import { routes } from './app.routes';
 
 export const appConfig = {
   providers: [
-    provideRouter(routes)   // 👈 ESTO TAMBIÉN
+    provideRouter(routes)
   ]
 };
