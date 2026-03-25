@@ -197,12 +197,13 @@ p {
     width: 98%;
  /*   border: 5px solid lime !important;*/
     display: grid;
-    grid-template-columns: 1fr minmax(0,2fr) 1fr; 
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr);
     gap: 15px; 
     padding: 10px; 
 }
 #selector{
-    height: 70%;
+    min-height: 70%;
+    height: auto;  
     width: 90%;
     border-radius: 40px; 
     background-color: #61312E; 
@@ -226,6 +227,8 @@ h2 {
     flex-direction: column;
     border-radius: 20px;
     padding: 15px;
+    min-width: 0; 
+    min-height: 0;
 }
 
 .mitad h3 {
@@ -235,13 +238,28 @@ h2 {
 }
 
 .carrusel {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-rows: max-content max-content; 
+    grid-auto-flow: column; 
+    grid-auto-columns: max-content; 
     gap: 15px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: 10px;
+    overflow-y: hidden; 
+    overflow-x: auto; 
+    padding: 10px 10px 25px 10px; 
     align-content: start;
+}
+.carrusel::-webkit-scrollbar {
+    height: 8px;
+}
+
+.carrusel::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 10px;
+}
+
+.carrusel::-webkit-scrollbar-thumb {
+    background: #E6D8BF;
+    border-radius: 10px;
 }
 
 .caja-stat {
