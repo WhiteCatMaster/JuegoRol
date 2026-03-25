@@ -20,6 +20,7 @@ class Personaje(
     var id: Long? = null,
 
     var nombre: String,
+    var vida : Int,
     var fotoUrl: String? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
