@@ -25,13 +25,13 @@ class Ataque(
     @CollectionTable(name = "ataque_mana_atacante", joinColumns = [JoinColumn(name = "ataque_id")])
     @MapKeyColumn(name = "estadistica_id")
     @Column(name = "valor")
-    val manaAtacante: MutableMap<Long, Int> = mutableMapOf(),
+    val manaAtacante: MutableMap<Estadistica, Int> = mutableMapOf(),
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "ataque_estadisticas_defensor", joinColumns = [JoinColumn(name = "ataque_id")])
     @MapKeyColumn(name = "estadistica_id")
     @Column(name = "valor")
-    val estadisticasDefensor: MutableMap<Long, Double> = mutableMapOf(),
+    val estadisticasDefensor: MutableMap<Estadistica, Double> = mutableMapOf(),
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "personaje_id")

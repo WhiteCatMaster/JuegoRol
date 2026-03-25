@@ -23,16 +23,16 @@ data class CrearPartidaDto(
 
         data class EstadisticaDto(
             val nombre: String? = null,
-            val valor: String? = null,
+            val valor: Int? = null,
             val consumible: Boolean = false
         ) :
             Serializable
 
         data class AtaqueDto(
-            val id: Long? = null,
+            //val id: Long? = null,
             val nombre: String? = null,
-            val manaAtacante: MutableMap<Estadistica, Int> = mutableMapOf(),
-            val estadisticasDefensor: MutableMap<Estadistica, Double> = mutableMapOf(),
+            val manaAtacante: MutableMap<String, Double> = mutableMapOf(),
+            val estadisticasDefensor: MutableMap<String, Int> = mutableMapOf(),
             val dadoBase: Int = 10,
             val ratioDado: MutableList<Int>
         ) : Serializable
