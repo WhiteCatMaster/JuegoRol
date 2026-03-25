@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { empty } from 'rxjs';
+import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Estadistica } from './models/estadistica';
 import { Personaje, EstadisticaPersonaje } from './models/personaje';
@@ -8,7 +9,7 @@ import { Personaje, EstadisticaPersonaje } from './models/personaje';
 @Component({
   selector: 'app-opciones',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [RouterLink, CommonModule, FormsModule],
   templateUrl: './opciones.component.html',
   styleUrl: './opciones.component.css'
 })
