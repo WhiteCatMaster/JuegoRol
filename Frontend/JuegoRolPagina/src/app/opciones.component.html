@@ -1,8 +1,11 @@
 <div id="ContenedorPrincipal">
 
   <!-- CONTENEDOR IZQUIERDA -->
-  <div id="ContenedorIzquierda">
-    <div class="wrapper">   
+
+  
+<!-- CONTENEDOR DERECHA -->
+<div id="ContenedorDerecha">
+      <div class="wrapper">   
       <div class="step" [class.active]="paso === 1" [class.completed]="paso > 1">
         <div class="v-stepper">
           <div class="circle"></div>
@@ -35,10 +38,6 @@
       <div class="content">Personajes</div>
     </div>
   </div>
-</div>
-  
-<!-- CONTENEDOR DERECHA -->
-<div id="ContenedorDerecha">
   
   <div class="TopeContenedor1" [hidden]="paso !== 1">
     <h1>Configuración</h1>
@@ -165,94 +164,83 @@
     <h1> CREA TUS ATAQUES</h1>
   </div>
   @if (paso === 3) {
-  <div id="creador" [hidden]="paso !== 3">
+  <div id="creador">
     <div id="selector">
       <h2>CREADOR DE ATAQUE</h2>
       <div class="mitad">
         <h3>Tus Estadisticas</h3>
         <div class="carrusel">
-          <div class="caja-stat">
-            <div class="icono">Vida</div>
-          </div>
-          <div class="caja-stat">
-            <div class="icono">Fuerza</div>
-          </div>
-          <div class="caja-stat">
-            <div class="icono">Magia</div>
-          </div>
-          <div class="caja-stat">
-            <div class="icono">Defensa</div>
-          </div>
-          <div class="caja-stat">
-            <div class="icono">Agilidad</div>
-          </div>
+          @for (stat of estadisticas; track stat.nombre) {
+            <div class="caja-stat" draggable="true" (dragstart)="iniciarArrastre(stat)">
+              <div class="icono">{{ stat.nombre }}</div>
+            </div>
+          }          
         </div>
       </div>
-
       <div class="mitad">
         <h3>Estadisticas del rival</h3>
         <div class="carrusel">
-          <div class="caja-stat">
-            <div class="icono">Vida</div>
-          </div>
-          <div class="caja-stat">
-            <div class="icono">Fuerza</div>
-          </div>
-          <div class="caja-stat">
-            <div class="icono">Magia</div>
-          </div> 
+          @for (stat of estadisticas; track stat.nombre) {
+            <div class="caja-stat" draggable="true" (dragstart)="iniciarArrastre(stat)">
+              <div class="icono">{{ stat.nombre }}</div>
+            </div>
+          }
         </div>
       </div>
   </div>
     <div id="mezclador">
       <div id="mesa-trabajo">
-        <h2>Mesa de Trabajo</h2>
+        <h2 class="titulo-mesa">Mesa de Trabajo</h2>
+      
+        <div class="contenedor-secciones">
         
-        <div id="contenedor-split">
-          <div class="zona-drop">
-            <h3>Coste</h3>
+          <div class="zona-drop-mesa" (dragover)="permitirDrop($event)" (drop)="soltarEnCoste()">
+            <h3 class="subtitulo-mesa">Coste</h3>
             
-            <div class="grid-items">
-              <div class="item-arrastrado">
-                <div class="item-icono"></div>
-                <div class="item-info">
-                  <span class="item-nombre">Coste de maná</span>
-                  <div class="item-controles">
-                    <span class="btn-control">-</span>
-                    <span class="valor-control">10</span>
-                    <span class="btn-control">+</span>
+            <div class="mesa-grid-items">
+              @for (coste of costesEnMesa; track coste.nombre; let i = $index) {
+                <div class="item-mesa-centered">
+                  <span class="btn-eliminar-mesa" (click)="eliminarCoste(i)">✖</span>
+                  <span class="item-nombre-mesa">{{ coste.nombre }}</span>
+                  <div class="item-controles-mesa">
+                    <span class="btn-control-mesa" (click)="decrementar(coste)">-</span>
+                    <span class="valor-control-mesa">{{ coste.valor }}</span>
+                    <span class="btn-control-mesa" (click)="incrementar(coste)">+</span>
                   </div>
                 </div>
-              </div>
-
-              <div class="item-arrastrado">
-                <div class="item-icono"></div>
-                <div class="item-info">
-                  <span class="item-nombre">Coste de energía</span>
-                  <div class="item-controles">
-                    <span class="btn-control">-</span>
-                    <span class="valor-control">5</span>
-                    <span class="btn-control">+</span>
-                  </div>
-                </div>
-              </div>
+              }
             </div>
           </div>
 
-          <div class="zona-drop">
-            <h3>Efecto al rival</h3>
-            
-            <div class="grid-items">
-              <div class="item-arrastrado">
-                <div class="item-icono"></div>
-                <div class="item-info">
-                  <span class="item-nombre">Daño Físico</span>
-                  <div class="item-controles">
-                    <span class="btn-control">-</span>
-                    <span class="valor-control">50</span>
-                    <span class="btn-control">+</span>
+          <div class="zona-drop-mesa" (dragover)="permitirDrop($event)" (drop)="soltarEnEfecto()">
+              <h3 class="subtitulo-mesa">Efecto al rival</h3>
+              
+            <div class="mesa-grid-items">
+              @for (efecto of efectosEnMesa; track efecto.nombre; let i = $index) {
+                <div class="item-mesa-centered" style="position: relative;">
+                  <span class="btn-eliminar-mesa" (click)="eliminarEfecto(i)">✖</span>
+                  <span class="item-nombre-mesa">{{ efecto.nombre }}</span>
+                  
+                  <div class="item-controles-mesa">
+                    <span class="btn-control-mesa" (click)="decrementarMultiplicador(efecto)">-</span>
+                    <span class="valor-control-mesa">x{{ efecto.valor }}</span>
+                    <span class="btn-control-mesa" (click)="incrementarMultiplicador(efecto)">+</span>
                   </div>
                 </div>
+              }
+            </div>
+          </div>
+
+          <div class="zona-suerte-dado">
+            <h3 class="subtitulo-mesa">Ratio Dados (Suerte)</h3>
+            <div class="contenedor-inputs-dado">
+              <div class="input-grupo">
+                <label>Rango Crítico:</label>
+                <input type="number" class="input-dado" placeholder="Ej: 2" [(ngModel)]="ratioDadoMin">
+              </div>
+              <div class="input-grupo">
+                <label>Rango Normal:</label>
+                <input type="number" class="input-dado" placeholder="Ej: 3" [(ngModel)]="ratioDadoMax">
               </div>
             </div>
           </div>
@@ -260,10 +248,42 @@
       </div>
     </div>
     <div id="resultado">
-      <h2>Pergamino Final</h2>
       <div id="contenedor-pergamino">
-        
-        <span id="placeholder-resultado">Arrastra ingredientes y ajusta el coste para ver el hechizo final</span>
+        <div class="grupo-nombre-ataque">
+          <input type="text" class="input-pergamino" placeholder="Nombra tu hechizo" [(ngModel)]="nombreAtaqueActual">
+        </div>
+
+        <div class="resumen-ataque">
+          @if (costesEnMesa.length === 0 && efectosEnMesa.length === 0 && !ratioDadoMin && !ratioDadoMax) {
+            <span id="placeholder-resultado">Arrastra ingredientes y ajusta el coste para ver el hechizo final</span>
+          } @else {
+            
+            @if (costesEnMesa.length > 0) {
+              <h4>Coste:</h4>
+              <ul>
+                @for (coste of costesEnMesa; track coste.nombre) {
+                  <li>{{ coste.nombre }}: {{ coste.valor }}</li>
+                }
+              </ul>
+            }
+
+            @if (efectosEnMesa.length > 0) {
+              <h4>Efecto al Rival:</h4>
+              <ul>
+                @for (efecto of efectosEnMesa; track efecto.nombre) {
+                  <li>{{ efecto.nombre }}: x{{ efecto.valor }}</li>
+                }
+              </ul>
+            }
+
+            @if (ratioDadoMin || ratioDadoMax) {
+              <h4>Suerte (Dado 20):</h4>
+              <p>Crítico en: {{ ratioDadoMin || '?' }} | Normal en: {{ ratioDadoMax || '?' }}</p>
+            }
+          }
+        </div>
+
+        <button class="btn-sellar-pergamino" (click)="guardarAtaqueActual()">Crear hechizo</button>
       </div>
     </div>
   </div>

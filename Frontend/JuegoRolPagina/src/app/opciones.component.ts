@@ -21,7 +21,7 @@ export class OpcionesComponent {
 
   paso = 1;
   estadisticas = [{ nombre: '', valor: 0, consumible: false }];
-  ataques = [{nombre: '', sujeto: '', tipo: '', factor: '', umbral: ''}]
+  ataques: any[] = [];
   personajes: Personaje[] = [{nombre: '', urlSprite: 'https://i.pinimg.com/474x/9c/0f/06/9c0f06b14aba220811331c49718d6b93.jpg', vida: 100, ataquesDelPersonaje: [''], estadisticasDelPersonaje: [{ nombreEstadistica: '', valorPropio: 0 }]}];
 
   faltanEstadisticas = false;
@@ -51,14 +51,12 @@ export class OpcionesComponent {
 
     if(this.paso == 3) {
         for(let ataque of this.ataques) {
-            if(ataque.nombre == '' || ataque.sujeto== '' || ataque.tipo == ''  || ataque.factor == '' || ataque.umbral == '') {
+            if(this.ataques.length === 0) {
                this.faltasAtaques = true; 
             }
         }
         if(this.faltasAtaques == true) {
-            //alert('Faltan campos')
             this.faltasAtaques = false;
-           // return;
         }
     }
 
@@ -80,10 +78,6 @@ export class OpcionesComponent {
 
   eliminarEstadistica(posicion: number) {
     this.estadisticas.splice(posicion, 1);
-  }
-
-  agregarAtaque() {
-    this.ataques.push({ nombre: '', sujeto: '', tipo: '', factor: '', umbral: '' });
   }
 
   eliminarAtaque(posicion: number) {
@@ -130,4 +124,111 @@ export class OpcionesComponent {
     return index;
   }
 
+  //para el drag an drop
+  itemArrastrado: any = null;
+
+  costesEnMesa: any[] = [];
+  efectosEnMesa: any[] = [];
+
+  ratioDadoMin: number | null = null;
+  ratioDadoMax: number | null = null;
+
+  iniciarArrastre(item: any) {
+    this.itemArrastrado = item;
+  }
+
+  permitirDrop(event: any) {
+    event.preventDefault();
+  }
+
+  soltarEnCoste() {
+    if (this.itemArrastrado) {
+      this.costesEnMesa.push({
+        nombre: this.itemArrastrado.nombre || this.itemArrastrado, 
+        valor: 0
+      });
+      this.itemArrastrado = null;
+    }
+  }
+
+  soltarEnEfecto() {
+    if (this.itemArrastrado) {
+      this.efectosEnMesa.push({
+        nombre: this.itemArrastrado.nombre || this.itemArrastrado,
+        valor: 1.0,     
+        ratioMin: null, 
+        ratioMax: null   
+      });
+      this.itemArrastrado = null;
+    }
+  }
+  incrementar(item: any) {
+  item.valor += 1;
+  }
+
+  decrementar(item: any) {
+    if (item.valor > 0) {
+      item.valor -= 1;
+    }
+  }
+
+  incrementarMultiplicador(item: any) {
+    item.valor = Number((item.valor + 0.1).toFixed(1));
+  }
+
+  decrementarMultiplicador(item: any) {
+    if (item.valor > 0) {
+      item.valor = Number((item.valor - 0.1).toFixed(1));
+    }
+  }
+
+  eliminarCoste(index: number) {
+    this.costesEnMesa.splice(index, 1);
+  }
+
+  eliminarEfecto(index: number) {
+    this.efectosEnMesa.splice(index, 1);
+  }
+
+  //resultado logica
+  nombreAtaqueActual: string = '';
+
+  guardarAtaqueActual() {
+    if (this.nombreAtaqueActual.trim() === '') {
+      alert('¡Tu hechizo necesita un nombre para poder ser creado!');
+      return;
+    }
+
+    const mapaManaAtacante: { [key: string]: number } = {};
+    for (let coste of this.costesEnMesa) {
+      mapaManaAtacante[coste.nombre] = coste.valor;
+    }
+
+    const mapaEstadisticasDefensor: { [key: string]: number } = {};
+    for (let efecto of this.efectosEnMesa) {
+      mapaEstadisticasDefensor[efecto.nombre] = efecto.valor;
+    }
+
+    const ataqueFinal = {
+      nombre: this.nombreAtaqueActual,
+      manaAtacante: mapaManaAtacante,               
+      estadisticasDefensor: mapaEstadisticasDefensor,
+      dadoBase: 20,                                
+      ratioDado: [this.ratioDadoMin, this.ratioDadoMax] 
+    };
+
+    console.log("¡Hechizo creado y listo para enviar!", ataqueFinal);
+    
+    this.ataques.push(ataqueFinal);
+    
+    alert('¡Hechizo "' + this.nombreAtaqueActual + '" creado con éxito!');
+
+    this.nombreAtaqueActual = '';
+    this.costesEnMesa = [];
+    this.efectosEnMesa = [];
+    this.ratioDadoMin = null;
+    this.ratioDadoMax = null;
+  }
+
+ 
 }
