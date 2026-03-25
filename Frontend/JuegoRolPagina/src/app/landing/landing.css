@@ -6,15 +6,61 @@ body {
 
   background-image: linear-gradient(rgba(255, 255, 255, 0.172), rgba(255, 255, 255, 0.172)), url('https://i.imgur.com/L6ux5lw.jpeg');
   background-size: cover;
+  overflow: auto;
 }
 
-.tituloContainer {
+.bloque1 {
+  margin-top: 45%;
+  margin-bottom: 10%;
+
+}
+
+.container {
   height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
+}
+
+.subtituloPartidas {
+  font-size: 3rem;
+  font-weight: bold;
+  letter-spacing: 2px;
+  background: linear-gradient(90deg, #4e3522, #8c450f);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 1px;
+
+  font-family: "Pirata One", system-ui;
+
+}
+
+.partidasContainer {
+  padding-top: 5%;
+  font-family: "Almendra", system-ui;
+}
+
+.partidasContainer p {
+  text-align: center;
+  color: black;
+  font-family: "Times New Roman", system-ui;
+}
+
+.partidasDisponibles {
+  display: flex;
+  margin-bottom: 10%;
+  margin-top: 0.5%;
+
+}
+
+.partidasDisponibles h2 {
+  font-size: 2rem;
+  font-weight: bold;
+  letter-spacing: 2px;
+  color: #4e3522;
+
 }
 
 .tituloLanding {
@@ -55,4 +101,8 @@ button:hover {
 
 button:active {
   transform: scale(0.98);
+}
+
+.card {
+  margin: 7%;
 }
