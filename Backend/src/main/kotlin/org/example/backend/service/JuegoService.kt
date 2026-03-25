@@ -25,7 +25,8 @@ class JuegoService(
     private val jugadorJuegoRepo: JugadorJuegoRepository,
     private val personajeRepo: PersonajeRepository,
     private val estadisticaRepo: EstadisticaRepository,
-    private val ataqueRepo: AtaqueRepository
+    private val ataqueRepo: AtaqueRepository,
+    private val estadisticaService: EstadisticaService
 ) {
     fun getAllJuegos() = juegoRepo.findAll()
 
@@ -40,7 +41,7 @@ class JuegoService(
             )
         }
     }
-
+    /*
     fun getDatosPartida(nombrePartida: String): JuegoDto? {
         val juego = juegoRepo.findByNombre(nombrePartida) ?: return null
 
@@ -82,11 +83,20 @@ class JuegoService(
                         )
                     }.toMutableMap()
 
+                    var copiaManaAtacante = mutableMapOf<String,Int>();
+                    for (key in manaAtacanteDTO.keys.indices) {
+                        copiaManaAtacante[manaAtacanteDTO.keys.elementAt(key).toString()] = manaAtacanteDTO.values.elementAt(key);
+                    }
+                    var copiaEstadisticasDefensor  = mutableMapOf<String,Double>();
+                    for (key in estadisticasDefensorDTO.keys.indices) {
+                        copiaManaAtacante[manaAtacanteDTO.keys.elementAt(key).toString()] = manaAtacanteDTO.values.elementAt(key);
+                    }
                     JuegoDto.JugadorJuegoDto.AtaqueDto(
                         id = ataque.id,
                         nombre = ataque.nombre,
-                        manaAtacante = manaAtacanteDTO,
-                        estadisticasDefensor = estadisticasDefensorDTO,
+
+                        manaAtacante = copiaManaAtacante,
+                        estadisticasDefensor = copiaEstadisticasDefensor,
                         dadoBase = ataque.dadoBase,
                         ratioDado = ataque.ratioDado.toMutableList()
                     )
@@ -102,7 +112,7 @@ class JuegoService(
             jugadores = jugadoresDTO
         )
     }
-
+    */
     fun createJuego(juego: Juego) = juegoRepo.save(juego)
 
     fun eliminarJuego(id: Long) = juegoRepo.deleteById(id)
@@ -183,17 +193,39 @@ class JuegoService(
                 for (ataqueDTO in jugadorDTO.personajeAtaques) {
                     // Convertir EstadisticaDto a Long (usar el ID si existe, o generar uno temporal)
                     val manaAtacanteLong = ataqueDTO.manaAtacante.mapKeys { (estadistica, _) ->
-                        estadistica.id ?: 0L
+                        estadistica ?: ""
                     }.toMutableMap()
 
                     val estadisticasDefensorLong = ataqueDTO.estadisticasDefensor.mapKeys { (estadistica, _) ->
-                        estadistica.id ?: 0L
+                        estadistica ?: ""
                     }.toMutableMap()
 
+                    var copiaManaAtacante2 = mutableMapOf<Estadistica, Int>();
+                    var estadistica = Estadistica(
+                        nombre = "",
+                        valor = 0,
+                        consumible = false,
+                        personaje = null
+                    );
+                    for (key in manaAtacanteLong.keys.indices) {
+                        estadistica = estadisticaService.getEstadisticaByNombre(manaAtacanteLong.keys.elementAt(key))
+                        copiaManaAtacante2[estadistica] = manaAtacanteLong.values.elementAt(key)
+                    }
+                    var copiaEstadisticasDefensor2 = mutableMapOf<Estadistica, Double>();
+                    var estadistica2 = Estadistica(
+                        nombre = "",
+                        valor = 0,
+                        consumible = false,
+                        personaje = null
+                    );
+                    for (key in estadisticasDefensorLong.keys.indices) {
+                        estadistica2 = estadisticaService.getEstadisticaByNombre(estadisticasDefensorLong.keys.elementAt(key))
+                        copiaEstadisticasDefensor2[estadistica] = estadisticasDefensorLong.values.elementAt(key)
+                    }
                     val ataque = Ataque(
                         nombre = ataqueDTO.nombre ?: "",
-                        manaAtacante = manaAtacanteLong,
-                        estadisticasDefensor = estadisticasDefensorLong,
+                        manaAtacante = copiaManaAtacante2,
+                        estadisticasDefensor = copiaEstadisticasDefensor2,
                         owner = personajeGuardado,
                         dadoBase = ataqueDTO.dadoBase,
                         ratioDado = ataqueDTO.ratioDado

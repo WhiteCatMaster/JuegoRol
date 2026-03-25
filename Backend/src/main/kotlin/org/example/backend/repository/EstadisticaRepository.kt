@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface EstadisticaRepository : JpaRepository<Estadistica, Long> {
-    fun findByNombre(nombre: String): List<Estadistica>
+    fun findByNombre(nombre: String): Estadistica
 }

@@ -14,7 +14,7 @@ typealias CrearPartidaDto = JuegoDto
 data class CrearPartidaRequest(
     val juego: CrearPartidaDto
 )
-
+@CrossOrigin
 @RestController
 @RequestMapping("/partida")
 class PartidaController(
@@ -42,6 +42,7 @@ class PartidaController(
 
 
     }
+    /*
     @GetMapping("/{nombrePartida}")
     fun obtenerDatosCompletosPartida(@PathVariable nombrePartida: String): ResponseEntity<JuegoDto> {
         val datosCompletosPartida: JuegoDto? = partidaService.getDatosPartida(nombrePartida)
@@ -51,4 +52,5 @@ class PartidaController(
             ResponseEntity.status(HttpStatus.OK).body(datosCompletosPartida)
         }
     }
+     */
 }
