@@ -120,7 +120,7 @@
       <div>
         <p>Ataques:</p>
         <div *ngFor="let huecoAtaque of personaje.ataquesDelPersonaje; let j = index; trackBy: trackByFn">    
-          <select class="Opcion" [(ngModel)]="personaje.ataquesDelPersonaje[j]">
+          <select class="Opcion" [(ngModel)]="personaje.ataquesDelPersonaje[j].nombre" (ngModelChange)="alCambiarAtaque($event, i, j)">
             <option *ngFor="let ataqueCreado of ataques" [value]="ataqueCreado.nombre">
               {{ ataqueCreado.nombre }}
             </option>
@@ -156,7 +156,7 @@
 
   <div class="BotonesMovimiento" [hidden]="paso !== 4">
     <input type="button" value="Atras" class="sv_prev_btn" (click)="irAtras()">
-    <button routerLink="/">Crea una nueva partida.</button>
+    <button (click)="mandarPartida()" routerLink="/">Crea una nueva partida.</button>
   </div>
 
   <!-- VENTANA ATAQUES -->

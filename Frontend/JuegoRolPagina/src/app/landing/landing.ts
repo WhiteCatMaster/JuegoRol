@@ -26,13 +26,15 @@ export class Landing implements OnInit {
         nombre: 'Aventura en el bosque',
         descripcion: 'Exploración y misterio',
         idioma: 'ES',
-        maxJugadores: 4
+        maxJugadores: 4,
+        id: null
       },
       {
         nombre: 'Batalla final',
         descripcion: 'PvP intenso',
         idioma: 'EN',
-        maxJugadores: 8
+        maxJugadores: 8,
+        id: null
       }
     ];
   }

@@ -7,6 +7,7 @@ export enum Rol {
 }
 
 export interface JugadorJuego {
+    id: number | null;
     usuario: Usuario;
     juego: Partida; 
     rol: Rol;
