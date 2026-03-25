@@ -7,4 +7,7 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface JugadorJuegoRepository : JpaRepository<JugadorJuego, Long> {
+    fun findByUsuarioId(usuarioId: Long): List<JugadorJuego>
+    fun findByJuegoId(juegoId: Long): List<JugadorJuego>
+    fun findByUsuarioIdAndJuegoId(usuarioId: Long, juegoId: Long): JugadorJuego?
 }

@@ -19,7 +19,7 @@ class Estadistica(
     var nombre: String,
 
     @Column(nullable = false)
-    var valor: String,
+    var valor: Int,
 
     @Column(nullable = false)
     var consumible: Boolean = false,

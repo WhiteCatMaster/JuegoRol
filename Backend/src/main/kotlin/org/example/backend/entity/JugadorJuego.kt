@@ -9,7 +9,6 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
-
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.OneToOne
 
@@ -21,18 +20,18 @@ class JugadorJuego(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id")
-    var usuario: Usuario,
+    var usuario: Usuario? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "juego_id")
-    var juego: Juego,
+    var juego: Juego? = null,
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    val rol: RolJugador,
+    var rol: RolJugador = RolJugador.JUGADOR,
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "personaje_id", nullable = true)
-    var personaje: Personaje,
+    var personaje: Personaje? = null,
 )
 

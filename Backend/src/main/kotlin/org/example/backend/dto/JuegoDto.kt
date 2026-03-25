@@ -1,6 +1,5 @@
 package org.example.backend.dto
 
-import org.example.backend.entity.Estadistica
 import org.example.backend.entity.RolJugador
 import java.io.Serializable
 
@@ -31,16 +30,15 @@ data class JuegoDto(
             val nombre: String? = null,
             val valor: String? = null,
             val consumible: Boolean = false
-        ) :
-            Serializable
+        ) : Serializable
 
         data class AtaqueDto(
             val id: Long? = null,
             val nombre: String? = null,
-            val manaAtacante: MutableMap<Estadistica, Int> = mutableMapOf(),
-            val estadisticasDefensor: MutableMap<Estadistica, Double> = mutableMapOf(),
+            val manaAtacante: MutableMap<Long, Int> = mutableMapOf(),
+            val estadisticasDefensor: MutableMap<Long, Double> = mutableMapOf(),
             val dadoBase: Int = 10,
-            val ratioDado: MutableList<Int>
+            val ratioDado: MutableList<Int> = mutableListOf()
         ) : Serializable
     }
 }
