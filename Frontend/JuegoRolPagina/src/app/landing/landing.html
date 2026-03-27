@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Juego de Rol</title>
+</head>
+<body>
+  <div class = "container">
+    <div class = "bloque1">
+      <div class = "tituloLanding"> Juego de rol </div>
+      <div class = "subtituloLanding"> Bienvenido a la experiencia más completa de juego. </div>
+      <button routerLink="/crear-partida">Crea una nueva partida.</button>
+    </div>
+    <div class = "partidasContainer">
+
+      <h2 class = "subtituloPartidas"> Únete a una trepidante aventura. </h2>
+
+      <div class = "partidasDisponibles">
+
+
+
+        @if (partidas.length === 0) {
+          <p>No hay partidas disponibles</p>
+        } @else {
+
+          @for (partida of partidas; track partida.nombre) {
+            <div class="card">
+              <h2>{{ partida.nombre }}</h2>
+              <p>{{ partida.descripcion }}</p>
+              <p><strong>Idioma:</strong> {{ partida.idioma }}</p>
+              <p><strong>Máx jugadores:</strong> {{ partida.maxJugadores }}</p>
+              <button routerLink="">Unirme. </button>
+            </div>
+          }
+
+        }
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

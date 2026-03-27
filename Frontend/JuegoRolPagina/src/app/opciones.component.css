@@ -1,0 +1,649 @@
+#ContenedorPrincipal {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+}
+
+#ContenedorIzquierda {
+    width: 300px;
+    background-color: aqua;
+    height: 100vh;
+}
+
+#ContenedorDerecha {
+    width: 100%;
+    flex: 1;
+    height: 100vh;
+    display: flex;         
+    overflow-y: auto;   
+    flex-direction: column;
+    align-items: center;        
+    justify-content: flex-start;
+    background-image: linear-gradient(rgba(255, 255, 255, 0.172), rgba(255, 255, 255, 0.172)), url('https://i.imgur.com/L6ux5lw.jpeg');
+    background-size: cover; 
+    background-position: center; 
+    background-repeat: no-repeat;  
+}
+
+#ContenedorDerecha p {
+    color: #5C3226;
+    font-weight: bold;
+}
+
+.wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 85%; /* Mismo ancho que tus paneles de contenido */
+    background-color: #f4e4bc; /* Color crema pergamino */
+    border: 3px solid #5B3124; /* Borde marrón oscuro */
+    border-radius: 15px;
+    padding: 10px 10px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    box-shadow: 0px 5px 15px rgba(0,0,0,0.5);
+    box-sizing: border-box;
+}
+
+/* Estilos de cada paso individual en horizontal */
+.step {
+    display: flex;
+    flex-direction: column; /* Círculo arriba, texto abajo */
+    align-items: center;
+    background-color: transparent;
+    padding: 0;
+    position: relative;
+    flex: 1; /* Hace que se repartan el espacio a partes iguales */
+}
+
+.v-stepper {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px; /* Separación con el texto */
+}
+
+/* El círculo del paso */
+.step .circle {
+    background-color: white;
+    border: 4px solid gray;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    z-index: 2; /* Para que esté por encima de la línea */
+}
+
+/* La línea horizontal que conecta los pasos */
+.step .line {
+    position: absolute;
+    top: 50%;
+    left: 50%; /* Empieza desde la mitad de este paso */
+    width: 100%; /* Llega hasta la mitad del siguiente */
+    height: 3%;
+    background-color: gray;
+    border: none; /* Quitamos tu antiguo borde izquierdo */
+    transform: translateY(-50%);
+    z-index: 1;
+}
+
+/* El último paso no tiene línea hacia la derecha */
+.step:last-child .line {
+    display: none; 
+}
+
+/* Colores cuando el paso está completado */
+.step.completed .circle {
+    background-color: #6C764C;
+    border-color: #6C764C;
+}
+.step.completed .line {
+    background-color: #6C764C;
+    border: none;
+}
+
+/* Colores cuando el paso está activo (actual) */
+.step.active .circle {
+    background-color: #6C764C;
+    border-color: #6C764C;
+}
+
+/* El texto debajo de los círculos */
+.content {
+    margin-left: 0;
+    text-align: center;
+    color: #5C3226;
+    font-weight: bold;
+    font-family: 'Almendra', system-ui;
+    font-size: 14px;
+}
+
+.TopeContenedor1 {
+    margin-top: 20px;
+    width: 85%;
+    border: 5px solid #5B3124;
+    box-sizing: border-box;
+    align-items: center;
+    border-top-left-radius: 30px;
+    border-top-right-radius: 30px;  
+    text-align: center;
+    box-shadow: 0px 0px 15px black;
+}
+
+.Contenedor1 {
+    width: 85%;
+    background-color: #5B3124;
+    align-items: center;
+    border-bottom-left-radius: 30px;
+    border-bottom-right-radius: 30px;
+    box-shadow: 
+    -15px 10px 15px -10px rgba(0, 0, 0, 0.5), 
+    15px 10px 15px -10px rgba(0, 0, 0, 0.5);  
+}
+
+.CajaTexto {
+    border-radius: 4px;
+    margin-top: 0px;
+}
+
+.Opcion {
+    border-radius: 4px;
+    margin-top: 0px;
+    width: 100px;
+}
+
+.ClaseGeneralEstadisticas {
+    margin-top: 5px;
+    display: flex;
+    justify-content: center;
+    margin-left: 10px;
+    margin-right: 10px;
+    flex-direction: row;
+    gap: 30px;
+    background-color: #f4e4bc; 
+    padding: 30px; 
+    margin-bottom: 15px;
+    clip-path: polygon(3% 0, 7% 1%, 11% 0%, 16% 2%, 20% 0, 23% 2%, 28% 2%, 32% 1%, 35% 1%, 39% 3%, 41% 1%, 45% 0%, 47% 2%, 50% 2%, 53% 0, 58% 2%, 60% 2%, 63% 1%, 65% 0%, 67% 2%, 69% 2%, 73% 1%, 76% 1%, 79% 0, 82% 1%, 85% 0, 87% 1%, 89% 0, 92% 1%, 96% 0, 98% 3%, 99% 3%, 99% 6%, 100% 11%, 98% 15%, 100% 21%, 99% 28%, 100% 32%, 99% 35%, 99% 40%, 100% 43%, 99% 48%, 100% 53%, 100% 57%, 99% 60%, 100% 64%, 100% 68%, 99% 72%, 100% 75%, 100% 79%, 99% 83%, 100% 86%, 100% 90%, 99% 94%, 99% 98%, 95% 99%, 92% 99%, 89% 100%, 86% 99%, 83% 100%, 77% 99%, 72% 100%, 66% 98%, 62% 100%, 59% 99%, 54% 99%, 49% 100%, 46% 98%, 43% 100%, 40% 98%, 38% 100%, 35% 99%, 31% 100%, 28% 99%, 25% 99%, 22% 100%, 19% 99%, 16% 100%, 13% 99%, 10% 99%, 7% 100%, 4% 99%, 2% 97%, 1% 97%, 0% 94%, 1% 89%, 0% 84%, 1% 81%, 0 76%, 0 71%, 1% 66%, 0% 64%, 0% 61%, 0% 59%, 1% 54%, 0% 49%, 1% 45%, 0% 40%, 1% 37%, 0% 34%, 1% 29%, 0% 23%, 2% 20%, 1% 17%, 1% 13%, 0 10%, 1% 6%, 1% 3%); 
+}
+
+.BotonAñadir {
+    display: block;
+    margin: 0 auto;
+}
+
+p {
+    margin-bottom: 2px;
+    margin-top: 0px;
+}
+/* seccion para crear el ataque*/
+.ClaseGeneralAtaques {
+    margin-top: 5px;
+    display: flex;
+    flex-wrap: wrap; 
+    justify-content: center;
+    margin-left: 10px;
+    margin-right: 10px;
+    flex-direction: row;
+    gap: 30px;
+    background-color: #f4e4bc; 
+    padding: 30px; 
+    margin-bottom: 15px;
+    clip-path: polygon(3% 0, 7% 1%, 11% 0%, 16% 2%, 20% 0, 23% 2%, 28% 2%, 32% 1%, 35% 1%, 39% 3%, 41% 1%, 45% 0%, 47% 2%, 50% 2%, 53% 0, 58% 2%, 60% 2%, 63% 1%, 65% 0%, 67% 2%, 69% 2%, 73% 1%, 76% 1%, 79% 0, 82% 1%, 85% 0, 87% 1%, 89% 0, 92% 1%, 96% 0, 98% 3%, 99% 3%, 99% 6%, 100% 11%, 98% 15%, 100% 21%, 99% 28%, 100% 32%, 99% 35%, 99% 40%, 100% 43%, 99% 48%, 100% 53%, 100% 57%, 99% 60%, 100% 64%, 100% 68%, 99% 72%, 100% 75%, 100% 79%, 99% 83%, 100% 86%, 100% 90%, 99% 94%, 99% 98%, 95% 99%, 92% 99%, 89% 100%, 86% 99%, 83% 100%, 77% 99%, 72% 100%, 66% 98%, 62% 100%, 59% 99%, 54% 99%, 49% 100%, 46% 98%, 43% 100%, 40% 98%, 38% 100%, 35% 99%, 31% 100%, 28% 99%, 25% 99%, 22% 100%, 19% 99%, 16% 100%, 13% 99%, 10% 99%, 7% 100%, 4% 99%, 2% 97%, 1% 97%, 0% 94%, 1% 89%, 0% 84%, 1% 81%, 0 76%, 0 71%, 1% 66%, 0% 64%, 0% 61%, 0% 59%, 1% 54%, 0% 49%, 1% 45%, 0% 40%, 1% 37%, 0% 34%, 1% 29%, 0% 23%, 2% 20%, 1% 17%, 1% 13%, 0 10%, 1% 6%, 1% 3%); 
+}
+#creador{
+    height: 80%;
+    width: 98%;
+ /*   border: 5px solid lime !important;*/
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr);
+    gap: 15px; 
+    padding: 10px; 
+}
+#selector{
+    min-height: 70%;
+    height: auto;  
+    width: 90%;
+    border-radius: 40px; 
+    background-color: #61312E; 
+    color: #E6D8BF;
+    padding: 20px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+h2 {
+    text-align: center;
+    margin: 0;
+    font-family: "Almendra", system-ui;                                                
+}
+
+.mitad{
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    border-radius: 20px;
+    padding: 15px;
+    min-width: 0; 
+    min-height: 0;
+}
+
+.mitad h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 18px;
+}
+
+.carrusel {
+    display: grid;
+    grid-template-rows: max-content max-content; 
+    grid-auto-flow: column; 
+    grid-auto-columns: max-content; 
+    gap: 15px;
+    overflow-y: hidden; 
+    overflow-x: auto; 
+    padding: 10px 10px 25px 10px; 
+    align-content: start;
+}
+.carrusel::-webkit-scrollbar {
+    height: 8px;
+}
+
+.carrusel::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 10px;
+}
+
+.carrusel::-webkit-scrollbar-thumb {
+    background: #E6D8BF;
+    border-radius: 10px;
+}
+
+.caja-stat {
+    display: flex;
+    flex-shrink: 0;
+}
+
+.icono {
+    width: auto;
+    min-width: 50px;
+    height: 50px;
+    padding: 0 15px;
+    background-color: #E6D8BF;
+    border-radius: 15px;
+    border: 2px solid #3e2723;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #61312E;
+    font-weight: bold;
+    font-size: 13px;
+    text-align: center;
+    box-sizing: border-box;
+    
+    cursor: grab;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.icono:hover {
+    transform: scale(1.05) translateY(-3px);
+    background-color: #f7ecd5;
+    box-shadow: 4px 6px 10px rgba(0, 0, 0, 0.5);
+}
+
+.icono:active {
+    cursor: grabbing;
+    transform: scale(0.95);
+    box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.caja-stat p {
+    margin: 0;
+    font-size: 14px;
+    color: #E6D8BF !important; 
+    font-weight: bold;
+}
+/* mezcaldor dentro de ataque*/
+
+#mezclador {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    box-sizing: border-box;
+    min-width: none;
+}
+
+#mesa-trabajo {
+    background-color: #61312E;
+    color: #E6D8BF;
+    border-radius: 30px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-height: 0;
+    box-sizing: border-box;
+}
+
+#mesa-trabajo h2 {
+    font-family: "Almendra", system-ui;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 26px;
+    color: #E6D8BF;
+}
+
+.contenedor-secciones {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 10px;
+}
+
+.zona-drop-mesa {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+}
+
+.zona-drop-mesa h3 {
+    font-family: "Almendra", system-ui;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 1px;
+    font-size: 20px;
+    color: #E6D8BF;
+}
+
+.mesa-grid-items {
+    display: grid;
+    grid-template-rows: 1fr;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(140px, max-content);
+    gap: 10px;
+    width: 100%;
+    max-width: 100%;
+    height: 95px;
+    max-height: 220px;
+    border: 2px dashed rgba(230, 216, 191, 0.4);
+    border-radius: 20px;
+    padding: 10px 10px 20px 10px;
+    box-sizing: border-box;
+    overflow-x: auto;
+    overflow-y: hidden;
+    align-content: center;
+}
+
+.mesa-grid-items:hover {
+    background-color: rgba(230, 216, 191, 0.05);
+}
+
+.mesa-grid-items::-webkit-scrollbar {
+    height: 8px;
+}
+
+.mesa-grid-items::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 10px;
+}
+
+.mesa-grid-items::-webkit-scrollbar-thumb {
+    background: #E6D8BF;
+    border-radius: 10px;
+}
+
+.item-mesa-centered {
+    border: 2px solid #E6D8BF;
+    border-radius: 15px;
+    background-color: #61312E;
+    color: #E6D8BF;
+    position: relative;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+}
+
+.item-nombre-mesa {
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 5px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.item-controles-mesa {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.valor-control-mesa {
+    width: 30px;
+    text-align: center;
+}
+
+.btn-control-mesa {
+    cursor: pointer;
+    padding: 0 10px;
+    user-select: none;
+}
+
+.btn-control-mesa:hover {
+    color: #fff;
+    transform: scale(1.2);
+}
+
+.btn-eliminar-mesa {
+    position: absolute;
+    top: 5px;
+    right: 8px;
+    cursor: pointer;
+    color: #E6D8BF;
+    font-size: 12px;
+    opacity: 0;
+    transition: all 0.2s ease;
+}
+.item-mesa-centered:hover .btn-eliminar-mesa {
+    opacity: 1;
+}
+
+.btn-eliminar-mesa:hover {
+    color: #ff4c4c; 
+    transform: scale(1.3);
+}
+
+.zona-suerte-dado {
+    width: 100%;
+   
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.contenedor-inputs-dado {
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+    margin-top: 5px;
+}
+
+.input-grupo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.input-dado {
+    width: 60px;
+    height: 30px;
+    background-color: #61312E;
+    border: 2px solid #E6D8BF;
+    border-radius: 8px;
+    color: #E6D8BF;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    font-family: inherit;
+}
+
+.input-dado::placeholder {
+    color: rgba(230, 216, 191, 0.5);
+    font-size: 12px;
+}
+
+.input-dado::-webkit-inner-spin-button, 
+.input-dado::-webkit-outer-spin-button { 
+    -webkit-appearance: none; 
+    margin: 0; 
+}
+
+/* zona de resultado dentro de ataque
+*/
+#contenedor-pergamino {
+    background-image: url('https://i.imgur.com/BiORbcB.png');
+    background-size: 100% 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    width: 100%;
+    max-width: 360px;
+    height: 530px;
+    margin: 0 auto;
+    
+    display: flex;
+    flex-direction: column;    
+    justify-content: flex-start;
+    align-items: center;
+    padding: 15% 10% 10% 10%; 
+    box-sizing: border-box;
+    
+    color: #3e2723;
+    font-family: "Almendra", system-ui;
+}
+.grupo-nombre-ataque {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.input-pergamino {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid #5B3124;
+    color: #5B3124;
+    font-family: "Almendra", system-ui;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    width: 90%;
+    outline: none;
+    margin-top: 30px;
+}
+
+.input-pergamino::placeholder {
+    color: rgba(91, 49, 36, 0.4);
+    font-weight: normal;
+}
+
+.resumen-ataque {
+    width: 100%;
+    flex: 1; 
+    overflow-y: auto;     padding: 0 10px;
+    text-align: left;
+    margin-left: 20px;
+}
+
+.resumen-ataque h4 {
+    margin: 10px 0 5px 0;
+    font-size: 16px;
+    border-bottom: 1px dashed rgba(91, 49, 36, 0.3);
+}
+
+.resumen-ataque ul {
+    margin: 0;
+    padding-left: 20px;
+    font-weight: bold;
+}
+
+.resumen-ataque p {
+    margin: 5px 0 0 0;
+    font-weight: bold;
+}
+
+.btn-sellar-pergamino {
+    background-color: #5B3124;
+    color: #E6D8BF;
+    border: 2px solid #3e2723;
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-family: "Pirata One", system-ui;
+    font-size: 22px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 15px;
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.5);
+}
+
+.btn-sellar-pergamino:hover {
+    transform: scale(1.05);
+    background-color: #7b4231;
+}
+/* seccion para crear el personaje*/
+.ClaseGeneralPersonajes {
+    margin-top: 5px;
+    display: flex;
+    justify-content: center;
+    margin-left: 10px;
+    margin-right: 10px;
+    flex-direction: row;
+    gap: 30px;
+    background-color: #f4e4bc; 
+    padding: 30px; 
+    margin-bottom: 15px;
+    clip-path: polygon(3% 0, 7% 1%, 11% 0%, 16% 2%, 20% 0, 23% 2%, 28% 2%, 32% 1%, 35% 1%, 39% 3%, 41% 1%, 45% 0%, 47% 2%, 50% 2%, 53% 0, 58% 2%, 60% 2%, 63% 1%, 65% 0%, 67% 2%, 69% 2%, 73% 1%, 76% 1%, 79% 0, 82% 1%, 85% 0, 87% 1%, 89% 0, 92% 1%, 96% 0, 98% 3%, 99% 3%, 99% 6%, 100% 11%, 98% 15%, 100% 21%, 99% 28%, 100% 32%, 99% 35%, 99% 40%, 100% 43%, 99% 48%, 100% 53%, 100% 57%, 99% 60%, 100% 64%, 100% 68%, 99% 72%, 100% 75%, 100% 79%, 99% 83%, 100% 86%, 100% 90%, 99% 94%, 99% 98%, 95% 99%, 92% 99%, 89% 100%, 86% 99%, 83% 100%, 77% 99%, 72% 100%, 66% 98%, 62% 100%, 59% 99%, 54% 99%, 49% 100%, 46% 98%, 43% 100%, 40% 98%, 38% 100%, 35% 99%, 31% 100%, 28% 99%, 25% 99%, 22% 100%, 19% 99%, 16% 100%, 13% 99%, 10% 99%, 7% 100%, 4% 99%, 2% 97%, 1% 97%, 0% 94%, 1% 89%, 0% 84%, 1% 81%, 0 76%, 0 71%, 1% 66%, 0% 64%, 0% 61%, 0% 59%, 1% 54%, 0% 49%, 1% 45%, 0% 40%, 1% 37%, 0% 34%, 1% 29%, 0% 23%, 2% 20%, 1% 17%, 1% 13%, 0 10%, 1% 6%, 1% 3%); 
+}
+
+.ImagenPersonaje {
+    width: 100px;
+    height: 100px;
+    border-radius: 4px;
+    margin-right: 0px;
+}
+
+.BotonesMovimiento {
+    margin-top: 10px;
+    justify-content: center;
+}
+
+h1 {
+    margin-top: 13px;
+    margin-bottom: 13px;
+    font-family: "Pirata One", system-ui;
+}
+
+.EstadisticasPersonaje {
+    display: flex;       
+    align-items: center; 
+    gap: 5px;           
+    margin-bottom: 5px;
+}
