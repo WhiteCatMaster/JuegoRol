@@ -1,0 +1,76 @@
+name: Publicar Documentación (Front + Back) 🚀
+
+on:
+  push:
+    branches:
+      - Frontend
+      - Backend
+      - main
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Clonar el código
+        uses: actions/checkout@v4
+
+      # --- 1. PREPARAR CARPETA FINAL ---
+      - name: 📁 Crear estructura de carpetas
+        run: mkdir -p docs-finales/frontend docs-finales/backend
+
+      # --- 2. GENERAR COMPODOC (FRONTEND) ---
+      - name: 🟢 Instalar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 📦 Instalar dependencias Frontend
+        run: cd Frontend/JuegoRolPagina && npm install
+
+      - name: 🏗️ Generar Compodoc
+        # Generamos la web y la mandamos a la carpeta unificada
+        run: cd Frontend/JuegoRolPagina && npx compodoc -p tsconfig.json -d ../../docs-finales/frontend
+
+      # --- 3. GENERAR DOKKA (BACKEND) ---
+      - name: ☕ Configurar Java 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: 🏗️ Generar Dokka
+        run: |
+          cd Backend
+          chmod +x gradlew
+          ./gradlew dokkaHtml
+          cp -r build/dokka/html/* ../docs-finales/backend/
+
+      # --- 4. CREAR MENÚ PRINCIPAL ---
+      - name: 📄 Crear Índice
+        run: |
+          echo "<!DOCTYPE html><html lang='es'><head><meta charset='UTF-8'><title>Documentación Juego de Rol</title><style>body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; background-color: #f4f4f9; padding: 50px; } .btn { display: inline-block; padding: 15px 30px; margin: 10px; text-decoration: none; color: white; background-color: #007bff; border-radius: 8px; font-weight: bold; } .btn-back { background-color: #28a745; }</style></head><body><h1>📚 Documentación del Proyecto</h1><div><a class='btn' href='./frontend/'>💻 Ver Documentación Frontend (Angular)</a><a class='btn btn-back' href='./backend/'>⚙️ Ver Documentación Backend (Kotlin)</a></div></body></html>" > docs-finales/index.html
+
+      # --- 5. SUBIR A GITHUB PAGES ---
+      - name: ⚙️ Configurar Páginas
+        uses: actions/configure-pages@v5
+
+      - name: 📤 Subir la documentación unificada
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'docs-finales'
+
+      - name: 🚀 Publicar en Internet
+        id: deployment
+        uses: actions/deploy-pages@v4
