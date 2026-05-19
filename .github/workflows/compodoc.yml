@@ -50,7 +50,7 @@ jobs:
         run: |
           cd Backend
           chmod +x gradlew
-          ./gradlew dokkaHtml
+          ./gradlew dokkaGenerateHtml
           cp -r build/dokka/html/* ../docs-finales/backend/
 
       - name: Crear Índice
