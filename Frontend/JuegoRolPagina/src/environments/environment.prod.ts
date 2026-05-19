@@ -1,6 +1,6 @@
 export const environment = {
-  production: false,
-  apiUrl: 'http://localhost:8081',
+  production: true,
+  apiUrl: 'https://api.hondius.online',
   firebase: {
     apiKey: 'AIzaSy...',
     authDomain: 'juegorol-b3430.firebaseapp.com',

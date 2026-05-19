@@ -11,13 +11,14 @@ import { Ataque } from './models/ataque';
 import { EstadisticaPersonaje, Personaje, toPersonajeEstadistica, toPersonajeEstadisticaDto } from './models/personaje';
 import { Partida, Plantilla } from './models/partida';
 import { Objeto } from './models/objeto';
+import { environment } from '../environments/environment';
 
 
 @Injectable({
   providedIn: 'root',
 })
 export class ServicioAPI {
-  private apiUrl = 'http://localhost:8081';
+  private apiUrl = environment.apiUrl;
   constructor(private http: HttpClient) {}
 
   mandarPartida(payload: CrearPartidaDto): Observable<PartidaDto> {
