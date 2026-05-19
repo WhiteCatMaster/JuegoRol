@@ -85,4 +85,28 @@ class PlantillaControllerTests {
         assertEquals("Plantilla Guardada", plantillaDto.nombre)
         assertEquals(crearPartidaDtoTransformado, plantillaDto.jsonConfiguration)
     }
+
+    @Test
+    fun testObtenerPlantillas_PlantillaSinId() {
+        // Cubre la rama del Elvis (p.id ?: -1) cuando el id es null
+        val jsonGuardadoEnBd = "{\"config\":\"sin-id\"}"
+        val plantillaSinId = Plantilla(
+            id = null,
+            nombre = "Plantilla Sin Id",
+            jsonConfiguration = jsonGuardadoEnBd
+        )
+
+        whenever(plantillaRepo.findAll()).thenReturn(listOf(plantillaSinId))
+
+        val crearPartidaDtoTransformado = mock<CrearPartidaDto>()
+        whenever(objectMapper.readValue(eq(jsonGuardadoEnBd), eq(CrearPartidaDto::class.java)))
+            .thenReturn(crearPartidaDtoTransformado)
+
+        val resultado = plantillaController.obtenerPlantillas()
+
+        assertEquals(HttpStatus.OK, resultado.statusCode)
+        val body = resultado.body!!
+        assertEquals(1, body.size)
+        assertEquals(-1L, body[0].id)
+    }
 }

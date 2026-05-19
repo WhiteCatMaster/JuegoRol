@@ -112,4 +112,91 @@ class AuthControllerTests {
             assertEquals("Token inválido o expirado", body["error"])
         }
     }
+
+    @Test
+    fun testLogin_UsuarioNuevo_ConCamposNulos() {
+        // Cubre ramas: email null, claims["name"] null, claims["picture"] null
+        val tokenRequest = TokenRequest("token_valido")
+        val uidGoogle = "google-sin-datos"
+
+        whenever(usuarioRepo.findByGoogleId(uidGoogle)).thenReturn(Optional.empty())
+        val usuarioGuardado = Usuario(3L, uidGoogle, "", "Jugador", "fotoUrl", mutableListOf())
+        whenever(usuarioRepo.save(any())).thenReturn(usuarioGuardado)
+
+        val decodedToken = mock<FirebaseToken> {
+            on { uid } doReturn uidGoogle
+            on { email } doReturn null
+            on { claims } doReturn emptyMap()
+        }
+
+        mockStatic(FirebaseAuth::class.java).use { mockedAuth ->
+            val firebaseAuthMock = mock<FirebaseAuth>()
+            mockedAuth.`when`<FirebaseAuth> { FirebaseAuth.getInstance() }.thenReturn(firebaseAuthMock)
+            whenever(firebaseAuthMock.verifyIdToken("token_valido")).thenReturn(decodedToken)
+
+            val resultado = authController.loginConGoogle(tokenRequest)
+
+            assertEquals(HttpStatus.OK, resultado.statusCode)
+            assertEquals(usuarioGuardado, resultado.body)
+        }
+    }
+
+    @Test
+    fun testLogin_UsuarioNuevo_ConPictureTipoIncorrecto() {
+        // Cubre ramas del `as? String` cuando los claims existen pero no son String
+        val tokenRequest = TokenRequest("token_valido")
+        val uidGoogle = "google-claims-no-string"
+
+        whenever(usuarioRepo.findByGoogleId(uidGoogle)).thenReturn(Optional.empty())
+        val usuarioGuardado = Usuario(4L, uidGoogle, "x@x.com", "Jugador", "fotoUrl", mutableListOf())
+        whenever(usuarioRepo.save(any())).thenReturn(usuarioGuardado)
+
+        val decodedToken = mock<FirebaseToken> {
+            on { uid } doReturn uidGoogle
+            on { email } doReturn "x@x.com"
+            on { claims } doReturn mapOf<String, Any>("name" to 123, "picture" to true)
+        }
+
+        mockStatic(FirebaseAuth::class.java).use { mockedAuth ->
+            val firebaseAuthMock = mock<FirebaseAuth>()
+            mockedAuth.`when`<FirebaseAuth> { FirebaseAuth.getInstance() }.thenReturn(firebaseAuthMock)
+            whenever(firebaseAuthMock.verifyIdToken("token_valido")).thenReturn(decodedToken)
+
+            val resultado = authController.loginConGoogle(tokenRequest)
+
+            assertEquals(HttpStatus.OK, resultado.statusCode)
+            assertEquals(usuarioGuardado, resultado.body)
+        }
+    }
+
+    @Test
+    fun testLogin_PictureLargaSeReemplaza() {
+        // Cubre la rama del if (rawPicture.length > 250)
+        val tokenRequest = TokenRequest("token_valido")
+        val uidGoogle = "google-foto-larga"
+        val pictureLarga = "h".repeat(300)
+
+        whenever(usuarioRepo.findByGoogleId(uidGoogle)).thenReturn(Optional.empty())
+        val usuarioGuardado = Usuario(5L, uidGoogle, "y@y.com", "Yoyo", "fotoUrl", mutableListOf())
+        whenever(usuarioRepo.save(any())).thenReturn(usuarioGuardado)
+
+        val decodedToken = mock<FirebaseToken> {
+            on { uid } doReturn uidGoogle
+            on { email } doReturn "y@y.com"
+            on { claims } doReturn mapOf("name" to "Yoyo", "picture" to pictureLarga)
+        }
+
+        mockStatic(FirebaseAuth::class.java).use { mockedAuth ->
+            val firebaseAuthMock = mock<FirebaseAuth>()
+            mockedAuth.`when`<FirebaseAuth> { FirebaseAuth.getInstance() }.thenReturn(firebaseAuthMock)
+            whenever(firebaseAuthMock.verifyIdToken("token_valido")).thenReturn(decodedToken)
+
+            val resultado = authController.loginConGoogle(tokenRequest)
+
+            assertEquals(HttpStatus.OK, resultado.statusCode)
+            verify(usuarioRepo).save(org.mockito.kotlin.check<Usuario> { user ->
+                assertEquals("fotoUrl", user.fotoUrl)
+            })
+        }
+    }
 }

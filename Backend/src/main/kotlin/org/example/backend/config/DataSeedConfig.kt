@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration
 import tools.jackson.databind.ObjectMapper
 
 @Configuration
-class DataSeedConfig {
+class ahorDataSeedConfig {
     @Bean
     fun iniciarBaseDeDatos(
         plantillaRepo: PlantillaRepository,
