@@ -1,9 +1,11 @@
 plugins {
     kotlin("jvm") version "2.2.21"
     kotlin("plugin.spring") version "2.2.21"
-    id("org.jetbrains.kotlin.plugin.jpa") version "2.3.20"
+    id("org.jetbrains.kotlin.plugin.jpa") version "2.2.21"
     id("org.springframework.boot") version "4.0.3"
     id("io.spring.dependency-management") version "1.1.7"
+    id("org.jetbrains.dokka") version "2.2.0"
+    id("org.springdoc.openapi-gradle-plugin") version "1.9.0"
     jacoco
 }
 
@@ -112,4 +114,9 @@ tasks.jacocoTestReport {
 // 5. Vincular todo al ciclo de vida 'check' de Gradle
 tasks.named("check") {
     dependsOn("integrationTest")
+}
+
+openApi {
+    apiDocsUrl.set("http://localhost:8081/v3/api-docs")
+    waitTimeInSeconds.set(60)
 }

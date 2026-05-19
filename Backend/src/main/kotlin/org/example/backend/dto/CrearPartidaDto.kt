@@ -1,6 +1,7 @@
 package org.example.backend.dto
 
 import org.example.backend.entity.Estadistica
+import org.example.backend.entity.ObjetoCompleto
 import java.io.Serializable
 
 
@@ -11,6 +12,7 @@ data class CrearPartidaDto(
     val maximoJugadores: Int? = null,
     val jugadores: MutableList<PersonajeDto> = mutableListOf(),
     val adminId: Long? = null,
+    val objetos: MutableList<PersonajeDto.ObjetoDto> = mutableListOf(),
 ) : Serializable {
 
     data class PersonajeDto(
@@ -19,7 +21,6 @@ data class CrearPartidaDto(
         val personajeFotoUrl: String? = null,
         val personajeEstadisticas: MutableList<EstadisticaDto> = mutableListOf(),
         val personajeAtaques: MutableList<AtaqueDto> = mutableListOf(),
-        val personajeInventario: MutableList<ObjetoDto> = mutableListOf()
     ) : Serializable {
 
         data class EstadisticaDto(
@@ -45,9 +46,9 @@ data class CrearPartidaDto(
             var imagen: String,
             var efectosPropios: MutableMap<String, Double> = mutableMapOf(),
             var efectosRival: MutableMap<String, Double> = mutableMapOf(),
-            var usos: Int
+            var usos: Int,
 
-
-        ) : Serializable
+        ) : Serializable{
+        }
     }
 }

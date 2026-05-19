@@ -35,4 +35,7 @@ class Juego(
 
     @OneToMany(mappedBy = "juego", fetch = FetchType.LAZY)
     var combates: MutableList<Combate> = mutableListOf(),
+
+    @OneToMany(mappedBy = "juego", fetch = FetchType.LAZY)
+    var objetos: MutableList<ObjetoCompleto> = mutableListOf(),
 )

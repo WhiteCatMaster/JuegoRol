@@ -122,4 +122,15 @@ class EstadisticaServiceTests {
         verify(estadisticaRepository).deleteById(1L)
     }
 
+    @Test
+    fun testActualizarValorEstadisticaInexistente() {
+        //Si el id no existe debe devolver null y no llamar al save
+        whenever(estadisticaRepository.findById(99L)).thenReturn(Optional.empty())
+
+        val resultado = estadisticaService.updateEstadisticaValor(99L, 100)
+
+        assertEquals(null, resultado)
+        verify(estadisticaRepository, never()).save(any())
+    }
+
 }

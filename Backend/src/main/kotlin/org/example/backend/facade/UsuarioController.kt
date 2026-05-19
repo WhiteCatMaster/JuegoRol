@@ -60,7 +60,9 @@ class UsuarioController(
     }
 
     @Operation(summary = "Obtiene la lista completa de todos los usuarios registrados en el juego")
-    @ApiResponse(responseCode = "200", description = "Lista devuelta correctamente")
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "200", description = "Lista devuelta correctamente")
+    ])
     @GetMapping
     fun listarUsuarios(): ResponseEntity<List<Usuario>> {
         return ResponseEntity.ok(usuarioService.getAllUsuarios())
@@ -76,7 +78,7 @@ class UsuarioController(
     ])
     @GetMapping("/{googleId}")
     fun obtenerUsuarioxGoogleId(
-        @Parameter(description = "El ID único proporcionado por Google al iniciar sesión")
+        @Parameter(description = "El ID único proporcionado por Google al iniciar sesión", example = "10485930291")
         @PathVariable googleId: String
     ): ResponseEntity<UsuarioDto> {
         val usuario = usuarioService.findByGoogleId(googleId).orElse(null)
@@ -98,7 +100,10 @@ class UsuarioController(
     ])
     @PutMapping("/{googleId}")
     fun cambiarFotoONombre(
-        @Parameter(description = "El ID único proporcionado por Google") @PathVariable googleId: String,
+        // <-- Añadido el "example" aquí también
+        @Parameter(description = "El ID único proporcionado por Google", example = "10485930291")
+        @PathVariable googleId: String,
+
         @RequestBody usuarioDto : ActualizarUsuarioDto
     ): ResponseEntity<UsuarioDto> {
         val usuario = usuarioService.findByGoogleId(googleId).orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND) }

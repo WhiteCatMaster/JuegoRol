@@ -27,9 +27,11 @@ class PersonajeController(
         summary = "Modifica los datos de un personaje existente",
         description = "Actualiza o sobrescribe la información de un personaje específico a partir de su ID proporcionado en la URL."
     )
-    @ApiResponse(responseCode = "200", description = "Personaje modificado y devuelto con éxito")
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "200", description = "Personaje modificado y devuelto con éxito"),
+        ApiResponse(responseCode = "404", description = "No se ha encontrado el personaje a modificar")
+    ])
     @PutMapping("/{id}")
-
     fun modificarPersonaje(
         @RequestBody personajeDto : ActualizarPersonajeDto,
         @Parameter(description = "ID del personaje que se va a modificar", example = "1") @PathVariable id: Long

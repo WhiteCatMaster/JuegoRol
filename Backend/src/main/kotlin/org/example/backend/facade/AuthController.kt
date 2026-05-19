@@ -46,7 +46,9 @@ class AuthController(
             val uid = decodedToken.uid
             val email = decodedToken.email ?: ""
             val name = decodedToken.claims["name"] as? String ?: "Jugador"
-            val picture = decodedToken.claims["picture"] as? String ?: "fotoUrl"
+            val rawPicture = decodedToken.claims["picture"] as? String ?: "fotoUrl"
+// Cortamos de raíz cualquier URL larga
+            val picture = if (rawPicture.length > 250) "fotoUrl" else rawPicture
 
             // 3. Buscamos en BD o creamos el usuario si es su primera vez jugando
             val usuario = usuarioRepo.findByGoogleId(uid).orElseGet {
