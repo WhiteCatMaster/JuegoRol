@@ -34,5 +34,8 @@ class ObjetoCompleto (
     var efectosRival: MutableMap<Estadistica, Double> = mutableMapOf(),
 
     @Column(nullable = false)
-    var usos: Int
+    var usos: Int,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "juego_id")
+    var juego: Juego? = null,
 )

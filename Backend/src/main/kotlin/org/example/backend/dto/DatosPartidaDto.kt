@@ -9,7 +9,8 @@ class DatosPartidaDto (
     val descripcion: String? = null,
     val idioma: String? = null,
     val maximoJugadores: Int? = null,
-    val jugadores: MutableList<PersonajeDto> = mutableListOf()
+    val jugadores: MutableList<PersonajeDto> = mutableListOf(),
+    objetos: MutableList<PersonajeDto.ObjetoDto> = mutableListOf(),
 ): Serializable {
 
     data class PersonajeDto(
@@ -19,7 +20,6 @@ class DatosPartidaDto (
         val personajeFotoUrl: String? = null,
         val personajeEstadisticas: MutableList<EstadisticaDto> = mutableListOf(),
         val personajeAtaques: MutableList<AtaqueDto> = mutableListOf(),
-        val personajeInventario: MutableList<ObjetoDto> = mutableListOf()
     ) : Serializable {
 
         data class EstadisticaDto(
