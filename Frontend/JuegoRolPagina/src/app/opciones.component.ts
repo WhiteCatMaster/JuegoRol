@@ -613,6 +613,7 @@ export class OpcionesComponent implements OnInit{
   }
   //Plantillas
   cargarPlantilla(plantillaSeleccionada: Plantilla){
+    this.dados[0].nombre = 'Dado de Fuego'
     let payload = plantillaSeleccionada.jsonConfiguration;
     payload.adminId = this.usuarioService.usuarioActual()?.id ?? -1
     //Supongo que ahora seria cargar todo con el dto desde backend
