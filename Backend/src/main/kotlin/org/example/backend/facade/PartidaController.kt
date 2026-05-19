@@ -9,6 +9,7 @@ import org.example.backend.dto.CrearPartidaDto
 import org.example.backend.dto.DatosPartidaDto
 import org.example.backend.dto.PartidaDto
 import org.example.backend.service.JuegoService
+import org.example.backend.service.ObjetoService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -23,8 +24,19 @@ import tools.jackson.module.kotlin.jacksonObjectMapper
 @RequestMapping("/api/partida", "/partida")
 @Tag(name = "Partidas", description = "Operaciones relacionadas con la creación, consulta y gestión de las partidas (juegos)")
 class PartidaController(
-    private val partidaService: JuegoService
+    private val partidaService: JuegoService,
+    private val objetoService: ObjetoService
 ) {
+    @GetMapping("/{id}/objeto")
+    fun obtenerObjetos(@PathVariable id: Long): ResponseEntity<List<DatosPartidaDto.PersonajeDto.ObjetoDto>> {
+        val resultado = mutableListOf<DatosPartidaDto.PersonajeDto.ObjetoDto>()
+        val objetos = objetoService.obtenerObjetosByJuegoId(id)
+        for (i in objetos){
+            resultado.add(objetoService.toObjetoDto(i))
+        }
+        return ResponseEntity.ok(resultado)
+    }
+
     @Operation(
         summary = "Crear una nueva partida",
         description = "Recibe un objeto JSON con los datos de la partida, lo normaliza (asegurando el ID del administrador) y crea la partida en la base de datos."

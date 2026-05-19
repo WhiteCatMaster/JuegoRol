@@ -15,7 +15,7 @@ import kotlin.collections.component2
 import kotlin.collections.iterator
 
 @Service
-class PersonajeService(private val personajeRepo: PersonajeRepository) {
+class PersonajeService(private val personajeRepo: PersonajeRepository, private val objetoService: ObjetoService) {
 
     fun getAllPersonajes(): List<Personaje> {
         return personajeRepo.findAll()
@@ -62,6 +62,10 @@ class PersonajeService(private val personajeRepo: PersonajeRepository) {
                     j.valor = i.valorNuevo
                 }
             }
+        }
+        //Deberia de asignarle los objetos
+        for (i in dto.objetos){
+            personajeDB.inventario.add(objetoService.toObjeto(i, personajeDB, personajeDB.jugadorJuego?.juego!!))
         }
         return personajeRepo.save(personajeDB)
 
