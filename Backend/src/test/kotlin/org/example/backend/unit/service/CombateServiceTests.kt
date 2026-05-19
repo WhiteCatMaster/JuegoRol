@@ -72,11 +72,13 @@ class CombateServiceTests {
             on { id } doReturn 10L
             on { rol } doReturn RolJugador.ADMIN
             on { personaje } doReturn personaje1Mock
+            on { usuario } doReturn usuarioGuardadoMock
         }
         val jugadorJuego2Mock = mock<JugadorJuego> {
             on { id } doReturn 11L
             on { rol } doReturn RolJugador.JUGADOR
             on { personaje } doReturn personaje2Mock
+            on { usuario } doReturn usuarioGuardadoMock
         }
 
         val combateGuardadoMock = mock<Combate> {
@@ -242,5 +244,84 @@ class CombateServiceTests {
         assertThrows<NoSuchElementException> {
             combateService.obtenerCombateById(99L)
         }
+    }
+
+    @Test
+    fun testCrearCombatexDTO_ConCamposNulos() {
+        // Cubre las ramas ?: -1 y ?. cuando los ids / usuarios / personajes vienen null
+        val jugadorUnoDto = CrearCombateDto.JugadorDto(id = null, usuarioId = null, rol = "ADMIN", personajeId = 100L)
+        val jugadorDosDto = CrearCombateDto.JugadorDto(id = null, usuarioId = null, rol = "JUGADOR", personajeId = 101L)
+        val crearCombateDto = CrearCombateDto(null, "combate nulo", jugadorUnoDto, jugadorDosDto, 1000L)
+
+        // OJO: hay que stubear el id explicitamente a null porque Mockito devuelve 0L
+        // por defecto para Long?, lo que se come la rama del ?: -1
+        val partidaMock = mock<Juego> {
+            on { id } doReturn null
+        }
+
+        // Estos representan los usuarios devueltos por findById(-1L) tras el ?: -1L
+        val usuarioFantasma = Usuario(null, "ghost", "g@mail.com", "Ghost", null, mutableListOf())
+        val personaje1Mock = mock<Personaje>()
+        val personaje2Mock = mock<Personaje>()
+
+        // El combate guardado tiene jugadores SIN usuario, SIN personaje y SIN ids
+        val jugadorJuegoSinTodo = mock<JugadorJuego> {
+            on { id } doReturn null
+            on { rol } doReturn RolJugador.ADMIN
+            on { usuario } doReturn null
+            on { personaje } doReturn null
+        }
+        val combateGuardadoMock = mock<Combate> {
+            on { id } doReturn null
+            on { nombre } doReturn "combate nulo"
+            on { jugador1 } doReturn jugadorJuegoSinTodo
+            on { jugador2 } doReturn jugadorJuegoSinTodo
+            on { juego } doReturn partidaMock
+        }
+
+        whenever(juegoRepo.findById(1000L)).thenReturn(Optional.of(partidaMock))
+        whenever(usuarioRepo.findById(-1L)).thenReturn(Optional.of(usuarioFantasma))
+        whenever(personajeRepo.findById(100L)).thenReturn(Optional.of(personaje1Mock))
+        whenever(personajeRepo.findById(101L)).thenReturn(Optional.of(personaje2Mock))
+        whenever(jugadorJuegoRepo.save(any())).thenAnswer { it.arguments[0] }
+        whenever(combateRepo.save(any())).thenReturn(combateGuardadoMock)
+
+        val resultado = combateService.crearCombatexDTO(crearCombateDto)
+
+        // Todos los ids deberian haber caido en el default -1
+        assertEquals(-1L, resultado.id)
+        assertEquals(-1L, resultado.jugador1.id)
+        assertEquals(-1L, resultado.jugador1.personajeId)
+        assertEquals(-1L, resultado.jugador2.id)
+        assertEquals(-1L, resultado.jugador2.personajeId)
+        assertEquals(-1L, resultado.juegoId)
+    }
+
+    @Test
+    fun testObtenerCombateById_ConCombateIdNulo() {
+        // Cubre la rama ?: -1 del id del combate guardado dentro de obtenerCombateById
+        val personajeMock = mock<Personaje>()
+        val jugadorMock = mock<JugadorJuego> { on { personaje } doReturn personajeMock }
+        val combateConIdNulo = mock<Combate> {
+            on { id } doReturn null
+            on { jugador1 } doReturn jugadorMock
+            on { jugador2 } doReturn jugadorMock
+        }
+        val dtoFalso = DatosPartidaDto.PersonajeDto(
+            id = 1L,
+            personajeNombre = "X",
+            personajeVida = 1,
+            personajeFotoUrl = "x",
+            personajeEstadisticas = mutableListOf(),
+            personajeAtaques = mutableListOf()
+        )
+
+        whenever(combateRepo.findById(5L)).thenReturn(Optional.of(combateConIdNulo))
+        whenever(personajeService.personajeToDto(personajeMock)).thenReturn(dtoFalso)
+
+        val resultado = combateService.obtenerCombateById(5L)
+
+        assertEquals(HttpStatus.OK, resultado.statusCode)
+        assertEquals(-1L, resultado.body!!.id)
     }
 }
