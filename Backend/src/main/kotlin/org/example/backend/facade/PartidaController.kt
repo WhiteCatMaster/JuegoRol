@@ -27,8 +27,19 @@ class PartidaController(
     private val partidaService: JuegoService,
     private val objetoService: ObjetoService
 ) {
+
+    @Operation(
+        summary = "Obtener los objetos de una partida",
+        description = "Devuelve una lista con todos los objetos asociados a una partida concreta buscando por su ID."
+    )
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "200", description = "Lista de objetos obtenida correctamente"),
+        ApiResponse(responseCode = "404", description = "Partida no encontrada")
+    ])
     @GetMapping("/{id}/objeto")
-    fun obtenerObjetos(@PathVariable id: Long): ResponseEntity<List<DatosPartidaDto.PersonajeDto.ObjetoDto>> {
+    fun obtenerObjetos(
+        @Parameter(description = "ID único de la partida", example = "1") @PathVariable id: Long
+    ): ResponseEntity<List<DatosPartidaDto.PersonajeDto.ObjetoDto>> {
         val resultado = mutableListOf<DatosPartidaDto.PersonajeDto.ObjetoDto>()
         val objetos = objetoService.obtenerObjetosByJuegoId(id)
         for (i in objetos){
@@ -88,7 +99,6 @@ class PartidaController(
         description = "Devuelve un array con todas las partidas disponibles en el sistema y quién es el administrador de cada una."
     )
     @ApiResponse(responseCode = "200", description = "Lista de partidas obtenida correctamente")
-
     @GetMapping
     fun obtenerPartidas(): ResponseEntity<List<PartidaDto>>{
         val listaPartidas: List<PartidaDto> = partidaService.getAllPartidas()
@@ -110,7 +120,10 @@ class PartidaController(
         summary = "Obtener los datos detallados de una partida concreta",
         description = "Busca una partida por su ID y devuelve toda su información."
     )
-    @ApiResponse(responseCode = "200", description = "Datos de la partida devueltos con éxito")
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "200", description = "Datos de la partida devueltos con éxito"),
+        ApiResponse(responseCode = "404", description = "No se ha encontrado ninguna partida con ese ID")
+    ])
     @GetMapping("/{id}")
     fun obtenerDatosPartida(
         @Parameter(description = "El ID único de la partida", example = "10") @PathVariable id: Long
