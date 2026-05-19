@@ -4,6 +4,7 @@ import org.example.backend.dto.CrearPartidaDto
 import org.example.backend.dto.PartidaDto
 import org.example.backend.facade.PartidaController
 import org.example.backend.service.JuegoService
+import org.example.backend.service.ObjetoService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
@@ -17,8 +18,9 @@ import org.mockito.kotlin.check
 class PartidaControllerTests {
 
     private val partidaService = mock<JuegoService>()
+    private val objetoService = mock<ObjetoService>()
     private val jsonMapper = jacksonObjectMapper()
-    private val partidaController = PartidaController(partidaService)
+    private val partidaController = PartidaController(partidaService, objetoService)
 
     @Test
     fun testCrearPartida() {

@@ -5,6 +5,7 @@ import org.example.backend.entity.JugadorJuego
 import org.example.backend.entity.Personaje
 import org.example.backend.entity.RolJugador
 import org.example.backend.repository.PersonajeRepository
+import org.example.backend.service.ObjetoService
 import org.example.backend.service.PersonajeService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -18,7 +19,8 @@ import java.util.Optional
 class PersonajeServiceTests {
 
     private val personajeRepo: PersonajeRepository = mock<PersonajeRepository>()
-    private val personajeService = PersonajeService(personajeRepo)
+    private val objetoService: ObjetoService = mock<ObjetoService>()
+    private val personajeService = PersonajeService(personajeRepo, objetoService)
 
     @Test
     fun testGetAllPersonajes() {

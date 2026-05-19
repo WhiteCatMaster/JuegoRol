@@ -304,7 +304,7 @@ class JuegoServiceTests {
         val juegoSimulado = Juego(1L, "Partida Test", "Desc", "ES", 4, mutableListOf())
 
         whenever(juegoRepository.save(any<Juego>())).thenReturn(juegoSimulado)
-        whenever(personajeRepository.saveAll(any<List<Personaje>>())).thenReturn(emptyList())
+        whenever(personajeRepository.saveAll(any<List<Personaje>>())).thenAnswer { it.arguments[0] as List<Personaje> }
         whenever(estadisticaRepository.saveAll(any<List<Estadistica>>())).thenReturn(emptyList())
         whenever(ataqueRepository.saveAll(any<List<Ataque>>())).thenReturn(emptyList())
         whenever(usuarioRepository.findById(1L)).thenReturn(Optional.of(mock<Usuario>()))
