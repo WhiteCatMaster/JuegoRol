@@ -8,7 +8,7 @@ import { Ataque } from './models/ataque';
 import { Usuario } from './models/usuario';
 import { JugadorJuego, Rol } from './models/jugador-juego';
 import { Partida, Plantilla } from './models/partida';
-import { CrearPartidaDto, DatosPartidaDto, PersonajeDto, ServicioAPI, toPersonaje, toPersonajeDto } from './servicio-api';
+import { CrearPartidaDto, DatosPartidaDto, ObjetoDto, PersonajeDto, ServicioAPI, toObjeto, toObjetoDto, toPersonaje, toPersonajeDto } from './servicio-api';
 import { Dado } from './models/dado';
 import { UsuarioService } from './servicios/usuario-service';
 import { Objeto } from './models/objeto';
@@ -170,6 +170,7 @@ export class OpcionesComponent implements OnInit{
     }
 
     const objetoFinal: Objeto = {
+      id: null,
       nombre: this.nombreObjetoActual,
       descripcion: this.descripcionObjetoActual,
       imagen: this.imagenObjetoActual || 'assets/img/objetos/default.png',
@@ -525,6 +526,12 @@ export class OpcionesComponent implements OnInit{
       }
     }
 
+    let objetosDto : ObjetoDto[] = []
+    for(let i of this.objetos){
+      console.log(i)
+      objetosDto.push(toObjetoDto(i))
+    }
+
     let payload : CrearPartidaDto  = {
       adminId: adminId ?? -1,
       id: -1,
@@ -532,7 +539,8 @@ export class OpcionesComponent implements OnInit{
       descripcion: this.descripcion,
       idioma: this.idioma,
       maximoJugadores: this.maxJugadores,
-      jugadores: jugadores
+      jugadores: jugadores,
+      objetos: objetosDto
     };
 
     console.log('El payload final queda como ', payload);
@@ -571,6 +579,12 @@ export class OpcionesComponent implements OnInit{
       jugadores.push(toPersonajeDto(personaje))
     }
 
+    let objetosDto : ObjetoDto[] = []
+    for(let i of this.objetos){
+      console.log(i)
+      objetosDto.push(toObjetoDto(i))
+    }
+
     let payload : CrearPartidaDto  = {
       adminId: adminId ?? -1,
       id: -1,
@@ -578,7 +592,8 @@ export class OpcionesComponent implements OnInit{
       descripcion: this.descripcion,
       idioma: this.idioma,
       maximoJugadores: this.maxJugadores,
-      jugadores: jugadores
+      jugadores: jugadores,
+      objetos: objetosDto
     };
     this.servicioAPI.guardarPlantilla(nombrePlantilla,payload).subscribe({
       next: (respuesta) => {
@@ -630,6 +645,9 @@ export class OpcionesComponent implements OnInit{
         }
       }
     }
+    for(let i of plantillaSeleccionada.jsonConfiguration.objetos){
+      this.objetos.push(toObjeto(i))
+    }
   }
   ejecutarCarga(){
     if(this.plantillaSeleccionada){
@@ -657,6 +675,4 @@ export class OpcionesComponent implements OnInit{
       }
     })
   }
-
-
 }

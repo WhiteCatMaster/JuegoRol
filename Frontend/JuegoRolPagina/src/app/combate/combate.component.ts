@@ -519,11 +519,11 @@ export class CombateComponent implements OnInit {
       {
         nombre: 'Poción de vida',
         descripcion: 'Restaura vida al portador.',
-        imagen:
-          'https://static.wikia.nocookie.net/minecraft_gamepedia/images/7/75/Water_Bottle_JE2_BE2.png/revision/latest/thumbnail/width/360/height/360?cb=20191027055423',
+        imagen: 'https://static.wikia.nocookie.net/minecraft_gamepedia/images/7/75/Water_Bottle_JE2_BE2.png/revision/latest/thumbnail/width/360/height/360?cb=20191027055423',
         efectosPropios: [{ estadistica: 'vida', valor: 30 }],
         efectosRival: [],
         usos: 2,
+        id: null
       },
       {
         nombre: 'Veneno',
@@ -532,15 +532,16 @@ export class CombateComponent implements OnInit {
         efectosPropios: [],
         efectosRival: [{ estadistica: 'mana', valor: -15 }],
         usos: 1,
+        id: null
       },
       {
         nombre: 'Elixir de fuerza',
         descripcion: 'Aumenta tu fuerza y daña al rival.',
-        imagen:
-          'https://static.wikia.nocookie.net/zelda/images/b/bd/Pocion_roja_ww.png/revision/latest?cb=20140208191256&path-prefix=es',
+        imagen: 'https://static.wikia.nocookie.net/zelda/images/b/bd/Pocion_roja_ww.png/revision/latest?cb=20140208191256&path-prefix=es',
         efectosPropios: [{ estadistica: 'fuerza', valor: 10 }],
         efectosRival: [{ estadistica: 'vida', valor: -10 }],
         usos: 0,
+        id: null
       },
       {
         nombre: 'Maldición',
@@ -549,6 +550,7 @@ export class CombateComponent implements OnInit {
         efectosPropios: [],
         efectosRival: [{ estadistica: 'vida', valor: -40 }],
         usos: 1,
+        id: null
       },
     ];
 
@@ -560,6 +562,7 @@ export class CombateComponent implements OnInit {
         efectosPropios: [{ estadistica: 'vida', valor: 30 }],
         efectosRival: [],
         usos: 2,
+        id: null
       },
       {
         nombre: 'Maldición',
@@ -568,6 +571,7 @@ export class CombateComponent implements OnInit {
         efectosPropios: [],
         efectosRival: [{ estadistica: 'vida', valor: -40 }],
         usos: 1,
+        id: null
       },
     ];
   }
