@@ -38,7 +38,7 @@ jobs:
         run: cd Frontend/JuegoRolPagina && npm install
 
       - name: 🏗️ Generar Compodoc
-        run: cd Frontend/JuegoRolPagina && npx compodoc -p tsconfig.json -d ../../docs-finales/frontend
+        run: cd Frontend/JuegoRolPagina && npx @compodoc/compodoc -p tsconfig.json -d ../../docs-finales/frontend
 
       - name: ☕ Configurar Java 21
         uses: actions/setup-java@v4
