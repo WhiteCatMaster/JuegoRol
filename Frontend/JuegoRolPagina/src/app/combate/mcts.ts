@@ -1,21 +1,24 @@
 import { Ataque } from '../models/ataque';
+import { Objeto } from '../models/objeto';
 import { EstadisticaPersonaje } from '../models/personaje';
 
+// 1. Unificamos las acciones posibles
+export type AccionIA = Ataque | Objeto;
+
 export interface MctsConfig {
-  iterations?: number;          // default 3000
-  explorationConstant?: number; // default √2
-  rolloutDepth?: number;        // default 30
+  iterations?: number;
+  explorationConstant?: number;
+  rolloutDepth?: number;
 }
 
-// ─────────────────────────────────────────────
-//  GameState  — snapshot inmutable del combate
-// ─────────────────────────────────────────────
 export class GameState {
   constructor(
+    public readonly hpPropio: number,       // NUEVO: Necesita saber su vida para curarse
     public readonly stats: EstadisticaPersonaje[],
     public readonly hpEnemigo: number,
     public readonly dificultad: number,
     public readonly ataques: Ataque[],
+    public readonly objetos: Objeto[],      // NUEVO: Inventario disponible en la simulación
     public readonly turno: number = 0,
     public readonly maxTurnos: number = 30,
     public readonly turnosAtacados: number = 0,
@@ -23,9 +26,8 @@ export class GameState {
     public readonly quedadoSeco: boolean = false
   ) {}
 
-  /** Ataques cuyo coste cabe en las stats actuales */
-  getLegalActions(): Ataque[] {
-    return this.ataques.filter(atc => {
+  getLegalActions(): AccionIA[] {
+    const ataquesLegales = this.ataques.filter(atc => {
       if (!atc.statReducePropio || atc.statReducePropio.length === 0) return true;
       for (const coste of atc.statReducePropio) {
         const stat = this.stats.find(s => s.nombreEstadistica === coste.estadistica);
@@ -33,88 +35,93 @@ export class GameState {
       }
       return true;
     });
+
+    // Filtramos los objetos que se han gastado en esta simulación
+    const objetosLegales = this.objetos.filter(obj => obj.usos > 0);
+
+    // MCTS ahora explorará tanto ataques como objetos
+    return [...ataquesLegales, ...objetosLegales];
   }
 
-  /** Estado resultante tras ejecutar un ataque (inmutable) */
-  applyAction(ataque: Ataque): GameState {
+  applyAction(accion: AccionIA): GameState {
+    let newHpPropio = this.hpPropio;
+    let newHpEnemigo = this.hpEnemigo;
     const newStats = this.stats.map(s => ({ ...s }));
+    const newObjetos = this.objetos.map(o => ({ ...o, efectosPropios: [...o.efectosPropios], efectosRival: [...o.efectosRival] }));
 
-    for (const coste of (ataque.statReducePropio ?? [])) {
-      const stat = newStats.find(s => s.nombreEstadistica === coste.estadistica);
-      if (stat) stat.valorPropio -= coste.valor;
+    // Type Guard de TypeScript: si tiene "usos", es un objeto
+    if ('usos' in accion) {
+             // 1. Restamos un uso al objeto en la simulación
+             const objIndex = newObjetos.findIndex(o => o.nombre === accion.nombre);
+             if (objIndex !== -1) newObjetos[objIndex].usos -= 1;
+
+             // 2. Aplicamos TODOS los efectos propios a las estadísticas del array
+             for (const ef of accion.efectosPropios) {
+                 const stat = newStats.find(s => s.nombreEstadistica === ef.estadistica);
+                 // Si la estadística existe (mana, fuerza, etc.), le sumamos el valor
+                 if (stat) stat.valorPropio += ef.valor;
+             }
+
+             // 3. Efectos al rival
+             // (Nota importante abajo sobre esto)
+
+         } else {
+        // Es un Ataque (Lógica original)
+        for (const coste of (accion.statReducePropio ?? [])) {
+          const stat = newStats.find(s => s.nombreEstadistica === coste.estadistica);
+          if (stat) stat.valorPropio -= coste.valor;
+        }
+
+        const total = accion.dadoBase > 0 ? accion.dadoBase : 6;
+        const dado = Math.floor(Math.random() * total) + 1;
+        const caraCrit   = accion.ratioDado?.[0] ?? null;
+        const caraMedium = accion.ratioDado?.[1] ?? null;
+
+        let dano = accion.danoAtaque;
+        if (dado === caraCrit)        dano *= 2;
+        else if (dado === caraMedium) dano *= 1.5;
+
+        dano *= Math.max(0.05, this.dificultad);
+        newHpEnemigo -= dano;
     }
 
-    // Tirada de dado real del juego
-    const total = ataque.dadoBase > 0 ? ataque.dadoBase : 6;
-    const dado = Math.floor(Math.random() * total) + 1;
-
-    const caraCrit   = ataque.ratioDado?.[0] ?? null;
-    const caraMedium = ataque.ratioDado?.[1] ?? null;
-
-    let dano = ataque.danoAtaque;
-    if (dado === caraCrit)        dano *= 2;
-    else if (dado === caraMedium) dano *= 1.5;
-
-    // La dificultad modula el daño: 0 = casi nada, 1 = daño completo
-    dano *= Math.max(0.05, this.dificultad);
-
-    const newHp     = this.hpEnemigo - dano;
-    const victoria  = newHp <= 0;
+    const victoria  = newHpEnemigo <= 0;
     const newTurno  = this.turno + 1;
 
-    // Detectar quedarse sin ataques pagables en el estado resultante.
-    // Solo aplica si aún no se alcanzó el límite de turnos (agotarse ≠ agotar el tiempo).
-    const candidatoSiguiente = new GameState(
-      newStats, newHp, this.dificultad, this.ataques,
-      newTurno, this.maxTurnos, this.turnosAtacados + 1, victoria, false
-    );
-    const quedadoSeco = !victoria
-      && newTurno < this.maxTurnos
-      && candidatoSiguiente.getLegalActions().length === 0;
+    const dummyState = new GameState(newHpPropio, newStats, newHpEnemigo, this.dificultad, this.ataques, newObjetos, newTurno, this.maxTurnos, this.turnosAtacados + 1, victoria, false);
+    const quedadoSeco = !victoria && newTurno < this.maxTurnos && dummyState.getLegalActions().length === 0;
 
-    return new GameState(
-      newStats, newHp, this.dificultad, this.ataques,
-      newTurno, this.maxTurnos, this.turnosAtacados + 1, victoria, quedadoSeco
-    );
+    return new GameState(newHpPropio, newStats, newHpEnemigo, this.dificultad, this.ataques, newObjetos, newTurno, this.maxTurnos, this.turnosAtacados + 1, victoria, quedadoSeco);
   }
 
   isTerminal(): boolean {
-    if (this.victoria || this.turno >= this.maxTurnos) return true;
+    if (this.victoria || this.hpPropio <= 0 || this.turno >= this.maxTurnos) return true;
     return this.getLegalActions().length === 0;
   }
 
-  /**
-   * Función objetivo:
-   *  - Si hay victoria: 50 + turnos_restantes (premia rematar rápido).
-   *  - Si no: turnosAtacados (premia mantenerse activo).
-   *  - Penaliza -30 por quedarse sin ataques pagables.
-   *  - Pequeño bonus por conservar stats consumibles.
-   */
   getReward(): number {
+    if (this.hpPropio <= 0) return -100; // Fuerte castigo si la IA simula su propia muerte
+
     const statsRestantes = this.stats.reduce(
-      (sum, s) => (s.consumible ? sum + Math.max(0, s.valorPropio) : sum),
-      0
+      (sum, s) => (s.consumible ? sum + Math.max(0, s.valorPropio) : sum), 0
     );
-    const base = this.victoria
-      ? 50 + (this.maxTurnos - this.turno)
-      : this.turnosAtacados;
+    const base = this.victoria ? 50 + (this.maxTurnos - this.turno) : this.turnosAtacados;
     return base - 30 * (this.quedadoSeco ? 1 : 0) + 0.1 * statsRestantes;
   }
 }
-
 // ─────────────────────────────────────────────
 //  MctsNode  — nodo del árbol de búsqueda
 // ─────────────────────────────────────────────
 class MctsNode {
-  children: Map<Ataque, MctsNode> = new Map();
+  children: Map<AccionIA, MctsNode> = new Map();
   visits      = 0;
   totalReward = 0;
-  untriedActions: Ataque[];
+  untriedActions: AccionIA[];
 
   constructor(
     public readonly state: GameState,
     public readonly parent: MctsNode | null = null,
-    public readonly actionFromParent: Ataque | null = null
+    public readonly actionFromParent: AccionIA | null = null
   ) {
     this.untriedActions = [...state.getLegalActions()];
   }
@@ -156,7 +163,7 @@ export class MctsEngine {
     this.rolloutDepth        = config.rolloutDepth        ?? 30;
   }
 
-  search(rootState: GameState): Ataque | null {
+  search(rootState: GameState): AccionIA | null {
     const legal = rootState.getLegalActions();
     if (legal.length === 0) return null;
     if (legal.length === 1) return legal[0];
@@ -170,7 +177,7 @@ export class MctsEngine {
     }
 
     // Acción del hijo más visitado
-    let bestAction: Ataque | null = null;
+    let bestAction: AccionIA | null = null;
     let bestVisits = -1;
     for (const [action, child] of root.children) {
       if (child.visits > bestVisits) {

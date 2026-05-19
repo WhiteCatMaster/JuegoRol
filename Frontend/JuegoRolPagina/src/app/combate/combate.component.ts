@@ -135,34 +135,42 @@ export class CombateComponent implements OnInit {
   }
 
   ejecutarTurnoCpu() {
-    const rivalActual = this.rival();
-    if (!rivalActual || !rivalActual.ataquesDelPersonaje) {
-      this.turnoTuyo = true;
-      this.TuTurno = true;
-      return;
+      const rivalActual = this.rival();
+      if (!rivalActual || !rivalActual.ataquesDelPersonaje) {
+        this.turnoTuyo = true;
+        this.TuTurno = true;
+        return;
+      }
+
+      const accionIA = this.cpu.elegirAccion(
+        rivalActual.ataquesDelPersonaje,
+        this.objetosDelRival,
+        this.dificultadCpu,
+        rivalActual.estadisticasDelPersonaje,
+        this.personajeTuyo()?.vida ?? 100,
+        rivalActual.vida
+      );
+
+      if (!accionIA) {
+        this.turnoTuyo = true;
+        this.TuTurno = true;
+        return;
+      }
+
+      // Type guard: Evaluamos si la IA ha decidido usar un objeto
+      if ('usos' in accionIA) {
+        this.usarObjetoRival(accionIA as Objeto);
+      } else {
+        // Ha decidido usar un ataque
+        this.ataqueSeleccionado.set(accionIA as Ataque);
+
+        const total = accionIA.dadoBase && accionIA.dadoBase > 0 ? accionIA.dadoBase : 6;
+        const dado = Math.floor(Math.random() * total) + 1;
+        this.resultadoUltimoDado.set(dado);
+
+        this.pasarTurnoRival();
+      }
     }
-
-    // MCTS filtra internamente via getLegalActions() — pasamos todo
-    const ataque = this.cpu.elegirAtaque(
-      rivalActual.ataquesDelPersonaje,
-      this.dificultadCpu,
-      rivalActual.estadisticasDelPersonaje,
-      this.personajeTuyo()?.vida ?? 100,
-    );
-    if (!ataque) {
-      this.turnoTuyo = true;
-      this.TuTurno = true;
-      return;
-    }
-
-    this.ataqueSeleccionado.set(ataque);
-
-    const total = ataque.dadoBase && ataque.dadoBase > 0 ? ataque.dadoBase : 6;
-    const dado = Math.floor(Math.random() * total) + 1;
-    this.resultadoUltimoDado.set(dado);
-
-    this.pasarTurnoRival();
-  }
 
   pasarTurnoTuyo() {
     console.log(this.ataqueSeleccionado());

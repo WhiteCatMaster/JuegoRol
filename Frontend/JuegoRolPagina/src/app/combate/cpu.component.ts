@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { Ataque } from '../models/ataque';
 import { EstadisticaPersonaje } from '../models/personaje';
 import { GameState, MctsEngine, MctsConfig } from './mcts';
+import { Objeto } from '../models/objeto';
+import { AccionIA } from './mcts';
 
 @Injectable({ providedIn: 'root' })
 export class CpuComponent {
@@ -23,16 +25,18 @@ export class CpuComponent {
    * @param stats      Estadísticas actuales del personaje CPU
    * @param hpEnemigo  HP actual del jugador humano
    */
-  elegirAtaque(
-    ataques: Ataque[],
-    dificultad: number = this.dificultad,
-    stats: EstadisticaPersonaje[] = [],
-    hpEnemigo: number = 100
-  ): Ataque | null {
-    if (!ataques || ataques.length === 0) return null;
+  elegirAccion(
+      ataques: Ataque[],
+      objetos: Objeto[],
+      dificultad: number = this.dificultad,
+      stats: EstadisticaPersonaje[] = [],
+      hpEnemigo: number = 100,
+      hpPropio: number = 100
+    ): AccionIA | null {
+      if (!ataques || ataques.length === 0) return null;
 
-    const state  = new GameState(stats, hpEnemigo, dificultad, ataques);
-    const engine = new MctsEngine(this.mctsConfig);
-    return engine.search(state);
-  }
+      const state  = new GameState(hpPropio, stats, hpEnemigo, dificultad, ataques, objetos);
+      const engine = new MctsEngine(this.mctsConfig);
+      return engine.search(state);
+    }
 }
