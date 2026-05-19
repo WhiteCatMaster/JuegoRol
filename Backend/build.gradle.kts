@@ -115,3 +115,8 @@ tasks.jacocoTestReport {
 tasks.named("check") {
     dependsOn("integrationTest")
 }
+
+openApi {
+    apiDocsUrl.set("http://localhost:8081/v3/api-docs")
+    waitTimeInSeconds.set(60)
+}
