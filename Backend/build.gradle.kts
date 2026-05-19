@@ -5,6 +5,7 @@ plugins {
     id("org.springframework.boot") version "4.0.3"
     id("io.spring.dependency-management") version "1.1.7"
     id("org.jetbrains.dokka") version "2.2.0"
+    id("org.springdoc.openapi-gradle-plugin") version "1.9.0"
     jacoco
 }
 
