@@ -240,4 +240,18 @@ class UsuarioControllerTests {
         // Verificamos que NUNCA se intentó guardar nada en la base de datos
         verify(usuarioRepository, org.mockito.Mockito.never()).save(any())
     }
+    @Test
+    fun `test RegistrarUsuarioRequest usa el valor por defecto en fotoUrl`() {
+        // Al no pasarle la fotoUrl, Kotlin invocará internamente
+        // al famoso constructor con el DefaultConstructorMarker
+        val requestSinFoto = RegistrarUsuarioRequest(
+            googleId = "12345",
+            email = "jugador@gmail.com",
+            nombre = "Thor"
+        )
+
+        // Verificamos que efectivamente se ha puesto a null
+        assertEquals(null, requestSinFoto.fotoUrl)
+        assertEquals("Thor", requestSinFoto.nombre)
+    }
 }

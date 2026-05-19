@@ -1,14 +1,18 @@
 package org.example.backend.unit.facade
 
+import org.example.backend.dto.ActualizarPersonajeDto
 import org.example.backend.dto.DatosPartidaDto
 import org.example.backend.entity.Ataque
 import org.example.backend.entity.Estadistica
 import org.example.backend.entity.Personaje
 import org.example.backend.facade.PersonajeController
 import org.example.backend.service.PersonajeService
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
@@ -27,6 +31,9 @@ class PersonajeControllerTest {
 
     @MockitoBean
     lateinit var personajeService: PersonajeService
+
+    @Autowired
+    lateinit var personajeController: PersonajeController
 
     @Test
     fun `obtenerPersonajeById mapea correctamente un personaje completo a DTO`() {
@@ -123,5 +130,54 @@ class PersonajeControllerTest {
             // Spring MVC envuelve las excepciones internas en un NestedServletException
             assert(e.cause is NullPointerException)
         }
+    }
+    @Test
+    fun testModificarPersonaje_Exito() {
+        // ARRANGE
+        val id = 1L
+        val requestDto = ActualizarPersonajeDto(
+            nombre = "Nuevo Nombre",
+            estadisticas = emptyList(),
+            objetos = emptyList()
+        )
+
+        // Mock de la entidad que el servicio devuelve tras aplastar los datos
+        val personajeActualizado = mock<Personaje>()
+
+        // Mock del DTO final que se devolverá al frontend
+        val respuestaEsperada = mock<DatosPartidaDto.PersonajeDto> {
+            on { personajeNombre } doReturn "Nuevo Nombre"
+        }
+
+        whenever(personajeService.actualizarPersonaje(id, requestDto)).thenReturn(personajeActualizado)
+        whenever(personajeService.personajeToDto(personajeActualizado)).thenReturn(respuestaEsperada)
+
+        // ACT
+        val resultado = personajeController.modificarPersonaje(requestDto, id)
+
+        // ASSERT
+        assertEquals("Nuevo Nombre", resultado.personajeNombre)
+        verify(personajeService).actualizarPersonaje(id, requestDto)
+        verify(personajeService).personajeToDto(personajeActualizado)
+    }
+
+    @Test
+    fun testModificarPersonaje_LanzaExcepcionSiNoExiste() {
+        // ARRANGE
+        val id = 99L
+        val requestDto = ActualizarPersonajeDto(nombre = "Fallo", estadisticas = emptyList(), objetos = emptyList())
+        val mensajeError = "Personaje no encontrado, id: $id"
+
+        // Simulamos que el servicio lanza la excepción que programamos antes
+        whenever(personajeService.actualizarPersonaje(id, requestDto))
+            .thenThrow(RuntimeException(mensajeError))
+
+        // ACT & ASSERT
+        val excepcion = assertThrows<RuntimeException> {
+            personajeController.modificarPersonaje(requestDto, id)
+        }
+
+        assertEquals(mensajeError, excepcion.message)
+        verify(personajeService).actualizarPersonaje(id, requestDto)
     }
 }
