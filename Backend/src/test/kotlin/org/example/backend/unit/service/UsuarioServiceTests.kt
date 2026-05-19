@@ -165,4 +165,5 @@ class UsuarioServiceTests {
         verify(usuarioRepo).findById(1L)
         verify(usuarioRepo).save(usuarioExistente)
     }
+
 }
