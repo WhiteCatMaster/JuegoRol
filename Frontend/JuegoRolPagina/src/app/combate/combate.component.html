@@ -29,7 +29,7 @@
         }
         </div>
         <div class="ContenedorRival">
-          <img class="PersonajeTuyo" [class.AnimacionTuyo]="estaAtacandoTuyo" [class.recibiendoDano]="recibiendoTuyo" [class.muerte]="muerteTuyo" [src]="personajeTuyo().urlSprite">
+          <img class="PersonajeTuyo" [class.AnimacionTuyo]="estaAtacandoTuyo" [class.recibiendoDano]="recibiendoTuyo" [class.muerte]="muerteTuyo" [class.animacionBuff]="buffTuyo" [class.animacionDebil]="debilTuyo" [src]="personajeTuyo().urlSprite">
           <img class="PersonajeTuyo ImagenGifTuyo" [class.AnimacionTuyo]="estaAtacandoTuyo" [class.recibiendoDano]="recibiendoTuyo" [class.muerte]="muerteTuyo" src="https://i.imgur.com/dqf7meC.gif">
         </div>
         </div>
@@ -48,7 +48,7 @@
         }
         </div>
         <div class="ContenedorRival">
-          <img class="ImagenRival" [class.AnimacionRival]="estaAtacandoRival" [class.recibiendoDano]="recibiendoRival" [class.muerte]="muerteRival" [src]="rival().urlSprite">
+          <img class="ImagenRival" [class.AnimacionRival]="estaAtacandoRival" [class.recibiendoDano]="recibiendoRival" [class.muerte]="muerteRival" [class.animacionBuff]="buffRival" [class.animacionDebil]="debilRival" [src]="rival().urlSprite">
           <img class="ImagenRival ImagenGif" [class.AnimacionRival]="estaAtacandoRival" [class.recibiendoDano]="recibiendoRival" [class.muerte]="muerteRival" src="https://i.imgur.com/dqf7meC.gif">
         </div>
       </div>

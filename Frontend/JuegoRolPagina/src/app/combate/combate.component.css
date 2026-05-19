@@ -222,7 +222,7 @@ p {
 
 @keyframes atacado {
     0%   { transform: translate(0, 0) rotate(0deg); }
-    20%  { transform: translate(-5px, 5px) rotate(-2deg);   filter: invert(12%) sepia(94%) saturate(7436%) hue-rotate(358deg) brightness(114%) contrast(114%); }
+    20%  { transform: translate(-5px, 5px) rotate(-2deg); filter: invert(12%) sepia(94%) saturate(7436%) hue-rotate(358deg) brightness(114%) contrast(114%); }
     40%  { transform: translate(5px, -5px) rotate(2deg); }
     60%  { transform: translate(-5px, -5px) rotate(-2deg); }
     80%  { transform: translate(5px, 5px) rotate(2deg)}
@@ -238,6 +238,26 @@ p {
     0%   { filter: grayscale(0%); opacity: 1; transform: translateY(0); }
     50%  { filter: grayscale(100%); opacity: 0.8; transform: translateY(30px); }
     100% { filter: grayscale(100%); opacity: 0; transform: translateY(100px); }
+}
+
+.animacionBuff {
+  animation: saltoVerde 0.5s ease-in-out;
+}
+
+@keyframes saltoVerde {
+  0% { transform: translateY(0)}
+  50% { transform: translateY(-20px); filter: sepia(100%) saturate(300%) hue-rotate(80deg);}
+  100% { transform: translateY(0)}
+}
+
+.animacionDebil {
+  animation: decaido 0.5s ease-in-out;
+}
+
+@keyframes decaido {
+  0% { transform: translateY(0)}
+  50% { transform: translateY(+20px); filter: sepia(100%) saturate(400%) hue-rotate(-50deg);}
+  100% { transform: translateY(0)}
 }
 
 .DivBarra {
