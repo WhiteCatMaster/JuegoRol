@@ -364,7 +364,7 @@ export class CombateComponent implements OnInit {
   }
 
   usarObjetoRival(objeto: Objeto) {
-    if (this.TuTurno || this.usarCpu) return;
+    if (this.TuTurno) return; 
 
     const yo = this.rival();
     const objetivo = this.personajeTuyo();
@@ -544,51 +544,51 @@ export class CombateComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
-      if (params.get('idPartida') && params.get('id')) {
-        this.partidaId = params.get('idPartida') ?? ''
-        this.combateId = params.get('id') ?? ''
-        console.log(this.partidaId, ', ', this.combateId)
-      }
-    })
-    this.servicioAPI.obtenerObjetos(this.partidaId).subscribe({
-          next: (objetosDto) => {
-            this.objetosDeTuPersonaje = []
-            this.objetosDelRival = []
-            console.log(objetosDto)
-            for(let i of objetosDto){
-              this.objetosDeTuPersonaje.push(toObjeto(i))
-              this.objetosDelRival.push(toObjeto(i))
-            }
-            console.log(this.objetosDeTuPersonaje)
-            console.log(this.objetosDelRival)
-          },
-          error: (e) => {
-            console.log('Error al obtener objetos de una partida: ', e)
+  // Nos suscribimos a los parámetros de la URL
+  this.route.paramMap.subscribe(params => {
+    const partidaIdParam = params.get('idPartida');
+    const combateIdParam = params.get('id');
+
+    // 1. CARGAMOS LOS OBJETOS (Solo si tenemos el ID de la partida)
+    if (partidaIdParam) {
+      this.partidaId = partidaIdParam;
+      console.log('ID Partida:', this.partidaId);
+
+      this.servicioAPI.obtenerObjetos(this.partidaId).subscribe({
+        next: (objetosDto) => {
+          this.objetosDeTuPersonaje = [];
+          this.objetosDelRival = [];
+          
+          for (let i of objetosDto) {
+            this.objetosDeTuPersonaje.push(toObjeto(i));
+            this.objetosDelRival.push(toObjeto(i));
           }
-        })
-    
-    
-    
-    //this.cargarPersonajesDePrueba();
-    this.combateId = this.route.snapshot.paramMap.get('id');
-    //this.cargarPartidaDePrueba();
-    if (this.combateId) {
-      this.servicioAPI.obtenerCombate(this.combateId).subscribe({
-        next: (partidaBackend) => {
-          this.cargarPersonajesBD(partidaBackend);
-          console.log(partidaBackend);
+          console.log('Objetos cargados con éxito para la IA y para ti.');
         },
+        error: (e) => console.log('Error al obtener objetos:', e)
       });
     }
 
-    const urlGuardada = this.musicaService.urlYoutube();
+    // 2. CARGAMOS EL COMBATE (Solo si tenemos el ID del combate)
+    if (combateIdParam) {
+      this.combateId = combateIdParam;
+      console.log('ID Combate:', this.combateId);
 
-    if (urlGuardada) {
-      this.musicaSegurizada = this.sanitizer.bypassSecurityTrustResourceUrl(urlGuardada);
+      this.servicioAPI.obtenerCombate(this.combateId).subscribe({
+        next: (partidaBackend) => {
+          this.cargarPersonajesBD(partidaBackend);
+          console.log('Personajes de combate cargados.');
+        },
+      });
     }
+  });
 
+  // 3. CARGAMOS LA MÚSICA (Esto no necesita esperar a la BD)
+  const urlGuardada = this.musicaService.urlYoutube();
+  if (urlGuardada) {
+    this.musicaSegurizada = this.sanitizer.bypassSecurityTrustResourceUrl(urlGuardada);
   }
+}
 
   cargarPersonajesBD(dto: CombatePersonajesDto) {
     let personajeTuyo = toPersonaje(dto.personaje1);

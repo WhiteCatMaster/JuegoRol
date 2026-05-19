@@ -13,33 +13,40 @@ export interface MctsConfig {
 
 export class GameState {
   constructor(
-    public readonly hpPropio: number,       // NUEVO: Necesita saber su vida para curarse
+    public readonly hpPropio: number,
     public readonly stats: EstadisticaPersonaje[],
     public readonly hpEnemigo: number,
     public readonly dificultad: number,
     public readonly ataques: Ataque[],
-    public readonly objetos: Objeto[],      // NUEVO: Inventario disponible en la simulación
+    public readonly objetos: Objeto[],
     public readonly turno: number = 0,
     public readonly maxTurnos: number = 30,
     public readonly turnosAtacados: number = 0,
     public readonly victoria: boolean = false,
-    public readonly quedadoSeco: boolean = false
+    public readonly quedadoSeco: boolean = false,
+    public readonly usoObjetoUtil: boolean = false 
   ) {}
 
   getLegalActions(): AccionIA[] {
     const ataquesLegales = this.ataques.filter(atc => {
       if (!atc.statReducePropio || atc.statReducePropio.length === 0) return true;
       for (const coste of atc.statReducePropio) {
-        const stat = this.stats.find(s => s.nombreEstadistica === coste.estadistica);
+        // 🔥 LOGICA MEJORADA: Comparamos en minúsculas por si hay problemas de 'Mana' vs 'mana'
+        const stat = this.stats.find(s => s.nombreEstadistica.toLowerCase() === coste.estadistica.toLowerCase());
         if (!stat || stat.valorPropio < coste.valor) return false;
       }
       return true;
     });
 
-    // Filtramos los objetos que se han gastado en esta simulación
-    const objetosLegales = this.objetos.filter(obj => obj.usos > 0);
+    const objetosLegales = this.objetos.filter(obj => {
+      if (obj.usos > 0 || obj.usos === 0) {
+          const curaVida = obj.efectosPropios.find(e => e.estadistica.toLowerCase() === 'vida');
+          if (curaVida && this.hpPropio > 80) return false; 
+          return true;
+      }
+      return false;
+    });
 
-    // MCTS ahora explorará tanto ataques como objetos
     return [...ataquesLegales, ...objetosLegales];
   }
 
@@ -48,27 +55,38 @@ export class GameState {
     let newHpEnemigo = this.hpEnemigo;
     const newStats = this.stats.map(s => ({ ...s }));
     const newObjetos = this.objetos.map(o => ({ ...o, efectosPropios: [...o.efectosPropios], efectosRival: [...o.efectosRival] }));
+    
+    let objetoUtilUsado = false; 
 
-    // Type Guard de TypeScript: si tiene "usos", es un objeto
     if ('usos' in accion) {
-             // 1. Restamos un uso al objeto en la simulación
-             const objIndex = newObjetos.findIndex(o => o.nombre === accion.nombre);
-             if (objIndex !== -1) newObjetos[objIndex].usos -= 1;
+        const objIndex = newObjetos.findIndex(o => o.nombre === accion.nombre);
+        if (objIndex !== -1 && newObjetos[objIndex].usos > 0) {
+            newObjetos[objIndex].usos -= 1;
+        }
 
-             // 2. Aplicamos TODOS los efectos propios a las estadísticas del array
-             for (const ef of accion.efectosPropios) {
-                 const stat = newStats.find(s => s.nombreEstadistica === ef.estadistica);
-                 // Si la estadística existe (mana, fuerza, etc.), le sumamos el valor
-                 if (stat) stat.valorPropio += ef.valor;
-             }
+        for (const ef of accion.efectosPropios) {
+            // 🔥 LOGICA MEJORADA: Búsqueda case-insensitive
+            const stat = newStats.find(s => s.nombreEstadistica.toLowerCase() === ef.estadistica.toLowerCase());
+            if (stat) {
+                if (stat.valorPropio < 20) objetoUtilUsado = true;
+                stat.valorPropio += ef.valor;
+            }
+            
+            if (ef.estadistica.toLowerCase() === 'vida') {
+                if (newHpPropio < 50) objetoUtilUsado = true;
+                newHpPropio += ef.valor;
+            }
+        }
 
-             // 3. Efectos al rival
-             // (Nota importante abajo sobre esto)
-
-         } else {
-        // Es un Ataque (Lógica original)
+        for (const ef of accion.efectosRival) {
+            if (ef.estadistica.toLowerCase() === 'vida') {
+                newHpEnemigo += ef.valor; // Suponiendo daño en negativo
+                objetoUtilUsado = true; 
+            }
+        }
+    } else {
         for (const coste of (accion.statReducePropio ?? [])) {
-          const stat = newStats.find(s => s.nombreEstadistica === coste.estadistica);
+          const stat = newStats.find(s => s.nombreEstadistica.toLowerCase() === coste.estadistica.toLowerCase());
           if (stat) stat.valorPropio -= coste.valor;
         }
 
@@ -87,11 +105,17 @@ export class GameState {
 
     const victoria  = newHpEnemigo <= 0;
     const newTurno  = this.turno + 1;
-
+    
+    // Calculamos si se quedó seco para el SIGUIENTE turno
     const dummyState = new GameState(newHpPropio, newStats, newHpEnemigo, this.dificultad, this.ataques, newObjetos, newTurno, this.maxTurnos, this.turnosAtacados + 1, victoria, false);
     const quedadoSeco = !victoria && newTurno < this.maxTurnos && dummyState.getLegalActions().length === 0;
 
-    return new GameState(newHpPropio, newStats, newHpEnemigo, this.dificultad, this.ataques, newObjetos, newTurno, this.maxTurnos, this.turnosAtacados + 1, victoria, quedadoSeco);
+    return new GameState(
+        newHpPropio, newStats, newHpEnemigo, this.dificultad, this.ataques, newObjetos, 
+        newTurno, this.maxTurnos, 
+        'usos' in accion ? this.turnosAtacados : this.turnosAtacados + 1,
+        victoria, quedadoSeco, objetoUtilUsado
+    );
   }
 
   isTerminal(): boolean {
@@ -100,18 +124,16 @@ export class GameState {
   }
 
   getReward(): number {
-    if (this.hpPropio <= 0) return -100; // Fuerte castigo si la IA simula su propia muerte
-
+    if (this.hpPropio <= 0) return -100;
     const statsRestantes = this.stats.reduce(
       (sum, s) => (s.consumible ? sum + Math.max(0, s.valorPropio) : sum), 0
     );
-    const base = this.victoria ? 50 + (this.maxTurnos - this.turno) : this.turnosAtacados;
-    return base - 30 * (this.quedadoSeco ? 1 : 0) + 0.1 * statsRestantes;
+    let base = this.victoria ? 100 + (this.maxTurnos - this.turno) * 2 : this.turnosAtacados;
+    if (this.usoObjetoUtil) base += 20; 
+    return base - 50 * (this.quedadoSeco ? 1 : 0) + 0.1 * statsRestantes;
   }
 }
-// ─────────────────────────────────────────────
-//  MctsNode  — nodo del árbol de búsqueda
-// ─────────────────────────────────────────────
+
 class MctsNode {
   children: Map<AccionIA, MctsNode> = new Map();
   visits      = 0;
@@ -132,10 +154,7 @@ class MctsNode {
 
   ucb1(c: number): number {
     if (this.visits === 0) return Infinity;
-    return (
-      this.totalReward / this.visits
-      + c * Math.sqrt(Math.log(this.parent!.visits) / this.visits)
-    );
+    return (this.totalReward / this.visits) + c * Math.sqrt(Math.log(this.parent!.visits) / this.visits);
   }
 
   bestChild(c: number): MctsNode {
@@ -149,9 +168,6 @@ class MctsNode {
   }
 }
 
-// ─────────────────────────────────────────────
-//  MctsEngine  — motor MCTS genérico
-// ─────────────────────────────────────────────
 export class MctsEngine {
   private readonly iterations: number;
   private readonly explorationConstant: number;
@@ -164,9 +180,23 @@ export class MctsEngine {
   }
 
   search(rootState: GameState): AccionIA | null {
+    console.log("=== INICIANDO PENSAMIENTO DE IA ===");
+    console.log("Estado de la IA:", JSON.parse(JSON.stringify(rootState.stats)));
+    console.log("HP de la IA:", rootState.hpPropio);
+    
     const legal = rootState.getLegalActions();
-    if (legal.length === 0) return null;
-    if (legal.length === 1) return legal[0];
+    console.log("Acciones legales encontradas por la IA:", legal.map(a => a.nombre));
+
+    if (legal.length === 0) {
+        console.warn("⚠️ LA IA NO TIENE ACCIONES LEGALES. ESTÁ SECA.");
+        return null;
+    }
+    
+    // Si solo hay un objeto/ataque disponible, no pensamos, lo tiramos directo
+    if (legal.length === 1) {
+        console.log("Solo hay 1 acción posible. Ejecutando:", legal[0].nombre);
+        return legal[0];
+    }
 
     const root = new MctsNode(rootState);
 
@@ -176,16 +206,23 @@ export class MctsEngine {
       this.backpropagate(leaf, reward);
     }
 
-    // Acción del hijo más visitado
     let bestAction: AccionIA | null = null;
     let bestVisits = -1;
+    let bestScore = -Infinity;
+    
+    console.log("=== RESULTADOS DEL ÁRBOL DE DECISIONES ===");
     for (const [action, child] of root.children) {
+      const avgReward = (child.totalReward / child.visits).toFixed(2);
+      console.log(`- Acción [${action.nombre}]: Visitado ${child.visits} veces | Recompensa media: ${avgReward}`);
+      
       if (child.visits > bestVisits) {
         bestVisits = child.visits;
         bestAction = action;
+        bestScore = child.totalReward / child.visits;
       }
     }
 
+    console.log(`🏆 LA IA HA DECIDIDO USAR: ${bestAction?.nombre} (Score: ${bestScore.toFixed(2)})`);
     return bestAction ?? legal[0];
   }
 

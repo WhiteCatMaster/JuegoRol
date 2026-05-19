@@ -19,7 +19,7 @@ export class CpuComponent {
 
   /**
    * Elige el mejor ataque usando MCTS.
-   *
+   * @param objetos
    * @param ataques   Todos los ataques del personaje CPU (sin pre-filtrar)
    * @param dificultad Escala 0–1: modula el daño en las simulaciones
    * @param stats      Estadísticas actuales del personaje CPU
