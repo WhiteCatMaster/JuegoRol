@@ -321,7 +321,7 @@ p {
 }
 
 /* Necesario para que el botón absolute funcione dentro de ClaseIzquierda */
-.ClaseIzquierda {
+.ClaseIzquierda, .ClaseDerecha {
   position: relative;
 }
 
