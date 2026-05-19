@@ -112,10 +112,10 @@ class ahorDataSeedConfig {
                 val objeto = CrearPartidaDto.PersonajeDto.ObjetoDto(
                     nombre = "objeto 1",
                     descripcion = "Descripcion objeto 1",
-                    imagen = "https://detallesorballo.com/wp-content/uploads/2020/09/imagen-de-prueba-320x240-1.jpg",
+                    imagen = "https://static.wikia.nocookie.net/minecraft_gamepedia/images/f/f0/Potion_of_Strength_JE3.png/revision/latest/scale-to-width/360?cb=20230303163006",
                     efectosPropios = mutableMapOf("Mana" to 100.0),
                     efectosRival = mutableMapOf("Fuerza" to -6.0),
-                    usos = 10
+                    usos = 2
                 )
                 partidaBasica.objetos.add(objeto)
                 // 4. GUARDAMOS EN BASE DE DATOS
