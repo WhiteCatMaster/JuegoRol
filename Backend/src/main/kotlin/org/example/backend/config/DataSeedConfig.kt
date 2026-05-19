@@ -34,28 +34,28 @@ class DataSeedConfig {
                 )
                 val personaje1 = CrearPartidaDto.PersonajeDto(
                     personajeNombre = "Personaje 1",
-                    personajeVida = 1500,
+                    personajeVida = 150,
                     personajeFotoUrl = "https://upload.wikimedia.org/wikipedia/commons/f/fb/Serinus_canaria_gelb.JPG",
                     personajeEstadisticas = mutableListOf(),
                     personajeAtaques = mutableListOf()
                 )
                 val estadistica1 = CrearPartidaDto.PersonajeDto.EstadisticaDto(
                     nombre = "Fuerza",
-                    valor = 1500,
+                    valor = 150,
                     consumible = false
                 )
                 val estadistica2 = CrearPartidaDto.PersonajeDto.EstadisticaDto(
                     nombre = "Mana",
-                    valor = 2000,
+                    valor = 200,
                     consumible = true
                 )
                 val ataque1 = CrearPartidaDto.PersonajeDto.AtaqueDto(
                     nombre = "Golpe",
-                    manaAtacante = mutableMapOf("Mana" to 100),
+                    manaAtacante = mutableMapOf("Mana" to 10),
                     estadisticasDefensor = mutableMapOf("Mana" to 2.5, "Fuerza" to 0.5),
                     dadoBase = 10,
                     ratioDado = mutableListOf(1,2),
-                    danoAtaque = 50
+                    danoAtaque = 30
                 )
                 personaje1.personajeAtaques.add(ataque1)
                 personaje1.personajeEstadisticas.add(estadistica2)
@@ -63,28 +63,28 @@ class DataSeedConfig {
                 partidaBasica.jugadores.add(personaje1)
                 val personaje2 = CrearPartidaDto.PersonajeDto(
                     personajeNombre = "Personaje 2",
-                    personajeVida = 2000,
+                    personajeVida = 200,
                     personajeFotoUrl = "https://upload.wikimedia.org/wikipedia/commons/0/05/Wild_rock_dove_at_Raikot%2C_Diamer%2C_Gilgit-Baltistan%2C_Pakistan.png?utm_source=es.wikipedia.org&utm_campaign=index&utm_content=original",
                     personajeEstadisticas = mutableListOf(),
                     personajeAtaques = mutableListOf()
                 )
                 val estadistica3 = CrearPartidaDto.PersonajeDto.EstadisticaDto(
                     nombre = "Fuerza",
-                    valor = 1000,
+                    valor = 100,
                     consumible = false
                 )
                 val estadistica4 = CrearPartidaDto.PersonajeDto.EstadisticaDto(
                     nombre = "Mana",
-                    valor = 2500,
+                    valor = 250,
                     consumible = true
                 )
                 val ataque2 = CrearPartidaDto.PersonajeDto.AtaqueDto(
                     nombre = "Arañazo",
-                    manaAtacante = mutableMapOf("Mana" to 150),
+                    manaAtacante = mutableMapOf("Mana" to 15),
                     estadisticasDefensor = mutableMapOf("Mana" to 1.5, "Fuerza" to 2.5),
                     dadoBase = 11,
                     ratioDado = mutableListOf(3,4),
-                    danoAtaque = 100
+                    danoAtaque = 20
                 )
                 personaje2.personajeAtaques.add(ataque2)
                 personaje2.personajeEstadisticas.add(estadistica3)
@@ -95,7 +95,7 @@ class DataSeedConfig {
                     nombre = "objeto 1",
                     descripcion = "Descripcion objeto 1",
                     imagen = "https://detallesorballo.com/wp-content/uploads/2020/09/imagen-de-prueba-320x240-1.jpg",
-                    efectosPropios = mutableMapOf("Mana" to 10.0),
+                    efectosPropios = mutableMapOf("Mana" to 100.0),
                     efectosRival = mutableMapOf("Fuerza" to -6.0),
                     usos = 10
                 )
