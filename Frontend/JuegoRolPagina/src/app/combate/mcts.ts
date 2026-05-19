@@ -39,11 +39,24 @@ export class GameState {
     });
 
     const objetosLegales = this.objetos.filter(obj => {
-      if (obj.usos > 0 || obj.usos === 0) {
-          const curaVida = obj.efectosPropios.find(e => e.estadistica.toLowerCase() === 'vida');
-          if (curaVida && this.hpPropio > 80) return false; 
-          return true;
+      if (obj.usos <= 0) return false;
+
+      // Daño al rival → siempre aporta algo
+      for (const ef of obj.efectosRival) {
+        if (ef.estadistica.toLowerCase() === 'vida' && ef.valor < 0) return true;
       }
+
+      // Curación útil solo si estamos heridos; buffs útiles solo si la stat está baja
+      for (const ef of obj.efectosPropios) {
+        const nombre = ef.estadistica.toLowerCase();
+        if (nombre === 'vida') {
+          if (ef.valor > 0 && this.hpPropio < 70) return true;
+        } else if (ef.valor > 0) {
+          const stat = this.stats.find(s => s.nombreEstadistica.toLowerCase() === nombre);
+          if (stat && stat.valorPropio < 30) return true;
+        }
+      }
+
       return false;
     });
 
@@ -111,10 +124,10 @@ export class GameState {
     const quedadoSeco = !victoria && newTurno < this.maxTurnos && dummyState.getLegalActions().length === 0;
 
     return new GameState(
-        newHpPropio, newStats, newHpEnemigo, this.dificultad, this.ataques, newObjetos, 
-        newTurno, this.maxTurnos, 
+        newHpPropio, newStats, newHpEnemigo, this.dificultad, this.ataques, newObjetos,
+        newTurno, this.maxTurnos,
         'usos' in accion ? this.turnosAtacados : this.turnosAtacados + 1,
-        victoria, quedadoSeco, objetoUtilUsado
+        victoria, quedadoSeco, this.usoObjetoUtil || objetoUtilUsado
     );
   }
 
