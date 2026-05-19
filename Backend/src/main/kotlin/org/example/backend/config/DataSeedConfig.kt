@@ -57,7 +57,16 @@ class DataSeedConfig {
                     ratioDado = mutableListOf(1,2),
                     danoAtaque = 30
                 )
+                val ataqueBasico1 = CrearPartidaDto.PersonajeDto.AtaqueDto(
+                    nombre = "Básico",
+                    manaAtacante = mutableMapOf(),
+                    estadisticasDefensor = mutableMapOf(),
+                    dadoBase = 6,
+                    ratioDado = mutableListOf(1,6),
+                    danoAtaque = 20
+                )
                 personaje1.personajeAtaques.add(ataque1)
+                personaje1.personajeAtaques.add(ataqueBasico1)
                 personaje1.personajeEstadisticas.add(estadistica2)
                 personaje1.personajeEstadisticas.add(estadistica1)
                 partidaBasica.jugadores.add(personaje1)
@@ -86,7 +95,16 @@ class DataSeedConfig {
                     ratioDado = mutableListOf(3,4),
                     danoAtaque = 20
                 )
+                val ataqueBasico2 = CrearPartidaDto.PersonajeDto.AtaqueDto(
+                    nombre = "Básico",
+                    manaAtacante = mutableMapOf(),
+                    estadisticasDefensor = mutableMapOf(),
+                    dadoBase = 6,
+                    ratioDado = mutableListOf(1,6),
+                    danoAtaque = 20
+                )
                 personaje2.personajeAtaques.add(ataque2)
+                personaje2.personajeAtaques.add(ataqueBasico2)
                 personaje2.personajeEstadisticas.add(estadistica3)
                 personaje2.personajeEstadisticas.add(estadistica4)
                 partidaBasica.jugadores.add(personaje2)
