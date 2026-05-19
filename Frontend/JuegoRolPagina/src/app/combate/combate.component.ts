@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Partida } from '../models/partida';
 import { computed } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { CombatePersonajesDto, ServicioAPI, toPersonaje } from '../servicio-api';
+import { CombatePersonajesDto, ServicioAPI, toObjeto, toPersonaje } from '../servicio-api';
 import { MusicaService } from '../servicio/musica.service';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
@@ -30,6 +30,7 @@ export class CombateComponent implements OnInit {
     vida: 0,
     ataquesDelPersonaje: [],
     estadisticasDelPersonaje: [],
+    inventario: []
   });
   vidaMaximaTuyo = signal<number>(0);
   vidaMaximaRival = signal<number>(0);
@@ -41,6 +42,7 @@ export class CombateComponent implements OnInit {
     vida: 0,
     ataquesDelPersonaje: [],
     estadisticasDelPersonaje: [],
+    inventario: []
   });
 
   ataqueSeleccionado = signal<Ataque>({
@@ -53,6 +55,7 @@ export class CombateComponent implements OnInit {
     danoAtaque: 0,
   });
   combateId: string | null = null;
+  partidaId: string = ''
 
   ambasEstatsBien = false;
   turnoTuyo = true;
@@ -496,6 +499,32 @@ export class CombateComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.route.paramMap.subscribe(params => {
+      if (params.get('idPartida') && params.get('id')) {
+        this.partidaId = params.get('idPartida') ?? ''
+        this.combateId = params.get('id') ?? ''
+        console.log(this.partidaId, ', ', this.combateId)
+      }
+    })
+    this.servicioAPI.obtenerObjetos(this.partidaId).subscribe({
+          next: (objetosDto) => {
+            this.objetosDeTuPersonaje = []
+            this.objetosDelRival = []
+            console.log(objetosDto)
+            for(let i of objetosDto){
+              this.objetosDeTuPersonaje.push(toObjeto(i))
+              this.objetosDelRival.push(toObjeto(i))
+            }
+            console.log(this.objetosDeTuPersonaje)
+            console.log(this.objetosDelRival)
+          },
+          error: (e) => {
+            console.log('Error al obtener objetos de una partida: ', e)
+          }
+        })
+    
+    
+    
     //this.cargarPersonajesDePrueba();
     this.combateId = this.route.snapshot.paramMap.get('id');
     //this.cargarPartidaDePrueba();
@@ -515,6 +544,7 @@ export class CombateComponent implements OnInit {
     }
 
     // Pronto quitaré la parte de descripción del menú de crear objeto.
+    /*
     this.objetosDeTuPersonaje = [
       {
         nombre: 'Poción de vida',
@@ -574,6 +604,7 @@ export class CombateComponent implements OnInit {
         id: null
       },
     ];
+    */
   }
 
   cargarPersonajesBD(dto: CombatePersonajesDto) {

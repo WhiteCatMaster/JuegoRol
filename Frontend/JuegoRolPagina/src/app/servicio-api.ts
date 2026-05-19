@@ -73,6 +73,10 @@ export class ServicioAPI {
     return this.http.post<any>(`${this.apiUrl}/plantilla`, payload);
   }
 
+  obtenerObjetos(idPartida: string): Observable<ObjetoDto[]>{
+    return this.http.get<any[]>(`${this.apiUrl}/partida/${idPartida}/objeto`);
+  }
+
 
 }
 export interface EstadisticaDto{
@@ -99,6 +103,7 @@ export interface PersonajeDto {
   personajeFotoUrl: string;
   personajeEstadisticas: EstadisticaDto[];
   personajeAtaques: AtaqueDto[];
+  inventario: ObjetoDto[]
 }
 export interface ObjetoDto{
   id: number
@@ -221,6 +226,7 @@ export function toAtaqueDto(ataque: Ataque): AtaqueDto{
 export function toPersonaje(dto: PersonajeDto): Personaje{
   let ataques: Ataque[] = [];
   let estats: EstadisticaPersonaje[] = []
+  let objetos: Objeto[] = []
   for( let i of dto.personajeAtaques){
     let ataque: Ataque = toAtaque(i)
     ataques.push(ataque)
@@ -228,13 +234,19 @@ export function toPersonaje(dto: PersonajeDto): Personaje{
   for (let i of dto.personajeEstadisticas){
     estats.push(toPersonajeEstadistica(i))
   }
+  if(dto.inventario){
+    for(let i of dto.inventario){
+      objetos.push(toObjeto(i))
+    }
+  }
   let resultado: Personaje = {
     id: dto.id,
     nombre: dto.personajeNombre,
     urlSprite: dto.personajeFotoUrl,
     vida: dto.personajeVida,
     ataquesDelPersonaje: ataques,
-    estadisticasDelPersonaje: estats
+    estadisticasDelPersonaje: estats,
+    inventario: objetos
   }
   return resultado
 }
@@ -247,13 +259,18 @@ export function toPersonajeDto(personaje: Personaje): PersonajeDto{
   for(let i of personaje.ataquesDelPersonaje){
     ataques.push(toAtaqueDto(i))
   }
+  let objetos: ObjetoDto[] = []
+  for(let i of personaje.inventario){
+    objetos.push(toObjetoDto(i))
+  }
   let resultado : PersonajeDto = {
     id: personaje.id ?? -1,
     personajeNombre: personaje.nombre,
     personajeVida: personaje.vida,
     personajeFotoUrl: personaje.urlSprite, //Creo que en la mayoria utilizamos la urlSprite 
     personajeEstadisticas: estadisticas,
-    personajeAtaques: ataques
+    personajeAtaques: ataques,
+    inventario: objetos
   }
   return resultado
 }

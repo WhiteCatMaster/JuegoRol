@@ -51,23 +51,37 @@
           <select [(ngModel)]="objetoSeleccionadoId" class="select-objeto">
             <option [ngValue]="null">-- Seleccionar Objeto --</option>
             @for (obj of objetosDisponibles; track obj.id) {
-              <option [ngValue]="obj.id">{{ obj.nombre }} (+{{ obj.valorBonus }} {{ obj.statAfectada }})</option>
+              <option [ngValue]="obj.id">{{ obj.nombre }} (Usos: {{ obj.usos === 0 ? '∞' : obj.usos }})</option>
             }
           </select>
           <button class="btn-minidado" (click)="asignarObjeto()">+</button>
         </div>
 
         <div class="lista-inventario con-scroll">
-          @if (personajeEditar().inventario?.length === 0) {
+          @if (personajeEditar().inventario.length === 0) {
             <p style="text-align: center; opacity: 0.6;">El inventario está vacío...</p>
           }
 
           @for (item of personajeEditar().inventario; track $index) {
             <div class="item-tarjeta">
-              <img [src]="item.urlImagen" alt="Icono" class="item-icono">
+              <img [src]="item.imagen" alt="Icono" class="item-icono">
               <div class="item-info">
                 <span class="item-nombre">{{ item.nombre }}</span>
-                <span class="item-efecto">+{{ item.valorBonus }} {{ item.statAfectada }}</span>
+                <div class="item-efectos-contenedor">
+                  @for (efecto of item.efectosPropios; track efecto.estadistica) {
+                    <div>
+                      +{{ efecto.valor }} {{ efecto.estadistica }}
+                    </div>
+                  }
+                  @for (efecto of item.efectosRival; track efecto.estadistica) {
+                    <div>
+                      -{{ efecto.valor }} {{ efecto.estadistica }} (Rival)
+                    </div>
+                  }
+                  <div>
+                    Usos: {{ item.usos === 0 ? 'Ilimitados' : item.usos }}
+                  </div>
+                </div>
               </div>
               <button class="btn-quitar" (click)="quitarObjeto($index)">X</button>
             </div>

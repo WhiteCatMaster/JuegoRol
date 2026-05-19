@@ -91,6 +91,7 @@ export class OpcionesComponent implements OnInit{
         },
       ],
       id: null,
+      inventario: []
     },
   ];
 
@@ -234,7 +235,8 @@ export class OpcionesComponent implements OnInit{
       urlSprite: '',
       vida: 0,
       ataquesDelPersonaje: [],
-      estadisticasDelPersonaje: []
+      estadisticasDelPersonaje: [],
+      inventario: []
     }
   };
 
@@ -350,6 +352,7 @@ export class OpcionesComponent implements OnInit{
       }],
       estadisticasDelPersonaje: estadisticasNuevas,
       id: null,
+      inventario: []
     });
   }
 
