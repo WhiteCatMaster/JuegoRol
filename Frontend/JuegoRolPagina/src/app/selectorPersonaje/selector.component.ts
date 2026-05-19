@@ -27,6 +27,7 @@ export class SelectorPersonajeComponent implements OnInit {
   });
   personajesActual = signal<Personaje[]>([])
   combateID= signal<number>(-1);
+  partidaID: string |null= ''
 
   enlace = '';
 
@@ -39,7 +40,8 @@ export class SelectorPersonajeComponent implements OnInit {
     urlSprite: '',
     vida: 0,
     ataquesDelPersonaje: [],
-    estadisticasDelPersonaje: []
+    estadisticasDelPersonaje: [],
+    inventario: []
   };
   enemigoSeleccionado: Personaje = {
     id: null,
@@ -47,7 +49,8 @@ export class SelectorPersonajeComponent implements OnInit {
     urlSprite: '',
     vida: 0,
     ataquesDelPersonaje: [],
-    estadisticasDelPersonaje: []
+    estadisticasDelPersonaje: [],
+    inventario: []
   };
 
   constructor(
@@ -63,9 +66,9 @@ export class SelectorPersonajeComponent implements OnInit {
   // Lo otro, lo de la base de datos temporal
   ngOnInit(): void {
     //this.cargarPartidaDePrueba();
-    let partidaID = this.route.snapshot.paramMap.get('id');
-    if (partidaID) {
-      this.servicioAPI.obtenerDatosPartida(partidaID).subscribe({
+    this.partidaID = this.route.snapshot.paramMap.get('id');
+    if (this.partidaID !== '') {
+      this.servicioAPI.obtenerDatosPartida(this.partidaID?? '').subscribe({
         next: (partidaBackend) => {
           this.cargasPartidasBD(partidaBackend);
           console.log(this.partidaActual());
@@ -132,12 +135,12 @@ export class SelectorPersonajeComponent implements OnInit {
         console.log('ID del combate real:', this.combateID());
         
         // 2. AHORA SÍ, navegamos a la pantalla usando el ID real
-        this.router.navigate(['/jugar-combate', this.combateID()]);
+        this.router.navigate(['selector-personaje/',this.partidaID,'jugar-combate', this.combateID()]);
       },
       error: (err) => {
         alert('Hubo un error al crear el combate en el servidor');
         console.error(err);
-        this.router.navigate(['/jugar-combate', this.combateID()]);
+        this.router.navigate(['selector-personaje/',this.partidaID,'/jugar-combate', this.combateID()]);
       }
     });
   }
@@ -189,6 +192,7 @@ export class SelectorPersonajeComponent implements OnInit {
               danoAtaque: 0
             },
           ],
+          inventario: []
         },
         {
           id: 2,
@@ -216,6 +220,7 @@ export class SelectorPersonajeComponent implements OnInit {
               danoAtaque: 0
             },
           ],
+          inventario: []
         },
         {
           id: 3,
@@ -247,6 +252,7 @@ export class SelectorPersonajeComponent implements OnInit {
               danoAtaque: 0
             },
           ],
+          inventario: []
         },
         {
           id: 4,
@@ -274,6 +280,7 @@ export class SelectorPersonajeComponent implements OnInit {
               danoAtaque: 0
             },
           ],
+          inventario: []
         },
         {
           id: 5,
@@ -301,6 +308,7 @@ export class SelectorPersonajeComponent implements OnInit {
               danoAtaque: 0
             },
           ],
+          inventario: []
         },
         {
           id: 6,
@@ -332,6 +340,7 @@ export class SelectorPersonajeComponent implements OnInit {
               danoAtaque: 0
             },
           ],
+          inventario: []
         },
       ]
     this.personajesActual.set(personajes)

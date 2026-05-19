@@ -1,4 +1,5 @@
 export interface Objeto {
+  id: number|null;
   nombre: string;
   descripcion: string;
   imagen: string;

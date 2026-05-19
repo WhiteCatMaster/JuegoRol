@@ -39,7 +39,8 @@ const relacionAjedrez: JugadorJuego = {
     urlSprite: '',
     vida: 0,
     ataquesDelPersonaje: [],
-    estadisticasDelPersonaje: []
+    estadisticasDelPersonaje: [],
+    inventario: []
   }
 };
 
@@ -54,7 +55,8 @@ const relacionDungeon: JugadorJuego = {
     urlSprite: '',
     vida: 0,
     ataquesDelPersonaje: [],
-    estadisticasDelPersonaje: []
+    estadisticasDelPersonaje: [],
+    inventario: []
   }
 };
 

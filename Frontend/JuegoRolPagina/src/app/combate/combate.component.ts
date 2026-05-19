@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Partida } from '../models/partida';
 import { computed } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { CombatePersonajesDto, ServicioAPI, toPersonaje } from '../servicio-api';
+import { CombatePersonajesDto, ServicioAPI, toObjeto, toPersonaje } from '../servicio-api';
 import { MusicaService } from '../servicio/musica.service';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
@@ -30,6 +30,7 @@ export class CombateComponent implements OnInit {
     vida: 0,
     ataquesDelPersonaje: [],
     estadisticasDelPersonaje: [],
+    inventario: []
   });
   vidaMaximaTuyo = signal<number>(0);
   vidaMaximaRival = signal<number>(0);
@@ -41,6 +42,7 @@ export class CombateComponent implements OnInit {
     vida: 0,
     ataquesDelPersonaje: [],
     estadisticasDelPersonaje: [],
+    inventario: []
   });
 
   ataqueSeleccionado = signal<Ataque>({
@@ -53,6 +55,7 @@ export class CombateComponent implements OnInit {
     danoAtaque: 0,
   });
   combateId: string | null = null;
+  partidaId: string = ''
 
   ambasEstatsBien = false;
   turnoTuyo = true;
@@ -66,6 +69,11 @@ export class CombateComponent implements OnInit {
   recibiendoRival = false;
   muerteTuyo = false;
   muerteRival = false;
+
+  buffTuyo = false;
+  debilTuyo = false;
+  buffRival = false;
+  debilRival = false;
 
   TuTurno = true;
 
@@ -127,34 +135,42 @@ export class CombateComponent implements OnInit {
   }
 
   ejecutarTurnoCpu() {
-    const rivalActual = this.rival();
-    if (!rivalActual || !rivalActual.ataquesDelPersonaje) {
-      this.turnoTuyo = true;
-      this.TuTurno = true;
-      return;
+      const rivalActual = this.rival();
+      if (!rivalActual || !rivalActual.ataquesDelPersonaje) {
+        this.turnoTuyo = true;
+        this.TuTurno = true;
+        return;
+      }
+
+      const accionIA = this.cpu.elegirAccion(
+        rivalActual.ataquesDelPersonaje,
+        this.objetosDelRival,
+        this.dificultadCpu,
+        rivalActual.estadisticasDelPersonaje,
+        this.personajeTuyo()?.vida ?? 100,
+        rivalActual.vida
+      );
+
+      if (!accionIA) {
+        this.turnoTuyo = true;
+        this.TuTurno = true;
+        return;
+      }
+
+      // Type guard: Evaluamos si la IA ha decidido usar un objeto
+      if ('usos' in accionIA) {
+        this.usarObjetoRival(accionIA as Objeto);
+      } else {
+        // Ha decidido usar un ataque
+        this.ataqueSeleccionado.set(accionIA as Ataque);
+
+        const total = accionIA.dadoBase && accionIA.dadoBase > 0 ? accionIA.dadoBase : 6;
+        const dado = Math.floor(Math.random() * total) + 1;
+        this.resultadoUltimoDado.set(dado);
+
+        this.pasarTurnoRival();
+      }
     }
-
-    // MCTS filtra internamente via getLegalActions() — pasamos todo
-    const ataque = this.cpu.elegirAtaque(
-      rivalActual.ataquesDelPersonaje,
-      this.dificultadCpu,
-      rivalActual.estadisticasDelPersonaje,
-      this.personajeTuyo()?.vida ?? 100,
-    );
-    if (!ataque) {
-      this.turnoTuyo = true;
-      this.TuTurno = true;
-      return;
-    }
-
-    this.ataqueSeleccionado.set(ataque);
-
-    const total = ataque.dadoBase && ataque.dadoBase > 0 ? ataque.dadoBase : 6;
-    const dado = Math.floor(Math.random() * total) + 1;
-    this.resultadoUltimoDado.set(dado);
-
-    this.pasarTurnoRival();
-  }
 
   pasarTurnoTuyo() {
     console.log(this.ataqueSeleccionado());
@@ -348,7 +364,7 @@ export class CombateComponent implements OnInit {
   }
 
   usarObjetoRival(objeto: Objeto) {
-    if (this.TuTurno || this.usarCpu) return;
+    if (this.TuTurno) return; 
 
     const yo = this.rival();
     const objetivo = this.personajeTuyo();
@@ -397,6 +413,22 @@ export class CombateComponent implements OnInit {
       if (objeto.usos === 0) {
         this.objetosDelRival = this.objetosDelRival.filter((o) => o !== objeto);
       }
+    }
+
+    if (objeto.efectosPropios.length > 0 || efectoVidaPropia) {
+      this.buffRival = true;
+      setTimeout(() => {
+        this.buffRival = false;
+        this.cdr.detectChanges();
+      }, 1000);
+    }
+
+    if (objeto.efectosRival.length > 0 || efectoVidaRival) {
+      this.debilTuyo = true;
+      setTimeout(() => {
+        this.debilTuyo = false;
+        this.cdr.detectChanges();
+      }, 1000);
     }
 
     this.mensajeObjetoRival = `¡${objeto.nombre} usado!`;
@@ -473,6 +505,22 @@ export class CombateComponent implements OnInit {
       }
     }
 
+    if (objeto.efectosPropios.length > 0 || efectoVidaPropia) {
+      this.buffTuyo = true;
+      setTimeout(() => {
+        this.buffTuyo = false;
+        this.cdr.detectChanges();
+      }, 1000);
+    }
+
+    if (objeto.efectosRival.length > 0 || efectoVidaRival) {
+      this.debilRival = true;
+      setTimeout(() => {
+        this.debilRival = false;
+        this.cdr.detectChanges();
+      }, 1000);
+    }
+    
     // Animación de uso
     this.mensajeObjeto = `¡${objeto.nombre} usado!`;
     this.objetoUsadoAnimacion = true;
@@ -496,81 +544,51 @@ export class CombateComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    //this.cargarPersonajesDePrueba();
-    this.combateId = this.route.snapshot.paramMap.get('id');
-    //this.cargarPartidaDePrueba();
-    if (this.combateId) {
-      this.servicioAPI.obtenerCombate(this.combateId).subscribe({
-        next: (partidaBackend) => {
-          this.cargarPersonajesBD(partidaBackend);
-          console.log(partidaBackend);
+  // Nos suscribimos a los parámetros de la URL
+  this.route.paramMap.subscribe(params => {
+    const partidaIdParam = params.get('idPartida');
+    const combateIdParam = params.get('id');
+
+    // 1. CARGAMOS LOS OBJETOS (Solo si tenemos el ID de la partida)
+    if (partidaIdParam) {
+      this.partidaId = partidaIdParam;
+      console.log('ID Partida:', this.partidaId);
+
+      this.servicioAPI.obtenerObjetos(this.partidaId).subscribe({
+        next: (objetosDto) => {
+          this.objetosDeTuPersonaje = [];
+          this.objetosDelRival = [];
+          
+          for (let i of objetosDto) {
+            this.objetosDeTuPersonaje.push(toObjeto(i));
+            this.objetosDelRival.push(toObjeto(i));
+          }
+          console.log('Objetos cargados con éxito para la IA y para ti.');
         },
+        error: (e) => console.log('Error al obtener objetos:', e)
       });
     }
 
-    const urlGuardada = this.musicaService.urlYoutube();
+    // 2. CARGAMOS EL COMBATE (Solo si tenemos el ID del combate)
+    if (combateIdParam) {
+      this.combateId = combateIdParam;
+      console.log('ID Combate:', this.combateId);
 
-    if (urlGuardada) {
-      this.musicaSegurizada = this.sanitizer.bypassSecurityTrustResourceUrl(urlGuardada);
+      this.servicioAPI.obtenerCombate(this.combateId).subscribe({
+        next: (partidaBackend) => {
+          this.cargarPersonajesBD(partidaBackend);
+          console.log('Personajes de combate cargados.');
+        },
+      });
     }
+  });
 
-    // Pronto quitaré la parte de descripción del menú de crear objeto.
-    this.objetosDeTuPersonaje = [
-      {
-        nombre: 'Poción de vida',
-        descripcion: 'Restaura vida al portador.',
-        imagen:
-          'https://static.wikia.nocookie.net/minecraft_gamepedia/images/7/75/Water_Bottle_JE2_BE2.png/revision/latest/thumbnail/width/360/height/360?cb=20191027055423',
-        efectosPropios: [{ estadistica: 'vida', valor: 30 }],
-        efectosRival: [],
-        usos: 2,
-      },
-      {
-        nombre: 'Veneno',
-        descripcion: 'Envenena al rival reduciendo su maná.',
-        imagen: '',
-        efectosPropios: [],
-        efectosRival: [{ estadistica: 'mana', valor: -15 }],
-        usos: 1,
-      },
-      {
-        nombre: 'Elixir de fuerza',
-        descripcion: 'Aumenta tu fuerza y daña al rival.',
-        imagen:
-          'https://static.wikia.nocookie.net/zelda/images/b/bd/Pocion_roja_ww.png/revision/latest?cb=20140208191256&path-prefix=es',
-        efectosPropios: [{ estadistica: 'fuerza', valor: 10 }],
-        efectosRival: [{ estadistica: 'vida', valor: -10 }],
-        usos: 0,
-      },
-      {
-        nombre: 'Maldición',
-        descripcion: 'Reduce drásticamente la vida del rival.',
-        imagen: '',
-        efectosPropios: [],
-        efectosRival: [{ estadistica: 'vida', valor: -40 }],
-        usos: 1,
-      },
-    ];
-
-    this.objetosDelRival = [
-      {
-        nombre: 'Poción de vida',
-        descripcion: 'Restaura vida al portador.',
-        imagen: 'https://i.imgur.com/8Z2zR9A.png',
-        efectosPropios: [{ estadistica: 'vida', valor: 30 }],
-        efectosRival: [],
-        usos: 2,
-      },
-      {
-        nombre: 'Maldición',
-        descripcion: 'Reduce la vida del rival.',
-        imagen: '',
-        efectosPropios: [],
-        efectosRival: [{ estadistica: 'vida', valor: -40 }],
-        usos: 1,
-      },
-    ];
+  // 3. CARGAMOS LA MÚSICA (Esto no necesita esperar a la BD)
+  const urlGuardada = this.musicaService.urlYoutube();
+  if (urlGuardada) {
+    this.musicaSegurizada = this.sanitizer.bypassSecurityTrustResourceUrl(urlGuardada);
   }
+}
 
   cargarPersonajesBD(dto: CombatePersonajesDto) {
     let personajeTuyo = toPersonaje(dto.personaje1);

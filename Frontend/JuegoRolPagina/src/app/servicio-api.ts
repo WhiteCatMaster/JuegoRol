@@ -10,6 +10,7 @@ import { Estadistica } from './models/estadistica';
 import { Ataque } from './models/ataque';
 import { EstadisticaPersonaje, Personaje, toPersonajeEstadistica, toPersonajeEstadisticaDto } from './models/personaje';
 import { Partida, Plantilla } from './models/partida';
+import { Objeto } from './models/objeto';
 
 
 @Injectable({
@@ -60,6 +61,8 @@ export class ServicioAPI {
   obtenerPlantillas(): Observable<Plantilla[]>{
     return this.http.get<any[]>(`${this.apiUrl}/plantilla`);
   }
+
+
   //El jsonConfig deberia de ser un json cuando llegue aqui
   guardarPlantilla(nombre: string, jsonConfig: CrearPartidaDto): Observable<Plantilla>{
     let payload: Plantilla = {
@@ -68,6 +71,10 @@ export class ServicioAPI {
       jsonConfiguration: jsonConfig
     }
     return this.http.post<any>(`${this.apiUrl}/plantilla`, payload);
+  }
+
+  obtenerObjetos(idPartida: string): Observable<ObjetoDto[]>{
+    return this.http.get<any[]>(`${this.apiUrl}/partida/${idPartida}/objeto`);
   }
 
 
@@ -96,6 +103,16 @@ export interface PersonajeDto {
   personajeFotoUrl: string;
   personajeEstadisticas: EstadisticaDto[];
   personajeAtaques: AtaqueDto[];
+  inventario: ObjetoDto[]
+}
+export interface ObjetoDto{
+  id: number
+  nombre: string, 
+  descripcion: string,
+  imagen: string,
+  efectosPropios: {[key: string]: number},
+  efectosRival: {[key: string]: number},
+  usos: number,
 }
 export interface DatosPartidaDto{
   id: number;
@@ -103,7 +120,8 @@ export interface DatosPartidaDto{
   descripcion: string;
   idioma: string;
   maximoJugadores: number;
-  jugadores: PersonajeDto[]
+  jugadores: PersonajeDto[];
+  objetos: ObjetoDto[];
 }
 export interface JugadorDto{
   id: number;
@@ -208,6 +226,7 @@ export function toAtaqueDto(ataque: Ataque): AtaqueDto{
 export function toPersonaje(dto: PersonajeDto): Personaje{
   let ataques: Ataque[] = [];
   let estats: EstadisticaPersonaje[] = []
+  let objetos: Objeto[] = []
   for( let i of dto.personajeAtaques){
     let ataque: Ataque = toAtaque(i)
     ataques.push(ataque)
@@ -215,13 +234,19 @@ export function toPersonaje(dto: PersonajeDto): Personaje{
   for (let i of dto.personajeEstadisticas){
     estats.push(toPersonajeEstadistica(i))
   }
+  if(dto.inventario){
+    for(let i of dto.inventario){
+      objetos.push(toObjeto(i))
+    }
+  }
   let resultado: Personaje = {
     id: dto.id,
     nombre: dto.personajeNombre,
     urlSprite: dto.personajeFotoUrl,
     vida: dto.personajeVida,
     ataquesDelPersonaje: ataques,
-    estadisticasDelPersonaje: estats
+    estadisticasDelPersonaje: estats,
+    inventario: objetos
   }
   return resultado
 }
@@ -234,13 +259,18 @@ export function toPersonajeDto(personaje: Personaje): PersonajeDto{
   for(let i of personaje.ataquesDelPersonaje){
     ataques.push(toAtaqueDto(i))
   }
+  let objetos: ObjetoDto[] = []
+  for(let i of personaje.inventario){
+    objetos.push(toObjetoDto(i))
+  }
   let resultado : PersonajeDto = {
     id: personaje.id ?? -1,
     personajeNombre: personaje.nombre,
     personajeVida: personaje.vida,
     personajeFotoUrl: personaje.urlSprite, //Creo que en la mayoria utilizamos la urlSprite 
     personajeEstadisticas: estadisticas,
-    personajeAtaques: ataques
+    personajeAtaques: ataques,
+    inventario: objetos
   }
   return resultado
 }
@@ -262,6 +292,56 @@ export function toPartidaDto(partida: Partida, adminId: number): PartidaDto{
     idioma: partida.idioma,
     maximoJugadores: partida.maxJugadores,
     adminId: adminId
+  }
+  return resultado
+}
+
+export function toObjeto(dto: ObjetoDto): Objeto{
+  let propios: {estadistica: string, valor: number}[] = []
+  let rival: {estadistica: string, valor: number}[] = []
+  for(let [nombre, valor] of Object.entries(dto.efectosPropios)){
+    let stat: {estadistica: string, valor: number} = {
+      estadistica: nombre,
+      valor: valor
+    }
+    propios.push(stat)
+  }
+  for(let [nombre, valor] of Object.entries(dto.efectosRival)){
+    let stat: {estadistica: string, valor: number} = {
+      estadistica: nombre,
+      valor: valor
+    }
+    rival.push(stat)
+  }
+  let resultado: Objeto = {
+    id: dto.id,
+    nombre: dto.nombre,
+    descripcion: dto.descripcion,
+    imagen: dto.imagen,
+    efectosPropios: propios,
+    efectosRival: rival,
+    usos: dto.usos,
+  }
+  return resultado 
+}
+
+export function toObjetoDto(objeto: Objeto): ObjetoDto{
+  let propios: {[key: string]: number} = {}
+  let rival: {[key: string]: number} = {}
+  for (let i of objeto.efectosPropios){
+    propios[i.estadistica] = i.valor
+  }
+  for (let i of objeto.efectosRival){
+    rival[i.estadistica] = i.valor
+  }
+  let resultado: ObjetoDto = {
+    id: objeto.id ?? -1,
+    nombre: objeto.nombre,
+    descripcion: objeto.descripcion,
+    imagen: objeto.imagen,
+    efectosPropios: propios,
+    efectosRival: rival,
+    usos: objeto.usos,
   }
   return resultado
 }

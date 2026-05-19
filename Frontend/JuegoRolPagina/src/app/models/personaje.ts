@@ -1,6 +1,7 @@
 import { EstadisticaDto } from "../servicio-api";
 import { Ataque } from "./ataque";
 import { Estadistica } from "./estadistica";
+import { Objeto } from "./objeto";
 
 export interface EstadisticaPersonaje {
   id: number;  
@@ -34,4 +35,5 @@ export function toPersonajeEstadisticaDto(estadistica: EstadisticaPersonaje): Es
     vida: number;
     ataquesDelPersonaje: Ataque[]; 
     estadisticasDelPersonaje: EstadisticaPersonaje[]; 
+    inventario: Objeto[]
   }

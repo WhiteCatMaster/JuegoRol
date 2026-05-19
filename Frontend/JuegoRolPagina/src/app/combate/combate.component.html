@@ -29,7 +29,7 @@
         }
         </div>
         <div class="ContenedorRival">
-          <img class="PersonajeTuyo" [class.AnimacionTuyo]="estaAtacandoTuyo" [class.recibiendoDano]="recibiendoTuyo" [class.muerte]="muerteTuyo" [src]="personajeTuyo().urlSprite">
+          <img class="PersonajeTuyo" [class.AnimacionTuyo]="estaAtacandoTuyo" [class.recibiendoDano]="recibiendoTuyo" [class.muerte]="muerteTuyo" [class.animacionBuff]="buffTuyo" [class.animacionDebil]="debilTuyo" [src]="personajeTuyo().urlSprite">
           <img class="PersonajeTuyo ImagenGifTuyo" [class.AnimacionTuyo]="estaAtacandoTuyo" [class.recibiendoDano]="recibiendoTuyo" [class.muerte]="muerteTuyo" src="https://i.imgur.com/dqf7meC.gif">
         </div>
         </div>
@@ -48,7 +48,7 @@
         }
         </div>
         <div class="ContenedorRival">
-          <img class="ImagenRival" [class.AnimacionRival]="estaAtacandoRival" [class.recibiendoDano]="recibiendoRival" [class.muerte]="muerteRival" [src]="rival().urlSprite">
+          <img class="ImagenRival" [class.AnimacionRival]="estaAtacandoRival" [class.recibiendoDano]="recibiendoRival" [class.muerte]="muerteRival" [class.animacionBuff]="buffRival" [class.animacionDebil]="debilRival" [src]="rival().urlSprite">
           <img class="ImagenRival ImagenGif" [class.AnimacionRival]="estaAtacandoRival" [class.recibiendoDano]="recibiendoRival" [class.muerte]="muerteRival" src="https://i.imgur.com/dqf7meC.gif">
         </div>
       </div>
@@ -77,7 +77,7 @@
               <h1 class="Ataques">ATAQUES de {{ personajeTuyo().nombre }}:</h1>
               <div class="ContenedorAtaques">
                 @for (ataque of personajeTuyo().ataquesDelPersonaje; track ataque.nombre) {
-                  @if (ataqueSeleccionado() == null) {
+                  @if (ataqueSeleccionado().nombre === "") {
                     <button (click)="seleccionarAtaque(ataque)" class="AtaqueBoton">{{ ataque.nombre }}</button>
                   } @else {
                     @if (ataqueSeleccionado() === ataque) {
@@ -151,9 +151,8 @@
       </div>
 
       <!-- MENU ATAQUES DERECHA -->
-      <div class="ClaseDerecha" [class.inactivo]="TuTurno  || usarCpu">
+      <div class="ClaseDerecha" [class.inactivo]="TuTurno" [class.activo]="!TuTurno  || usarCpu">
 
-      <div class="DerechaGrande">
         <button class="BtnToggleObjetos" (click)="togglePanelObjetosRival()" [title]="mostrarObjetosRival ? 'Ver ataques' : 'Ver objetos'">
           <span class="LabelToggle">{{ mostrarObjetosRival ? 'Ataques' : 'Objetos' }}</span>
         </button>
@@ -161,29 +160,82 @@
         @if (objetoUsadoAnimacionRival) {
           <div class="ToastObjeto">{{ mensajeObjetoRival }}</div>
         }
-        <div class="IzquierdaIzquierda">
-          <h1 class="Ataques">ATAQUES de {{ rival().nombre }}</h1>
-          @for (ataque of rival().ataquesDelPersonaje; track ataque.nombre) {
 
-            @if (ataqueSeleccionado() == null) {
-              <button (click)="seleccionarAtaque(ataque)" class="AtaqueBoton">{{ ataque.nombre }}</button>
-            } @else {
-                @if (ataqueSeleccionado() === ataque) {
-                  <button (click)="seleccionarAtaque(ataque)" class="AtaqueBoton"><strong>{{ ataque.nombre }}</strong></button>
-                } @else {
-                  <button (click)="seleccionarAtaque(ataque)" class="AtaqueBotonNoSeleccionado"><strong>{{ ataque.nombre }}</strong></button>
+        @if (!mostrarObjetosRival) {
+          <div class="DerechaGrande">
+            <div class="IzquierdaIzquierda">
+              <h1 class="Ataques">ATAQUES de {{ rival().nombre }}</h1>
+              <div class="ContenedorAtaques">
+                @for (ataque of rival().ataquesDelPersonaje; track ataque.nombre) {
+                  @if (ataqueSeleccionado().nombre === "") {
+                    <button (click)="seleccionarAtaque(ataque)" class="AtaqueBoton">{{ ataque.nombre }}</button>
+                  } @else {
+                    @if (ataqueSeleccionado() === ataque) {
+                      <button (click)="seleccionarAtaque(ataque)" class="AtaqueBoton"><strong>{{ ataque.nombre }}</strong></button>
+                    } @else {
+                      <button (click)="seleccionarAtaque(ataque)" class="AtaqueBotonNoSeleccionado"><strong>{{ ataque.nombre }}</strong></button>
+                    }
+                  }
                 }
+              </div>
+            </div>
+            <div class="IzquierdaDerecha">
+              <app-lanzador-dados (dadoLanzado)="ejecutarTurnoConDado($event)"></app-lanzador-dados>
+            </div>
+          </div>
+        }
+
+        @if (mostrarObjetosRival) {
+          <div class="DerechaGrande PanelObjetos">
+
+            @if (objetosDelRival.length === 0) {
+              <p class="SinObjetos">No tienes objetos disponibles.</p>
             }
 
-          }
-        </div>
+            <div class="ContenedorObjetos">
+              @for (obj of objetosDelRival; track obj.nombre) {
+                <div class="TarjetaObjeto"
+                     (click)="usarObjetoRival(obj)"
+                     (mouseenter)="objetoHoveredRival = obj"
+                     (mouseleave)="objetoHoveredRival = null">
 
-        <div class="IzquierdaDerecha">
-          <app-lanzador-dados (dadoLanzado)="ejecutarTurnoConDado($event)"></app-lanzador-dados>
-        </div>
+                  @if (obj.imagen) {
+                    <img [src]="obj.imagen" class="ImgObjeto" [alt]="obj.nombre">
+                  } @else {
+                    <div class="ImgObjetoPlaceholder">🎒</div>
+                  }
+
+                  <span class="NombreObjeto">{{ obj.nombre }}</span>
+                  <span class="UsosObjeto">{{ obj.usos === 0 ? '∞' : obj.usos }} uso{{ obj.usos !== 1 ? 's' : '' }}</span>
+
+                  @if (objetoHoveredRival === obj) {
+                    <div class="TooltipObjeto">
+                      <strong>{{ obj.nombre }}</strong>
+                      @if (obj.descripcion) {
+                        <em>{{ obj.descripcion }}</em>
+                      }
+                      @if (obj.efectosPropios.length > 0) {
+                        <span class="TooltipSeccion">⬆ Al portador:</span>
+                        @for (e of obj.efectosPropios; track e.estadistica) {
+                          <span class="TooltipEfecto TooltipVerde">{{ e.estadistica }}: {{ e.valor > 0 ? '+' : '' }}{{ e.valor }}</span>
+                        }
+                      }
+                      @if (obj.efectosRival.length > 0) {
+                        <span class="TooltipSeccion">⬇ Al rival:</span>
+                        @for (e of obj.efectosRival; track e.estadistica) {
+                          <span class="TooltipEfecto TooltipRojo">{{ e.estadistica }}: {{ e.valor > 0 ? '+' : '' }}{{ e.valor }}</span>
+                        }
+                      }
+                      <span class="TooltipUsar">Clic para usar</span>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
 
       </div>
-    </div>
     </div>
 
   }

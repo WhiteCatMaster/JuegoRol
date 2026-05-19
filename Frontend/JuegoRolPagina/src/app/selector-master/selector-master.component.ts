@@ -44,7 +44,7 @@ export class SelectorMasterComponent implements OnInit {
 
   seleccionarParaEditar(personaje: any) {
     console.log('Editando a:', personaje.nombre);
-    this.router.navigate(['/editar-personaje', personaje.id]);
+    this.router.navigate(['/selector-master/',this.route.snapshot.paramMap.get('id'),'editar-personaje', personaje.id]);
   }
 /*
 cargarDatosPrueba() {
