@@ -35,7 +35,7 @@ class DataSeedConfig {
                 val personaje1 = CrearPartidaDto.PersonajeDto(
                     personajeNombre = "Personaje 1",
                     personajeVida = 1500,
-                    personajeFotoUrl = "https://i.pinimg.com/736x/79/43/be/7943be7e31966d5de7f0f1971741d894.jpg",
+                    personajeFotoUrl = "https://upload.wikimedia.org/wikipedia/commons/f/fb/Serinus_canaria_gelb.JPG",
                     personajeEstadisticas = mutableListOf(),
                     personajeAtaques = mutableListOf()
                 )
@@ -54,7 +54,8 @@ class DataSeedConfig {
                     manaAtacante = mutableMapOf("Mana" to 100),
                     estadisticasDefensor = mutableMapOf("Mana" to 2.5, "Fuerza" to 0.5),
                     dadoBase = 10,
-                    ratioDado = mutableListOf(1,2)
+                    ratioDado = mutableListOf(1,2),
+                    danoAtaque = 50
                 )
                 personaje1.personajeAtaques.add(ataque1)
                 personaje1.personajeEstadisticas.add(estadistica2)
@@ -63,7 +64,7 @@ class DataSeedConfig {
                 val personaje2 = CrearPartidaDto.PersonajeDto(
                     personajeNombre = "Personaje 2",
                     personajeVida = 2000,
-                    personajeFotoUrl = "https://i.pinimg.com/736x/8a/f8/8b/8af88b36a9b36fb7bc292d313fb543ca.jpg",
+                    personajeFotoUrl = "https://upload.wikimedia.org/wikipedia/commons/0/05/Wild_rock_dove_at_Raikot%2C_Diamer%2C_Gilgit-Baltistan%2C_Pakistan.png?utm_source=es.wikipedia.org&utm_campaign=index&utm_content=original",
                     personajeEstadisticas = mutableListOf(),
                     personajeAtaques = mutableListOf()
                 )
@@ -82,7 +83,8 @@ class DataSeedConfig {
                     manaAtacante = mutableMapOf("Mana" to 150),
                     estadisticasDefensor = mutableMapOf("Mana" to 1.5, "Fuerza" to 2.5),
                     dadoBase = 11,
-                    ratioDado = mutableListOf(3,4)
+                    ratioDado = mutableListOf(3,4),
+                    danoAtaque = 100
                 )
                 personaje2.personajeAtaques.add(ataque2)
                 personaje2.personajeEstadisticas.add(estadistica3)
