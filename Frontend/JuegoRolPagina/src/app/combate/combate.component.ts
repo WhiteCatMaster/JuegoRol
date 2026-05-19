@@ -514,66 +514,7 @@ export class CombateComponent implements OnInit {
       this.musicaSegurizada = this.sanitizer.bypassSecurityTrustResourceUrl(urlGuardada);
     }
 
-    // Pronto quitaré la parte de descripción del menú de crear objeto.
-    this.objetosDeTuPersonaje = [
-      {
-        nombre: 'Poción de vida',
-        descripcion: 'Restaura vida al portador.',
-        imagen: 'https://static.wikia.nocookie.net/minecraft_gamepedia/images/7/75/Water_Bottle_JE2_BE2.png/revision/latest/thumbnail/width/360/height/360?cb=20191027055423',
-        efectosPropios: [{ estadistica: 'vida', valor: 30 }],
-        efectosRival: [],
-        usos: 2,
-        id: null
-      },
-      {
-        nombre: 'Veneno',
-        descripcion: 'Envenena al rival reduciendo su maná.',
-        imagen: '',
-        efectosPropios: [],
-        efectosRival: [{ estadistica: 'mana', valor: -15 }],
-        usos: 1,
-        id: null
-      },
-      {
-        nombre: 'Elixir de fuerza',
-        descripcion: 'Aumenta tu fuerza y daña al rival.',
-        imagen: 'https://static.wikia.nocookie.net/zelda/images/b/bd/Pocion_roja_ww.png/revision/latest?cb=20140208191256&path-prefix=es',
-        efectosPropios: [{ estadistica: 'fuerza', valor: 10 }],
-        efectosRival: [{ estadistica: 'vida', valor: -10 }],
-        usos: 0,
-        id: null
-      },
-      {
-        nombre: 'Maldición',
-        descripcion: 'Reduce drásticamente la vida del rival.',
-        imagen: '',
-        efectosPropios: [],
-        efectosRival: [{ estadistica: 'vida', valor: -40 }],
-        usos: 1,
-        id: null
-      },
-    ];
 
-    this.objetosDelRival = [
-      {
-        nombre: 'Poción de vida',
-        descripcion: 'Restaura vida al portador.',
-        imagen: 'https://i.imgur.com/8Z2zR9A.png',
-        efectosPropios: [{ estadistica: 'vida', valor: 30 }],
-        efectosRival: [],
-        usos: 2,
-        id: null
-      },
-      {
-        nombre: 'Maldición',
-        descripcion: 'Reduce la vida del rival.',
-        imagen: '',
-        efectosPropios: [],
-        efectosRival: [{ estadistica: 'vida', valor: -40 }],
-        usos: 1,
-        id: null
-      },
-    ];
   }
 
   cargarPersonajesBD(dto: CombatePersonajesDto) {

@@ -445,7 +445,49 @@
               <input type="number" class="input-objeto input-corto" [(ngModel)]="usosObjetoActual" min="0">
             </div>
             <div class="input-grupo-objeto check-grupo">
-              <label>¿Se consume al usar?</label>
+            </div>
+          </div>
+
+          <!-- Vida directa sobre portador y rival -->
+          <div class="fila-vida-objeto">
+            <div class="bloque-vida-objeto bloque-vida-propio">
+              <span class="titulo-vida-objeto">Vida al portador</span>
+              <p class="hint-vida-objeto">Negativo = daño, Positivo = curación</p>
+              <div class="controles-vida-objeto">
+                <span class="btn-vida-objeto" (click)="vidaPropiaObjeto = vidaPropiaObjeto - 1">−</span>
+                <span class="valor-vida-objeto"
+                  [class.valor-vida-positivo]="vidaPropiaObjeto > 0"
+                  [class.valor-vida-negativo]="vidaPropiaObjeto < 0">
+                  {{ vidaPropiaObjeto > 0 ? '+' : '' }}{{ vidaPropiaObjeto }}
+                </span>
+                <span class="btn-vida-objeto" (click)="vidaPropiaObjeto = vidaPropiaObjeto + 1">+</span>
+              </div>
+              <span class="etiqueta-efecto-vida"
+                [class.etiqueta-cura]="vidaPropiaObjeto > 0"
+                [class.etiqueta-dano]="vidaPropiaObjeto < 0"
+                [class.etiqueta-neutro]="vidaPropiaObjeto === 0">
+                {{ vidaPropiaObjeto > 0 ? 'Cura' : vidaPropiaObjeto < 0 ? 'Daña' : '-- Sin efecto --' }}
+              </span>
+            </div>
+
+            <div class="bloque-vida-objeto bloque-vida-rival">
+              <span class="titulo-vida-objeto">Vida al rival</span>
+              <p class="hint-vida-objeto">Negativo = daño, Positivo = curación</p>
+              <div class="controles-vida-objeto">
+                <span class="btn-vida-objeto" (click)="vidaRivalObjeto = vidaRivalObjeto - 1">−</span>
+                <span class="valor-vida-objeto"
+                  [class.valor-vida-positivo]="vidaRivalObjeto > 0"
+                  [class.valor-vida-negativo]="vidaRivalObjeto < 0">
+                  {{ vidaRivalObjeto > 0 ? '+' : '' }}{{ vidaRivalObjeto }}
+                </span>
+                <span class="btn-vida-objeto" (click)="vidaRivalObjeto = vidaRivalObjeto + 1">+</span>
+              </div>
+              <span class="etiqueta-efecto-vida"
+                [class.etiqueta-cura]="vidaRivalObjeto > 0"
+                [class.etiqueta-dano]="vidaRivalObjeto < 0"
+                [class.etiqueta-neutro]="vidaRivalObjeto === 0">
+                {{ vidaRivalObjeto > 0 ? 'Cura' : vidaRivalObjeto < 0 ? 'Daña' : '-- Sin efecto --' }}
+              </span>
             </div>
           </div>
 
@@ -534,6 +576,21 @@
             }
 
             <h4>Usos: {{ usosObjetoActual === 0 ? '∞' : usosObjetoActual }}</h4>
+
+            @if (vidaPropiaObjeto !== 0) {
+            <h4>❤️ Al portador:</h4>
+            <p [style.color]="vidaPropiaObjeto > 0 ? '#2d6a4f' : '#7b2230'">
+              {{ vidaPropiaObjeto > 0 ? '✨ Cura ' : '☠️ Quita ' }}{{ absVal(vidaPropiaObjeto) }} pts de vida
+            </p>
+            }
+
+            @if (vidaRivalObjeto !== 0) {
+            <h4>Al rival:</h4>
+            <p [style.color]="vidaRivalObjeto > 0 ? '#2d6a4f' : '#7b2230'">
+              {{ vidaRivalObjeto > 0 ? 'Cura ' : 'Quita ' }}{{ absVal(vidaRivalObjeto) }} pts de vida
+            </p>
+            }
+
             @if (efectosPropiosObjeto.length > 0) {
             <h4>⬆ Al portador:</h4>
             <ul>
@@ -562,13 +619,6 @@
           <h3 class="titulo-lista-objetos">Objetos forjados</h3>
           <div class="grid-objetos-creados">
             <div class="miniatura-objeto" *ngFor="let obj of objetos; let i = index">
-              <div class="preview-imagen-objeto">
-                @if (imagenObjetoActual) {
-                <img [src]="imagenObjetoActual" alt="Vista previa" class="img-preview-objeto">
-                } @else {
-                <div class="img-miniatura-objeto">Sin imagen.</div>
-                }
-              </div>
               <span class="nombre-miniatura-objeto">{{ obj.nombre }}</span>
               <span class="btn-eliminar-objeto" (click)="eliminarObjeto(i)">✖</span>
             </div>

@@ -80,7 +80,7 @@ export interface EstadisticaDto{
   nombre: string;
   valor : number;
   consumible: boolean;
-    
+
 }
 export interface AtaqueDto{
   id:number;
@@ -100,15 +100,19 @@ export interface PersonajeDto {
   personajeEstadisticas: EstadisticaDto[];
   personajeAtaques: AtaqueDto[];
 }
+
 export interface ObjetoDto{
-  id: number
-  nombre: string, 
-  descripcion: string,
-  imagen: string,
-  efectosPropios: {[key: string]: number},
-  efectosRival: {[key: string]: number},
-  usos: number,
+  id: number;
+  nombre: string;
+  descripcion: string;
+  imagen: string;
+  efectosPropios: {[key: string]: number};
+  efectosRival: {[key: string]: number};
+  usos: number;
+  vidaPropia: number; // NUEVO
+  vidaRival: number;  // NUEVO
 }
+
 export interface DatosPartidaDto{
   id: number;
   nombre: string;
@@ -156,7 +160,7 @@ export function toEstadistica(dto: EstadisticaDto) : Estadistica{
     nombre: dto.nombre,
     valor: dto.valor,
     consumible: dto.consumible
-  } 
+  }
   return resultado
 };
 export function toEstadisticaDto(estadistica: Estadistica): EstadisticaDto{
@@ -193,17 +197,17 @@ export function toAtaque(dto: AtaqueDto): Ataque{
     statReducePropio: manaAtacante,
     statReduceRival: estadisticasDefensor,
     danoAtaque: dto.danoAtaque
-  } 
+  }
   return resultado
 }
 export function toAtaqueDto(ataque: Ataque): AtaqueDto{
-  let manaAtacante: {[key: string]: number} = {}; 
-  
+  let manaAtacante: {[key: string]: number} = {};
+
   for (let i of ataque.statReducePropio) {
     manaAtacante[i.estadistica] = i.valor
   }
-  let estadisticasDefensor: {[key: string]: number} = {}; 
-  
+  let estadisticasDefensor: {[key: string]: number} = {};
+
   for (let i of ataque.statReduceRival) {
     estadisticasDefensor[i.estadistica] = i.valor
   }
@@ -241,7 +245,7 @@ export function toPersonaje(dto: PersonajeDto): Personaje{
 export function toPersonajeDto(personaje: Personaje): PersonajeDto{
   let estadisticas: EstadisticaDto[] = []
   for(let i of personaje.estadisticasDelPersonaje){
-      estadisticas.push(toPersonajeEstadisticaDto(i))
+    estadisticas.push(toPersonajeEstadisticaDto(i))
   }
   let ataques: AtaqueDto[] = []
   for(let i of personaje.ataquesDelPersonaje){
@@ -251,7 +255,7 @@ export function toPersonajeDto(personaje: Personaje): PersonajeDto{
     id: personaje.id ?? -1,
     personajeNombre: personaje.nombre,
     personajeVida: personaje.vida,
-    personajeFotoUrl: personaje.urlSprite, //Creo que en la mayoria utilizamos la urlSprite 
+    personajeFotoUrl: personaje.urlSprite, //Creo que en la mayoria utilizamos la urlSprite
     personajeEstadisticas: estadisticas,
     personajeAtaques: ataques
   }
@@ -304,8 +308,10 @@ export function toObjeto(dto: ObjetoDto): Objeto{
     efectosPropios: propios,
     efectosRival: rival,
     usos: dto.usos,
+    vidaPropia: dto.vidaPropia, // NUEVO
+    vidaRival: dto.vidaRival     // NUEVO
   }
-  return resultado 
+  return resultado
 }
 
 export function toObjetoDto(objeto: Objeto): ObjetoDto{
@@ -325,6 +331,8 @@ export function toObjetoDto(objeto: Objeto): ObjetoDto{
     efectosPropios: propios,
     efectosRival: rival,
     usos: objeto.usos,
+    vidaPropia: objeto.vidaPropia, // NUEVO
+    vidaRival: objeto.vidaRival    // NUEVO
   }
   return resultado
 }

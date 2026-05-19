@@ -103,6 +103,8 @@ export class OpcionesComponent implements OnInit{
   descripcionObjetoActual: string = '';
   imagenObjetoActual: string = '';
   usosObjetoActual: number = 1;
+  vidaPropiaObjeto: number = 0;   // positivo = cura al portador, negativo = le quita vida
+  vidaRivalObjeto: number = 0;    // positivo = cura al rival, negativo = le quita vida
 
   // Efectos del objeto (arrastrables)
   efectosPropiosObjeto: { nombre: string; valor: number; signo: 1 | -1 }[] = [];
@@ -183,6 +185,8 @@ export class OpcionesComponent implements OnInit{
         valor: e.signo * e.valor,
       })),
       usos: this.usosObjetoActual,
+      vidaPropia: this.vidaPropiaObjeto,
+      vidaRival: this.vidaRivalObjeto,
     };
 
     this.objetos.push(objetoFinal);
@@ -196,10 +200,16 @@ export class OpcionesComponent implements OnInit{
     this.usosObjetoActual = 1;
     this.efectosPropiosObjeto = [];
     this.efectosRivalObjeto = [];
+    this.vidaPropiaObjeto = 0;
+    this.vidaRivalObjeto = 0;
   }
 
   eliminarObjeto(index: number) {
     this.objetos.splice(index, 1);
+  }
+
+  absVal(n: number): number {
+    return Math.abs(n);
   }
 
   // ── FIN OBJETOS ───────────────────────────────────────────────────────────────
