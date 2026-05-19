@@ -1,2 +1,5 @@
 
 Backend/src/main/resources/firebase-adminsdk.json
+.env
+caddy_data/
+caddy_config/

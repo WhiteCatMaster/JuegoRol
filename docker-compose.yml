@@ -2,19 +2,18 @@ services:
   base-de-datos:
     image: mysql:9.6.0
     environment:
-      MYSQL_DATABASE: juegorol_db
-      MYSQL_USER: equipo10
-      MYSQL_PASSWORD: password123
-      MYSQL_ROOT_PASSWORD: root_password_secreta
-    ports:
-      - "3307:3306"
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     volumes:
       - datos_mysql:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password_secreta"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
       interval: 10s
       timeout: 5s
       retries: 10
+    restart: unless-stopped
 
   backend:
     image: ghcr.io/whitecatmaster/hondius-backend:debug
@@ -26,14 +25,15 @@ services:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: docker
-      SPRING_DATASOURCE_URL: jdbc:mysql://base-de-datos:3306/juegorol_db?createDatabaseIfNotExist=true&serverTimezone=UTC
-      SPRING_DATASOURCE_USERNAME: equipo10
-      SPRING_DATASOURCE_PASSWORD: password123
+      SPRING_DATASOURCE_URL: jdbc:mysql://base-de-datos:3306/${MYSQL_DATABASE}?createDatabaseIfNotExist=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
       FIREBASE_CREDENTIALS_PATH: /app/firebase-adminsdk.json
     volumes:
       - ./Backend/src/main/resources/firebase-adminsdk.json:/app/firebase-adminsdk.json:ro,Z
-    ports:
-      - "8081:8081"
+    expose:
+      - "8081"
+    restart: unless-stopped
 
   frontend:
     image: ghcr.io/whitecatmaster/hondius-frontend:debug
@@ -42,8 +42,26 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - backend
+    expose:
+      - "80"
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2-alpine
+    depends_on:
+      - frontend
+      - backend
+    environment:
+      DOMAIN: ${DOMAIN}
+      ACME_EMAIL: ${ACME_EMAIL}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
     ports:
-      - "4200:80"
+      - "80:80"
+      - "443:443"
+    restart: unless-stopped
 
   prometheus:
     image: prom/prometheus:v3.5.0
@@ -55,21 +73,28 @@ services:
     command:
       - --config.file=/etc/prometheus/prometheus.yml
       - --storage.tsdb.path=/prometheus
-    ports:
-      - "9090:9090"
+    expose:
+      - "9090"
+    restart: unless-stopped
 
   grafana:
     image: grafana/grafana-oss:12.1.1
     depends_on:
       - prometheus
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD:-admin}
     volumes:
       - datos_grafana:/var/lib/grafana
       - ./Backend/grafana/provisioning:/etc/grafana/provisioning:ro,Z
       - ./Backend/grafana/dashboards:/var/lib/grafana/dashboards:ro,Z
-    ports:
-      - "3000:3000"
+    expose:
+      - "3000"
+    restart: unless-stopped
 
 volumes:
   datos_mysql:
   datos_prometheus:
   datos_grafana:
+  caddy_data:
+  caddy_config:
