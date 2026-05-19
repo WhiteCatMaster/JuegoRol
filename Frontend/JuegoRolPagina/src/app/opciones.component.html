@@ -563,10 +563,10 @@
           <div class="grid-objetos-creados">
             <div class="miniatura-objeto" *ngFor="let obj of objetos; let i = index">
               <div class="preview-imagen-objeto">
-                @if (imagenObjetoActual) {
-                <img [src]="imagenObjetoActual" alt="Vista previa" class="img-preview-objeto">
+                @if (obj.imagen) {
+                  <img [src]="obj.imagen" alt="Vista previa" class="img-preview-objeto">
                 } @else {
-                <div class="img-miniatura-objeto">Sin imagen.</div>
+                  <div class="img-miniatura-objeto">Sin imagen.</div>
                 }
               </div>
               <span class="nombre-miniatura-objeto">{{ obj.nombre }}</span>
