@@ -17,8 +17,9 @@ services:
       retries: 10
 
   backend:
+    image: ghcr.io/whitecatmaster/hondius-backend:debug
     build:
-      context: .
+      context: ./Backend
       dockerfile: Dockerfile
     depends_on:
       base-de-datos:
@@ -28,15 +29,28 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://base-de-datos:3306/juegorol_db?createDatabaseIfNotExist=true&serverTimezone=UTC
       SPRING_DATASOURCE_USERNAME: equipo10
       SPRING_DATASOURCE_PASSWORD: password123
+      FIREBASE_CREDENTIALS_PATH: /app/firebase-adminsdk.json
+    volumes:
+      - ./Backend/src/main/resources/firebase-adminsdk.json:/app/firebase-adminsdk.json:ro,Z
     ports:
       - "8081:8081"
+
+  frontend:
+    image: ghcr.io/whitecatmaster/hondius-frontend:debug
+    build:
+      context: ./Frontend/JuegoRolPagina
+      dockerfile: Dockerfile
+    depends_on:
+      - backend
+    ports:
+      - "4200:80"
 
   prometheus:
     image: prom/prometheus:v3.5.0
     depends_on:
       - backend
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro,Z
+      - ./Backend/prometheus.yml:/etc/prometheus/prometheus.yml:ro,Z
       - datos_prometheus:/prometheus
     command:
       - --config.file=/etc/prometheus/prometheus.yml
@@ -50,8 +64,8 @@ services:
       - prometheus
     volumes:
       - datos_grafana:/var/lib/grafana
-      - ./grafana/provisioning:/etc/grafana/provisioning:ro,Z
-      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro,Z
+      - ./Backend/grafana/provisioning:/etc/grafana/provisioning:ro,Z
+      - ./Backend/grafana/dashboards:/var/lib/grafana/dashboards:ro,Z
     ports:
       - "3000:3000"
 

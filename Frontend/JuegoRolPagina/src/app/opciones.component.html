@@ -2,203 +2,169 @@
 
   <!-- CONTENEDOR IZQUIERDA -->
 
-
-<!-- CONTENEDOR DERECHA -->
-<div id="ContenedorDerecha">
-      <div class="wrapper">
+  <!-- CONTENEDOR DERECHA -->
+  <div id="ContenedorDerecha">
+    <div class="wrapper">
       <div class="step" [class.active]="paso === 1" [class.completed]="paso > 1">
         <div class="v-stepper">
           <div class="circle"></div>
           <div class="line"></div>
         </div>
-      <div class="content">Nombre de la partida</div>
-    </div>
-
-    <div class="step" [class.active]="paso === 2" [class.completed]="paso > 2">
-      <div class="v-stepper">
-        <div class="circle"></div>
-        <div class="line"></div>
+        <div class="content">Nombre de la partida</div>
       </div>
-      <div class="content">Estadísticas</div>
-    </div>
 
-    <div class="step" [class.active]="paso === 3" [class.completed]="paso > 3">
-      <div class="v-stepper">
-        <div class="circle"></div>
-        <div class="line"></div>
+      <div class="step" [class.active]="paso === 2" [class.completed]="paso > 2">
+        <div class="v-stepper">
+          <div class="circle"></div>
+          <div class="line"></div>
+        </div>
+        <div class="content">Estadísticas</div>
       </div>
-      <div class="content">Ataques</div>
-    </div>
-    <div class="step" [class.active]="paso === 4" [class.completed]="paso > 4">
-      <div class="v-stepper"><div class="circle"></div><div class="line"></div></div>
-      <div class="content">Dados</div>
-    </div>
 
-    <div class="step" [class.active]="paso === 5" [class.completed]="paso > 5">
-      <div class="v-stepper">
-        <div class="circle"></div>
-        <div class="line"></div>
+      <div class="step" [class.active]="paso === 3" [class.completed]="paso > 3">
+        <div class="v-stepper">
+          <div class="circle"></div>
+          <div class="line"></div>
+        </div>
+        <div class="content">Ataques</div>
       </div>
-      <div class="content">Personajes</div>
-    </div>
-  </div>
 
-
-
-  <div class="TopeContenedor1" [hidden]="paso !== 1">
-    <h1>Configuración</h1>
-  </div>
-  <div class="Contenedor1" [hidden]="paso !== 1">
-    <div class="ClaseGeneralEstadisticas">
-
-    <div>
-      <p>Nombre partida:</p>
-      <input class="CajaTexto" type="text" [(ngModel)]="nombre">
-    </div>
-    <div>
-      <p>Descripción:</p>
-      <input class="CajaTexto" type="text" [(ngModel)]="descripcion">
-    </div>
-    <div>
-      <p>Idioma:</p>
-      <input class="CajaTexto" type="text" [(ngModel)]="idioma">
-    </div>
-    <div>
-      <p>Max. jugadores:</p>
-      <input class="CajaTexto" type="number" [(ngModel)]="maxJugadores">
-    </div>
-    <div data-bind="css: css.footer" class="sv_nav">
-    </div>
-  </div>
-  </div>
-  <div class="BotonesMovimiento" [hidden]="paso !== 1">
-    <input type="button" value="Siguiente" class="sv_next_btn" (click)="irSiguiente()">
-  </div>
-
-  <!-- VENTANA ESTADISTICAS -->
-  <div class="TopeContenedor1" [hidden]="paso !== 2">
-    <h1>ESTADÍSTICAS</h1>
-  </div>
-  <div class="Contenedor1" [hidden]="paso !== 2">
-    <div class="ClaseGeneralEstadisticas" *ngFor="let caja of estadisticas; let i = index">
-      <div>
-        <p>Nombre:</p>
-        <input class="CajaTexto" type="text" [(ngModel)]="caja.nombre">
+      <div class="step" [class.active]="paso === 4" [class.completed]="paso > 4">
+        <div class="v-stepper">
+          <div class="circle"></div>
+          <div class="line"></div>
+        </div>
+        <div class="content">Dados</div>
       </div>
-      <div>
-        <p>Valor predeterminado:</p>
-        <input class="CajaTexto" type="number" [(ngModel)]="caja.valor">
+
+      <div class="step" [class.active]="paso === 5" [class.completed]="paso > 5">
+        <div class="v-stepper">
+          <div class="circle"></div>
+          <div class="line"></div>
+        </div>
+        <div class="content">Objetos</div>
       </div>
-      <div>
-        <p>¿Es consumible?</p>
-        <input type="checkbox" [(ngModel)]="caja.consumible">
+
+      <div class="step" [class.active]="paso === 6" [class.completed]="paso > 6">
+        <div class="v-stepper">
+          <div class="circle"></div>
+          <div class="line"></div>
+        </div>
+        <div class="content">Personajes</div>
       </div>
-      <input type="button" value="Eliminar" (click)="eliminarEstadistica(i)">
     </div>
 
-    <input class="BotonAñadir" type="button" value="+" (click)="agregarEstadistica()">
-    <br>
-  </div>
-
-  <div class="BotonesMovimiento" [hidden]="paso !== 2">
-    <input type="button" value="Atras" class="sv_prev_btn" (click)="irAtras()">
-    <input type="button" value="Siguiente" class="sv_next_btn" (click)="irSiguiente()">
-  </div>
-
-  <!-- VENTANA CREACIÓN PERSONAJES -->
-  <div class="TopeContenedor1" [hidden]="paso !== 5">
-    <h1>PERSONAJES</h1>
-  </div>
-  <div class="Contenedor1" [hidden]="paso !== 5">
-    <div class="ClaseGeneralPersonajes" *ngFor="let personaje of personajes; let i = index">
-      <div>
-        <img class="ImagenPersonaje" [src]="personaje.urlSprite">
-        <p>URL del sprite</p>
-        <input class="CajaTexto" type="text" [(ngModel)]="personaje.urlSprite">
-      </div>
-      <div>
-        <p>Nombre:</p>
-        <input class="CajaTexto" type="text" [(ngModel)]="personaje.nombre">
-        <br><br>
-        <p>Vida:</p>
-        <input class="CajaTexto" type="number" [(ngModel)]="personaje.vida">
-      </div>
-      <div>
-        <p>Ataques:</p>
-        <div *ngFor="let huecoAtaque of personaje.ataquesDelPersonaje; let j = index; trackBy: trackByFn">
-          <select class="Opcion" [(ngModel)]="personaje.ataquesDelPersonaje[j].nombre" (ngModelChange)="alCambiarAtaque($event, i, j)">
-            <option *ngFor="let ataqueCreado of ataques" [value]="ataqueCreado.nombre">
-              {{ ataqueCreado.nombre }}
-            </option>
+    <!-- ───────────── PASO 1: CONFIGURACIÓN ───────────── -->
+    <div class="TopeContenedor1" [hidden]="paso !== 1">
+      <h1>Configuración</h1>
+    </div>
+    <div class="Contenedor1" [hidden]="paso !== 1">
+      <!-- PLANTILLAS -->
+      <div class="ClaseGeneralEstadisticas">
+        <h3>Plantillas disponibles</h3>
+        <div>
+          <select name="CajaTexto" [(ngModel)]="plantillaSeleccionada">
+            <option [ngValue]="null">-- Selecciona una plantilla --</option>
+            @for (plantilla of listaPlantillas; track plantilla.id) {
+            <option [ngValue]="plantilla">{{ plantilla.nombre }}</option>
+            }
           </select>
-          <input type="button" value="X" (click)="eliminarAtaqueDePersonaje(i, j)">
+          <button class="btn-sellar-pergamino" [disabled]="!plantillaSeleccionada" (click)="ejecutarCarga()">
+            Cargar Plantilla actual
+          </button>
         </div>
-        <input type="button" value="+" (click)="agregarAtaqueAPersonaje(i)">
       </div>
 
-      <div>
-        <p>Estadisticas y valor:</p>
-        <div class="EstadisticasPersonaje" *ngFor="let estPersonaje of personaje.estadisticasDelPersonaje">  
-          <p>{{ estPersonaje.nombreEstadistica }}</p> 
-          <p>:</p>
-          <input class="CajaTexto" type="number" [(ngModel)]="estPersonaje.valorPropio" style="width: 60px; margin-left: 10px;">
+      <!--FIN PLANTILLAS -->
+      <div class="ClaseGeneralEstadisticas">
+        <div>
+          <p>Nombre partida:</p>
+          <input class="CajaTexto" type="text" [(ngModel)]="nombre">
         </div>
-
+        <div>
+          <p>Descripción:</p>
+          <input class="CajaTexto" type="text" [(ngModel)]="descripcion">
+        </div>
+        <div>
+          <p>Idioma:</p>
+          <input class="CajaTexto" type="text" [(ngModel)]="idioma">
+        </div>
+        <div>
+          <p>Max. jugadores:</p>
+          <input class="CajaTexto" type="number" [(ngModel)]="maxJugadores">
+        </div>
       </div>
-
-      <br>
-      <input type="button" value="Eliminar" (click)="eliminarPersonaje(i)">
+    </div>
+    <div class="BotonesMovimiento" [hidden]="paso !== 1">
+      <input type="button" value="Siguiente" class="sv_next_btn" (click)="irSiguiente()">
     </div>
 
-    <input class="BotonAñadir" type="button" value="+" (click)="agregarPersonaje()">
-    <br>
-  </div>
+    <!-- ───────────── PASO 2: ESTADÍSTICAS ───────────── -->
+    <div class="TopeContenedor1" [hidden]="paso !== 2">
+      <h1>ESTADÍSTICAS</h1>
+    </div>
+    <div class="Contenedor1" [hidden]="paso !== 2">
+      <div class="ClaseGeneralEstadisticas" *ngFor="let caja of estadisticas; let i = index">
+        <div>
+          <p>Nombre:</p>
+          <input class="CajaTexto" type="text" [(ngModel)]="caja.nombre">
+        </div>
+        <div>
+          <p>Valor predeterminado:</p>
+          <input class="CajaTexto" type="number" [(ngModel)]="caja.valor">
+        </div>
+        <div>
+          <p>¿Es consumible?</p>
+          <input type="checkbox" [(ngModel)]="caja.consumible">
+        </div>
+        <input type="button" value="Eliminar" (click)="eliminarEstadistica(i)">
+      </div>
+      <input class="BotonAñadir" type="button" value="+" (click)="agregarEstadistica()">
+      <br>
+    </div>
+    <div class="BotonesMovimiento" [hidden]="paso !== 2">
+      <input type="button" value="Atras" class="sv_prev_btn" (click)="irAtras()">
+      <input type="button" value="Siguiente" class="sv_next_btn" (click)="irSiguiente()">
+    </div>
 
-  <div class="BotonesMovimiento" [hidden]="paso !== 5">
-    <input type="button" value="Atras" class="sv_prev_btn" (click)="irAtras()">
-    <button (click)="mandarPartida()" routerLink="/">Crea una nueva partida.</button>
-  </div>
-
-  <!-- VENTANA ATAQUES -->
-  <div class="TopeContenedor1" [hidden]="paso !== 3">
-    <h1> CREA TUS ATAQUES</h1>
-  </div>
-  @if (paso === 3) {
-  <div id="creador">
-    <div id="selector">
-      <h2>CREADOR DE ATAQUE</h2>
-      <div class="mitad">
-        <h3>Tus Estadisticas</h3>
-        <div class="carrusel">
-          @for (stat of estadisticas; track stat.nombre) {
-            <div class="caja-stat" draggable="true" (dragstart)="iniciarArrastre(stat)">
+    <!-- ───────────── PASO 3: ATAQUES ───────────── -->
+    <div class="TopeContenedor1" [hidden]="paso !== 3">
+      <h1>CREA TUS ATAQUES</h1>
+    </div>
+    @if (paso === 3) {
+    <div id="creador">
+      <div id="selector">
+        <h2>CREADOR DE ATAQUE</h2>
+        <div class="mitad">
+          <h3>Tus Estadísticas</h3>
+          <div class="carrusel">
+            @for (stat of estadisticas; track stat.nombre) {
+            <div class="caja-stat" draggable="true" (dragstart)="iniciarArrastre(stat)" (dragend)="finalizarArrastre()">
               <div class="icono">{{ stat.nombre }}</div>
             </div>
-          }
+            }
+          </div>
         </div>
-      </div>
-      <div class="mitad">
-        <h3>Estadisticas del rival</h3>
-        <div class="carrusel">
-          @for (stat of estadisticas; track stat.nombre) {
-            <div class="caja-stat" draggable="true" (dragstart)="iniciarArrastre(stat)">
+        <div class="mitad">
+          <h3>Estadísticas del rival</h3>
+          <div class="carrusel">
+            @for (stat of estadisticas; track stat.nombre) {
+            <div class="caja-stat" draggable="true" (dragstart)="iniciarArrastre(stat)" (dragend)="finalizarArrastre()">
               <div class="icono">{{ stat.nombre }}</div>
             </div>
-          }
+            }
+          </div>
         </div>
       </div>
-  </div>
-    <div id="mezclador">
-      <div id="mesa-trabajo">
-        <h2 class="titulo-mesa">Mesa de Trabajo</h2>
 
-        <div class="contenedor-secciones">
-
-          <div class="zona-drop-mesa" (dragover)="permitirDrop($event)" (drop)="soltarEnCoste()">
-            <h3 class="subtitulo-mesa">Coste</h3>
-
-            <div class="mesa-grid-items">
-              @for (coste of costesEnMesa; track coste.nombre; let i = $index) {
+      <div id="mezclador">
+        <div id="mesa-trabajo">
+          <h2 class="titulo-mesa">Mesa de Trabajo</h2>
+          <div class="contenedor-secciones">
+            <div class="zona-drop-mesa" (dragover)="permitirDrop($event)" (drop)="soltarEnCoste()">
+              <h3 class="subtitulo-mesa">Coste</h3>
+              <div class="mesa-grid-items">
+                @for (coste of costesEnMesa; track coste.nombre; let i = $index) {
                 <div class="item-mesa-centered">
                   <span class="btn-eliminar-mesa" (click)="eliminarCoste(i)">✖</span>
                   <span class="item-nombre-mesa">{{ coste.nombre }}</span>
@@ -208,152 +174,415 @@
                     <span class="btn-control-mesa" (click)="incrementar(coste)">+</span>
                   </div>
                 </div>
-              }
+                }
+              </div>
             </div>
-          </div>
 
-          <div class="zona-drop-mesa" (dragover)="permitirDrop($event)" (drop)="soltarEnEfecto()">
+            <div class="zona-drop-mesa" (dragover)="permitirDrop($event)" (drop)="soltarEnEfecto()">
               <h3 class="subtitulo-mesa">Efecto al rival</h3>
-
-            <div class="mesa-grid-items">
-              @for (efecto of efectosEnMesa; track efecto.nombre; let i = $index) {
+              <div class="mesa-grid-items">
+                @for (efecto of efectosEnMesa; track efecto.nombre; let i = $index) {
                 <div class="item-mesa-centered" style="position: relative;">
                   <span class="btn-eliminar-mesa" (click)="eliminarEfecto(i)">✖</span>
                   <span class="item-nombre-mesa">{{ efecto.nombre }}</span>
-
                   <div class="item-controles-mesa">
                     <span class="btn-control-mesa" (click)="decrementarMultiplicador(efecto)">-</span>
                     <span class="valor-control-mesa">x{{ efecto.valor }}</span>
                     <span class="btn-control-mesa" (click)="incrementarMultiplicador(efecto)">+</span>
                   </div>
                 </div>
+                }
+              </div>
+            </div>
+
+            <div class="controles-inferiores-mesa">
+              <div class="zona-suerte-dado">
+                <h3 class="subtitulo-mesa">Ratio Dados (Suerte)</h3>
+                <div class="contenedor-inputs-dado">
+                  <div class="input-grupo">
+                    <label>Rango Crítico:</label>
+                    <input type="number" class="input-dado" placeholder="Ej: 2" [(ngModel)]="ratioDadoMin">
+                  </div>
+                  <div class="input-grupo">
+                    <label>Rango Normal:</label>
+                    <input type="number" class="input-dado" placeholder="Ej: 3" [(ngModel)]="ratioDadoMax">
+                  </div>
+                </div>
+              </div>
+              <div class="zona-dano">
+                <h3 class="subtitulo-mesa">Indica el daño:</h3>
+                <div class="contenedor-inputs-dado">
+                  <div class="input-grupo">
+                    <label>Cantidad:</label>
+                    <input type="number" class="input-dado" placeholder="Ej: 50" [(ngModel)]="danoAtaque">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="resultado">
+        <div id="contenedor-pergamino">
+          <div class="grupo-nombre-ataque">
+            <input type="text" class="input-pergamino" placeholder="Nombra tu hechizo" [(ngModel)]="nombreAtaqueActual">
+          </div>
+          <div class="resumen-ataque">
+            @if (costesEnMesa.length === 0 && efectosEnMesa.length === 0 && !ratioDadoMin && !ratioDadoMax) {
+            <span id="placeholder-resultado">Arrastra ingredientes y ajusta el coste para ver el hechizo final</span>
+            } @else {
+            @if (costesEnMesa.length > 0) {
+            <h4>Coste:</h4>
+            <ul>
+              @for (coste of costesEnMesa; track coste.nombre) {
+              <li>{{ coste.nombre }}: {{ coste.valor }}</li>
+              }
+            </ul>
+            }
+            @if (efectosEnMesa.length > 0) {
+            <h4>Efecto al Rival:</h4>
+            <ul>
+              @for (efecto of efectosEnMesa; track efecto.nombre) {
+              <li>{{ efecto.nombre }}: x{{ efecto.valor }}</li>
+              }
+            </ul>
+            }
+            @if (ratioDadoMin || ratioDadoMax) {
+            <h4>Suerte (Dado 20):</h4>
+            <p>Crítico en: {{ ratioDadoMin || '?' }} | Normal en: {{ ratioDadoMax || '?' }}</p>
+            }
+            @if (danoAtaque) {
+            <h4>Daño Directo:</h4>
+            <p>{{ danoAtaque }} pts de daño</p>
+            }
+            }
+          </div>
+          <button class="btn-sellar-pergamino" (click)="guardarAtaqueActual()">Crear hechizo</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="BotonesMovimiento" [hidden]="paso !== 3">
+      <input type="button" value="Atras" class="sv_prev_btn" (click)="irAtras()">
+      <input type="button" value="Siguiente" class="sv_next_btn" (click)="irSiguiente()">
+    </div>
+    }
+
+    <!-- ───────────── PASO 4: DADOS ───────────── -->
+    <div class="TopeContenedor1" [hidden]="paso !== 4">
+      <h1>CREACIÓN DE DADOS</h1>
+    </div>
+    <div class="Contenedor1" [hidden]="paso !== 4">
+      <div class="ClaseGeneralEstadisticas" *ngFor="let dado of dados; let i = index">
+        <img [src]="dado.imagen || obtenerImagenDado(dado.caras)" width="70">
+        <div>
+          <p>Nombre del Dado:</p>
+          <input class="CajaTexto" type="text" [(ngModel)]="dado.nombre" placeholder="Ej: Dado de Fuego">
+        </div>
+        <div>
+          <p>Tipo de Dado (Caras):</p>
+          <select [(ngModel)]="dado.caras" (change)="dado.imagen = obtenerImagenDado(dado.caras)">
+            <option [ngValue]="4">D4 (Tetraedro)</option>
+            <option [ngValue]="6">D6 (Cubo Normal)</option>
+            <option [ngValue]="8">D8 (Octaedro)</option>
+            <option [ngValue]="10">D10 (Decaedro)</option>
+            <option [ngValue]="12">D12 (Dodecaedro)</option>
+            <option [ngValue]="20">D20 (Icosaedro)</option>
+            <option [ngValue]="100">D100 (Porcentual)</option>
+          </select>
+        </div>
+        <div>
+          <p>Cantidad inicial:</p>
+          <input class="CajaTexto" type="number" [(ngModel)]="dado.cantidad">
+        </div>
+        <input type="button" value="Eliminar" (click)="eliminarDado(i)">
+      </div>
+      <input class="BotonAñadir" type="button" value="+" (click)="agregarDado()">
+      <br>
+    </div>
+    <div class="BotonesMovimiento" [hidden]="paso !== 4">
+      <input type="button" value="Atras" class="sv_prev_btn" (click)="irAtras()">
+      <input type="button" value="Siguiente" class="sv_next_btn" (click)="irSiguiente()">
+    </div>
+
+    <!-- ───────────── PASO 6: PERSONAJES ───────────── -->
+    <div class="TopeContenedor1" [hidden]="paso !== 6">
+      <h1>PERSONAJES</h1>
+    </div>
+    <div class="Contenedor1" [hidden]="paso !== 6">
+      <div class="ClaseGeneralPersonajes" *ngFor="let personaje of personajes; let i = index">
+        <div>
+          <img class="ImagenPersonaje" [src]="personaje.urlSprite">
+          <p>URL del sprite</p>
+          <input class="CajaTexto" type="text" [(ngModel)]="personaje.urlSprite">
+        </div>
+        <div>
+          <p>Nombre:</p>
+          <input class="CajaTexto" type="text" [(ngModel)]="personaje.nombre">
+          <br><br>
+          <p>Vida:</p>
+          <input class="CajaTexto" type="number" [(ngModel)]="personaje.vida">
+        </div>
+        <div>
+          <p>Ataques:</p>
+          <div *ngFor="let huecoAtaque of personaje.ataquesDelPersonaje; let j = index; trackBy: trackByFn">
+            <select class="Opcion" [(ngModel)]="personaje.ataquesDelPersonaje[j].nombre"
+              (ngModelChange)="alCambiarAtaque($event, i, j)">
+              <option *ngFor="let ataqueCreado of ataques" [value]="ataqueCreado.nombre">
+                {{ ataqueCreado.nombre }}
+              </option>
+            </select>
+            <input type="button" value="X" (click)="eliminarAtaqueDePersonaje(i, j)">
+          </div>
+          <input type="button" value="+" (click)="agregarAtaqueAPersonaje(i)">
+        </div>
+        <div>
+          <p>Estadísticas y valor:</p>
+          <div class="EstadisticasPersonaje" *ngFor="let estPersonaje of personaje.estadisticasDelPersonaje">
+            <p>{{ estPersonaje.nombreEstadistica }}</p>
+            <p>:</p>
+            <input class="CajaTexto" type="number" [(ngModel)]="estPersonaje.valorPropio"
+              style="width: 60px; margin-left: 10px;">
+          </div>
+        </div>
+        <br>
+        <input type="button" value="Eliminar" (click)="eliminarPersonaje(i)">
+      </div>
+      <input class="BotonAñadir" type="button" value="+" (click)="agregarPersonaje()">
+      <br>
+    </div>
+    <div class="BotonesMovimiento" [hidden]="paso !== 6">
+      <input type="button" value="Atras" class="sv_prev_btn" (click)="irAtras()">
+      <button class="btn-sellar-pergamino" (click)="mandarPartida()" routerLink="/">Crea una nueva partida</button>
+    </div>
+    <!--Guardar como plantilla-->
+    <hr>
+    <div>
+      <input type="text" class="CajaTexto" placeholder="Nombre de plantilla..." [(ngModel)]="nombreNuevaPlantilla">
+      <button class="btn-sellar-pergamino" [disabled]="!nombreNuevaPlantilla" (click)="guardarPlantilla()">
+        Guardar como plantilla
+      </button>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         PASO 5: CREACIÓN DE OBJETOS
+    ════════════════════════════════════════════════════════════ -->
+    <div class="TopeContenedor1" [hidden]="paso !== 5">
+      <h1>CREACIÓN DE OBJETOS</h1>
+    </div>
+
+    @if (paso === 5) {
+    <div id="creador-objetos">
+
+      <!-- COLUMNA 1: Estadísticas arrastrables -->
+      <div id="selector-objetos">
+        <h2>INGREDIENTES</h2>
+
+        <div class="mitad">
+          <h3>Mejoras propias</h3>
+          <p class="hint-objeto">Arrastra las estadísticas que el objeto mejorará al portador</p>
+          <div class="carrusel">
+            @for (stat of estadisticas; track stat.nombre) {
+            <div class="caja-stat" draggable="true" (dragstart)="iniciarArrastreObjeto(stat)">
+              <div class="icono icono-verde">{{ stat.nombre }}</div>
+            </div>
+            }
+          </div>
+        </div>
+
+        <div class="mitad">
+          <h3>Efectos al rival</h3>
+          <p class="hint-objeto">Arrastra las estadísticas que el objeto afectará al rival</p>
+          <div class="carrusel">
+            @for (stat of estadisticas; track stat.nombre) {
+            <div class="caja-stat" draggable="true" (dragstart)="iniciarArrastreObjeto(stat)">
+              <div class="icono icono-rojo">{{ stat.nombre }}</div>
+            </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- COLUMNA 2: Mesa de trabajo del objeto -->
+      <div id="mezclador-objetos">
+        <div id="mesa-trabajo-objeto">
+          <h2 class="titulo-mesa">Configuración del Objeto</h2>
+
+          <!-- Nombre e imagen -->
+          <div class="fila-config-objeto">
+            <div class="input-grupo-objeto">
+              <label>Nombre del objeto:</label>
+              <input type="text" class="input-objeto" placeholder="Ej: Poción de curación"
+                [(ngModel)]="nombreObjetoActual">
+            </div>
+            <div class="input-grupo-objeto">
+              <label>Descripción:</label>
+              <input type="text" class="input-objeto" placeholder="Ej: Restaura la vitalidad del portador"
+                [(ngModel)]="descripcionObjetoActual">
+            </div>
+          </div>
+
+          <div class="fila-config-objeto">
+            <div class="input-grupo-objeto input-grupo-imagen">
+              <label>URL de la imagen:</label>
+              <input type="text" class="input-objeto input-url" placeholder="https://..."
+                [(ngModel)]="imagenObjetoActual">
+            </div>
+            <!-- Vista previa de la imagen -->
+            <div class="preview-imagen-objeto">
+              @if (imagenObjetoActual) {
+              <img [src]="imagenObjetoActual" alt="Vista previa" class="img-preview-objeto">
+              } @else {
+              <div class="img-preview-placeholder">Sin imagen.</div>
               }
             </div>
           </div>
 
-          <div class="controles-inferiores-mesa"> 
-            <div class="zona-suerte-dado">
-              <h3 class="subtitulo-mesa">Ratio Dados (Suerte)</h3>
-              <div class="contenedor-inputs-dado">
-                <div class="input-grupo">
-                  <label>Rango Crítico:</label>
-                  <input type="number" class="input-dado" placeholder="Ej: 2" [(ngModel)]="ratioDadoMin">
+          <div class="fila-config-objeto">
+            <div class="input-grupo-objeto">
+              <label>Usos (0 = ilimitado):</label>
+              <input type="number" class="input-objeto input-corto" [(ngModel)]="usosObjetoActual" min="0">
+            </div>
+            <div class="input-grupo-objeto check-grupo">
+              <label>¿Se consume al usar?</label>
+            </div>
+          </div>
+
+          <!-- Zonas drop: efectos propios y efectos rival -->
+          <div class="contenedor-zonas-objeto">
+
+            <div class="zona-drop-objeto zona-verde" (dragover)="permitirDropObjeto($event)"
+              (drop)="soltarEnEfectoPropio()">
+              <h3 class="subtitulo-mesa">⬆ Mejoras al portador</h3>
+              <div class="mesa-grid-items">
+                @for (efecto of efectosPropiosObjeto; track efecto.nombre; let i = $index) {
+                <div class="item-mesa-centered item-objeto-verde">
+                  <span class="btn-eliminar-mesa" (click)="eliminarEfectoPropio(i)">✖</span>
+                  <span class="item-nombre-mesa">{{ efecto.nombre }}</span>
+                  <div class="item-controles-mesa">
+                    <!-- Botón signo -->
+                    <span class="btn-signo-objeto" [class.signo-positivo]="efecto.signo === 1"
+                      [class.signo-negativo]="efecto.signo === -1" (click)="toggleSignoEfecto(efecto)">
+                      {{ efecto.signo === 1 ? '+' : '−' }}
+                    </span>
+                    <span class="btn-control-mesa" (click)="decrementarEfectoObjeto(efecto)">-</span>
+                    <span class="valor-control-mesa">{{ efecto.valor }}</span>
+                    <span class="btn-control-mesa" (click)="incrementarEfectoObjeto(efecto)">+</span>
+                  </div>
                 </div>
-                <div class="input-grupo">
-                  <label>Rango Normal:</label>
-                  <input type="number" class="input-dado" placeholder="Ej: 3" [(ngModel)]="ratioDadoMax">
-                </div>
+                }
+                @if (efectosPropiosObjeto.length === 0) {
+                <span class="placeholder-zona">Suelta estadísticas aquí</span>
+                }
               </div>
             </div>
 
-            <div class="zona-dano">
-              <h3 class="subtitulo-mesa">Indica el daño:</h3>
-              <div class="contenedor-inputs-dado">
-                  <div class="input-grupo">
-                    <label>Cantidad:</label>
-                  <input type="number" class="input-dado" placeholder="Ej: 50" [(ngModel)]="danoAtaque">
+            <div class="zona-drop-objeto zona-roja" (dragover)="permitirDropObjeto($event)"
+              (drop)="soltarEnEfectoRival()">
+              <h3 class="subtitulo-mesa">⬇ Efectos al rival</h3>
+              <div class="mesa-grid-items">
+                @for (efecto of efectosRivalObjeto; track efecto.nombre; let i = $index) {
+                <div class="item-mesa-centered item-objeto-rojo">
+                  <span class="btn-eliminar-mesa" (click)="eliminarEfectoRival(i)">✖</span>
+                  <span class="item-nombre-mesa">{{ efecto.nombre }}</span>
+                  <div class="item-controles-mesa">
+                    <!-- Botón signo -->
+                    <span class="btn-signo-objeto" [class.signo-positivo]="efecto.signo === 1"
+                      [class.signo-negativo]="efecto.signo === -1" (click)="toggleSignoEfecto(efecto)">
+                      {{ efecto.signo === 1 ? '+' : '−' }}
+                    </span>
+                    <span class="btn-control-mesa" (click)="decrementarEfectoObjeto(efecto)">-</span>
+                    <span class="valor-control-mesa">{{ efecto.valor }}</span>
+                    <span class="btn-control-mesa" (click)="incrementarEfectoObjeto(efecto)">+</span>
+                  </div>
                 </div>
+                }
+                @if (efectosRivalObjeto.length === 0) {
+                <span class="placeholder-zona">Suelta estadísticas aquí</span>
+                }
               </div>
             </div>
 
           </div>
         </div>
       </div>
-    </div>
-    <div id="resultado">
-      <div id="contenedor-pergamino">
-        <div class="grupo-nombre-ataque">
-          <input type="text" class="input-pergamino" placeholder="Nombra tu hechizo" [(ngModel)]="nombreAtaqueActual">
+
+      <!-- COLUMNA 3: Pergamino de resultado -->
+      <div id="resultado-objeto">
+        <div id="contenedor-pergamino-objeto">
+          <div class="grupo-nombre-ataque">
+            <span class="label-pergamino-objeto">{{ nombreObjetoActual || 'Sin nombre' }}</span>
+          </div>
+
+          <!-- Imagen del objeto en el pergamino -->
+          <div class="imagen-en-pergamino">
+            @if (imagenObjetoActual) {
+            <img [src]="imagenObjetoActual" alt="Vista previa" class="img-preview-objeto">
+            } @else {
+            <div class="img-preview-placeholder">Sin imagen.</div>
+            }
+          </div>
+
+          <div class="resumen-ataque">
+            @if (!nombreObjetoActual && efectosPropiosObjeto.length === 0 && efectosRivalObjeto.length === 0) {
+            <span id="placeholder-resultado">Configura el objeto para ver su ficha</span>
+            } @else {
+
+            @if (descripcionObjetoActual) {
+            <p class="descripcion-objeto-pergamino"><em>{{ descripcionObjetoActual }}</em></p>
+            }
+
+            <h4>Usos: {{ usosObjetoActual === 0 ? '∞' : usosObjetoActual }}</h4>
+            @if (efectosPropiosObjeto.length > 0) {
+            <h4>⬆ Al portador:</h4>
+            <ul>
+              @for (e of efectosPropiosObjeto; track e.nombre) {
+              <li>{{ e.nombre }}: {{ e.signo === 1 ? '+' : '−' }}{{ e.valor }}</li>
+              }
+            </ul>
+            }
+
+            @if (efectosRivalObjeto.length > 0) {
+            <h4>⬇ Al rival:</h4>
+            <ul>
+              @for (e of efectosRivalObjeto; track e.nombre) {
+              <li>{{ e.nombre }}: {{ e.signo === 1 ? '+' : '−' }}{{ e.valor }}</li>
+              }
+            </ul>
+            }
+            }
+          </div>
+
+          <button class="btn-sellar-pergamino" (click)="guardarObjetoActual()">Forjar objeto</button>
         </div>
 
-        <div class="resumen-ataque">
-          @if (costesEnMesa.length === 0 && efectosEnMesa.length === 0 && !ratioDadoMin && !ratioDadoMax) {
-            <span id="placeholder-resultado">Arrastra ingredientes y ajusta el coste para ver el hechizo final</span>
-          } @else {
-
-            @if (costesEnMesa.length > 0) {
-              <h4>Coste:</h4>
-              <ul>
-                @for (coste of costesEnMesa; track coste.nombre) {
-                  <li>{{ coste.nombre }}: {{ coste.valor }}</li>
+        <!-- Lista de objetos ya creados (miniaturas) -->
+        <div class="lista-objetos-creados" *ngIf="objetos.length > 0">
+          <h3 class="titulo-lista-objetos">Objetos forjados</h3>
+          <div class="grid-objetos-creados">
+            <div class="miniatura-objeto" *ngFor="let obj of objetos; let i = index">
+              <div class="preview-imagen-objeto">
+                @if (obj.imagen) {
+                  <img [src]="obj.imagen" alt="Vista previa" class="img-preview-objeto">
+                } @else {
+                  <div class="img-miniatura-objeto">Sin imagen.</div>
                 }
-              </ul>
-            }
-
-            @if (efectosEnMesa.length > 0) {
-              <h4>Efecto al Rival:</h4>
-              <ul>
-                @for (efecto of efectosEnMesa; track efecto.nombre) {
-                  <li>{{ efecto.nombre }}: x{{ efecto.valor }}</li>
-                }
-              </ul>
-            }
-
-            @if (ratioDadoMin || ratioDadoMax) {
-              <h4>Suerte (Dado 20):</h4>
-              <p>Crítico en: {{ ratioDadoMin || '?' }} | Normal en: {{ ratioDadoMax || '?' }}</p>
-            }
-            @if (danoAtaque) {
-              <h4>Daño Directo:</h4>
-              <p>{{ danoAtaque }} pts de daño</p>
-            }
-          }
+              </div>
+              <span class="nombre-miniatura-objeto">{{ obj.nombre }}</span>
+              <span class="btn-eliminar-objeto" (click)="eliminarObjeto(i)">✖</span>
+            </div>
+          </div>
         </div>
-
-        <button class="btn-sellar-pergamino" (click)="guardarAtaqueActual()">Crear hechizo</button>
       </div>
+
     </div>
-  </div>
+    }
 
-  <div class="BotonesMovimiento" [hidden]="paso !== 3">
-    <input type="button" value="Atras" class="sv_prev_btn" (click)="irAtras()">
-    <input type="button" value="Siguiente" class="sv_next_btn" (click)="irSiguiente()">
-  </div>
-  }
-
-  <div class="TopeContenedor1" [hidden]="paso !== 4">
-    <h1>CREACIÓN DE DADOS</h1>
-  </div>
-  <div class="Contenedor1" [hidden]="paso !== 4">
-    <div class="ClaseGeneralEstadisticas" *ngFor="let dado of dados; let i = index">
-      <img [src]="dado.imagen || obtenerImagenDado(dado.caras)" width="70">
-      <div>
-        <p>Nombre del Dado:</p>
-        <input class="CajaTexto" type="text" [(ngModel)]="dado.nombre" placeholder="Ej: Dado de Fuego">
-      </div>
-      <div>
-        <p>Tipo de Dado (Caras):</p>
-        <select [(ngModel)]="dado.caras" (change)="dado.imagen = obtenerImagenDado(dado.caras)">
-          <option [ngValue]="4">D4 (Tetraedro)</option>
-          <option [ngValue]="6">D6 (Cubo Normal)</option>
-          <option [ngValue]="8">D8 (Octaedro)</option>
-          <option [ngValue]="10">D10 (Decaedro)</option>
-          <option [ngValue]="12">D12 (Dodecaedro)</option>
-          <option [ngValue]="20">D20 (Icosaedro)</option>
-          <option [ngValue]="100">D100 (Porcentual)</option>
-        </select>
-
-      </div>
-      <div>
-        <p>Cantidad inicial:</p>
-        <input class="CajaTexto" type="number" [(ngModel)]="dado.cantidad">
-      </div>
-      <input type="button" value="Eliminar" (click)="eliminarDado(i)">
+    <div class="BotonesMovimiento" [hidden]="paso !== 5">
+      <input type="button" value="Atras" class="sv_prev_btn" (click)="irAtras()">
+      <input type="button" value="Siguiente" class="sv_next_btn" (click)="irSiguiente()">
     </div>
 
-    <input class="BotonAñadir" type="button" value="+" (click)="agregarDado()">
-    <br>
   </div>
-
-  <div class="BotonesMovimiento" [hidden]="paso !== 4">
-    <input type="button" value="Atras" class="sv_prev_btn" (click)="irAtras()">
-    <input type="button" value="Siguiente" class="sv_next_btn" (click)="irSiguiente()">
-  </div>
-
-  <div class="Contenedor1" [hidden]="paso !== 5">
-  </div>
-
 </div>
-
-</div>
-

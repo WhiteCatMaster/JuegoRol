@@ -39,3 +39,6 @@ out/
 
 ### Kotlin ###
 .kotlin
+
+### Secrets ###
+src/main/resources/firebase-adminsdk.json

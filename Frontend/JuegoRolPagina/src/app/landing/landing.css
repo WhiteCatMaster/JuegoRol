@@ -40,7 +40,7 @@ body {
 }
 
 .partidasContainer {
-  padding-top: 5%;
+  padding-top: 0%;
   font-family: "Almendra", system-ui;
 }
 
@@ -139,7 +139,7 @@ button:active {
 
 .perfil {
   margin-left: 80%;
-  margin-bottom: 30%;
+  margin-bottom: 10%;
 
 }
 

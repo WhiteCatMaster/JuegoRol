@@ -1,43 +1,124 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Partida } from '../models/partida';
-import { computed } from '@angular/core'; 
+import { computed } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ServicioAPI } from '../servicio-api';
+import { CombatePersonajesDto, ServicioAPI, toObjeto, toPersonaje } from '../servicio-api';
+import { MusicaService } from '../servicio/musica.service';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
-import { PersonajeDto } from '../selectorELIMINAR.component';
 import { UsuarioService } from '../servicios/usuario-service';
 import { LanzadorDadosComponent } from '../lanzador-dados/lanzador-dados.component';
+import { CpuComponent } from './cpu.component';
+import { Personaje } from '../models/personaje';
+import { Ataque } from '../models/ataque';
+import { Objeto } from '../models/objeto';
+
 
 @Component({
   selector: 'app-combate',
   standalone: true,
-  imports: [CommonModule, LanzadorDadosComponent], 
+  imports: [CommonModule, LanzadorDadosComponent],
   templateUrl: './combate.component.html',
-  styleUrl: './combate.component.css'
+  styleUrl: './combate.component.css',
 })
 export class CombateComponent implements OnInit {
-  personajeTuyo = signal<any>(null);
-  rival = signal<any>(null);
+  personajeTuyo = signal<Personaje>({
+    id: null,
+    nombre: '',
+    urlSprite: '',
+    vida: 0,
+    ataquesDelPersonaje: [],
+    estadisticasDelPersonaje: [],
+    inventario: []
+  });
+  vidaMaximaTuyo = signal<number>(0);
+  vidaMaximaRival = signal<number>(0);
 
-  ataqueSeleccionado = signal<any>(null);
+  rival = signal<Personaje>({
+    id: null,
+    nombre: '',
+    urlSprite: '',
+    vida: 0,
+    ataquesDelPersonaje: [],
+    estadisticasDelPersonaje: [],
+    inventario: []
+  });
+
+  ataqueSeleccionado = signal<Ataque>({
+    id: null,
+    nombre: '',
+    dadoBase: 0,
+    ratioDado: [],
+    statReducePropio: [],
+    statReduceRival: [],
+    danoAtaque: 0,
+  });
   combateId: string | null = null;
-  combateDto: CombatePersonjaesDto|null = null;
-  
+  partidaId: string = ''
+
   ambasEstatsBien = false;
   turnoTuyo = true;
 
+  // Esto hay que hacerlo porque, de lo contrario, angular bloquea enlaces (al parecer)
+  musicaSegurizada: SafeResourceUrl | null = null;
+
+  estaAtacandoTuyo = false;
+  estaAtacandoRival = false;
+  recibiendoTuyo = false;
+  recibiendoRival = false;
+  muerteTuyo = false;
+  muerteRival = false;
+
+  buffTuyo = false;
+  debilTuyo = false;
+  buffRival = false;
+  debilRival = false;
+
   TuTurno = true;
+
+  // ── OBJETOS ───────────────────────────────────────────────
+  // El backend devuelve los objetos de la partida; los cargamos en ngOnInit
+  objetosDeTuPersonaje: Objeto[] = [];
+
+  // true = se muestra el panel de objetos en lugar de ataques/dados
+  mostrarObjetos = false;
+
+  // Objeto sobre el que está el ratón (para el tooltip)
+  objetoHovered: Objeto | null = null;
+
+  // Animación de uso de objeto
+  objetoUsadoAnimacion = false;
+  mensajeObjeto = '';
+  mostrarObjetosRival = false;
+  objetoHoveredRival: Objeto | null = null;
+  objetoUsadoAnimacionRival = false;
+  mensajeObjetoRival = '';
+  objetosDelRival: Objeto[] = [];
+
+  // ─────────────────────────────────────────────────────────
+
+  get usarCpu(): boolean {
+    return this.cpu.usarCpu;
+  }
+  get dificultadCpu(): number {
+    return this.cpu.dificultad;
+  }
+
   constructor(
     private route: ActivatedRoute,
     private servicioAPI: ServicioAPI,
     public usuarioService: UsuarioService,
-    private router: Router
-  ){}
+    private router: Router,
+    private cpu: CpuComponent,
+    private cdr: ChangeDetectorRef,
+    private musicaService: MusicaService,
+    private sanitizer: DomSanitizer,
+  ) {}
 
   // El computed este es para que se actualice en tiempo real
-  vidaTuya = computed(() => this.personajeTuyo()?.vida || 0);
-  vidaRival = computed(() => this.rival()?.vida || 0);
+  vidaTuya = computed(() => this.personajeTuyo().vida || 0);
+  vidaRival = computed(() => this.rival().vida || 0);
 
   resultadoUltimoDado = signal<number>(0);
 
@@ -45,14 +126,55 @@ export class CombateComponent implements OnInit {
     this.resultadoUltimoDado.set(resultadoDado);
     if (this.turnoTuyo == true) {
       this.pasarTurnoTuyo();
+      if (this.usarCpu && !this.turnoTuyo && this.rival() && this.rival().vida > 0) {
+        setTimeout(() => this.ejecutarTurnoCpu(), 1000);
+      }
     } else {
-      this.pasarTurnoRival() 
+      this.pasarTurnoRival();
     }
-    
   }
 
+  ejecutarTurnoCpu() {
+      const rivalActual = this.rival();
+      if (!rivalActual || !rivalActual.ataquesDelPersonaje) {
+        this.turnoTuyo = true;
+        this.TuTurno = true;
+        return;
+      }
+
+      const accionIA = this.cpu.elegirAccion(
+        rivalActual.ataquesDelPersonaje,
+        this.objetosDelRival,
+        this.dificultadCpu,
+        rivalActual.estadisticasDelPersonaje,
+        this.personajeTuyo()?.vida ?? 100,
+        rivalActual.vida
+      );
+
+      if (!accionIA) {
+        this.turnoTuyo = true;
+        this.TuTurno = true;
+        return;
+      }
+
+      // Type guard: Evaluamos si la IA ha decidido usar un objeto
+      if ('usos' in accionIA) {
+        this.usarObjetoRival(accionIA as Objeto);
+      } else {
+        // Ha decidido usar un ataque
+        this.ataqueSeleccionado.set(accionIA as Ataque);
+
+        const total = accionIA.dadoBase && accionIA.dadoBase > 0 ? accionIA.dadoBase : 6;
+        const dado = Math.floor(Math.random() * total) + 1;
+        this.resultadoUltimoDado.set(dado);
+
+        this.pasarTurnoRival();
+      }
+    }
+
   pasarTurnoTuyo() {
-    if(this.TuTurno == true) {
+    console.log(this.ataqueSeleccionado());
+    if (this.TuTurno == true) {
       this.TuTurno = false;
     } else {
       this.TuTurno = true;
@@ -61,33 +183,31 @@ export class CombateComponent implements OnInit {
     if (this.ataqueSeleccionado() !== null) {
       this.ambasEstatsBien = true;
 
-    if (this.ataqueSeleccionado() !== null) {
-      if(this.ataqueSeleccionado().statReducePropio !== null) {
-        for(let coste of this.ataqueSeleccionado().statReducePropio) {
-
-          // Esto busca en TU personaje hasta encontrar una estadistica con el nombre de la que esté en el for y la guarda en miStat
-          let miStat = this.personajeTuyo().estadisticasDelPersonaje.find(
-            (e: any) => e.nombreEstadistica === coste.estadistica
-          );
-
-          if(miStat.valorPropio >= coste.valor) {
-            this.ambasEstatsBien = true;
-          } else {
-            this.ambasEstatsBien = false;
-            break;
-          }
-        }
-        }
-
-        if(this.ambasEstatsBien == true) {
-          for(let estadistica of this.ataqueSeleccionado().statReducePropio) {
+      if (this.ataqueSeleccionado() !== null) {
+        if (this.ataqueSeleccionado().statReducePropio !== null) {
+          for (let coste of this.ataqueSeleccionado().statReducePropio) {
+            // Esto busca en TU personaje hasta encontrar una estadistica con el nombre de la que esté en el for y la guarda en miStat
             let miStat = this.personajeTuyo().estadisticasDelPersonaje.find(
-              (e: any) => e.nombreEstadistica === estadistica.estadistica
+              (e) => e.nombreEstadistica === coste.estadistica,
             );
 
-            miStat.valorPropio = miStat.valorPropio - estadistica.valor;
+            if (miStat && miStat?.valorPropio >= coste.valor) {
+              this.ambasEstatsBien = true;
+            } else {
+              this.ambasEstatsBien = false;
+              break;
+            }
           }
+        }
 
+        if (this.ambasEstatsBien == true) {
+          for (let estadistica of this.ataqueSeleccionado().statReducePropio) {
+            let miStat = this.personajeTuyo().estadisticasDelPersonaje.find(
+              (e) => e.nombreEstadistica === estadistica.estadistica,
+            );
+            if (miStat) miStat.valorPropio -= estadistica.valor;
+            console.log('Stat:', miStat?.valorPropio, ', reducir:', estadistica.valor);
+          }
         }
       }
 
@@ -95,39 +215,58 @@ export class CombateComponent implements OnInit {
         let dano = this.ataqueSeleccionado().danoAtaque;
         const datosPaloma = this.rival();
 
-        const rangoCritico = this.ataqueSeleccionado().ratioDado[0]; 
+        const rangoCritico = this.ataqueSeleccionado().ratioDado[0];
         const rangoNormal = this.ataqueSeleccionado().ratioDado[1];
-        const dado = this.resultadoUltimoDado()
+        const dado = this.resultadoUltimoDado();
 
-        if(dado == rangoCritico) {
-          dano = dano * 2; 
-        } else if(dado == rangoNormal) { 
-          dano = dano * 1.5; 
+        if (dado == rangoCritico) {
+          dano = dano * 2;
+        } else if (dado == rangoNormal) {
+          dano = dano * 1.5;
         }
+
+        this.recibiendoRival = true;
+        setTimeout(() => {
+          this.recibiendoRival = false;
+          this.cdr.detectChanges();
+        }, 1000);
+
+        this.estaAtacandoTuyo = true;
+        setTimeout(() => {
+          this.estaAtacandoTuyo = false;
+          this.cdr.detectChanges();
+        }, 200);
 
         datosPaloma.vida = datosPaloma.vida - dano;
 
         if (datosPaloma.vida <= 0) {
-          alert("¡Has ganado la batalla!");
-          this.router.navigate(['/']); 
+          this.muerteRival = true;
+          setTimeout(() => {
+            alert('¡Has ganado la batalla!');
+            this.router.navigate(['/']);
+          }, 1500);
         }
 
         this.rival.set(datosPaloma);
-        
       } else {
-        alert("No tienes recursos suficientes para este ataque.");
+        alert('No tienes recursos suficientes para este ataque.');
       }
 
-      this.ataqueSeleccionado.set(null);
+      this.ataqueSeleccionado.set({
+        id: null,
+        nombre: '',
+        dadoBase: 0,
+        ratioDado: [],
+        statReducePropio: [],
+        statReduceRival: [],
+        danoAtaque: 0,
+      });
       this.turnoTuyo = false;
     }
-
   }
 
-
-  
   pasarTurnoRival() {
-    if(this.TuTurno == true) {
+    if (this.TuTurno == true) {
       this.TuTurno = false;
     } else {
       this.TuTurno = true;
@@ -136,219 +275,331 @@ export class CombateComponent implements OnInit {
     if (this.ataqueSeleccionado() !== null) {
       this.ambasEstatsBien = true;
 
-    if (this.ataqueSeleccionado() !== null) {
-      if(this.ataqueSeleccionado().statReducePropio !== null) {
-        for(let coste of this.ataqueSeleccionado().statReducePropio) {
-
-          let miStat = this.rival().estadisticasDelPersonaje.find(
-            (e: any) => e.nombreEstadistica === coste.estadistica
-          );
-
-          if(miStat.valorPropio >= coste.valor) {
-            this.ambasEstatsBien = true;
-          } else {
-            this.ambasEstatsBien = false;
-            break;
-          }
-        }
-        }
-
-        if(this.ambasEstatsBien == true) {
-          for(let estadistica of this.ataqueSeleccionado().statReducePropio) {
+      if (this.ataqueSeleccionado() !== null) {
+        if (this.ataqueSeleccionado().statReducePropio !== null) {
+          for (let coste of this.ataqueSeleccionado().statReducePropio) {
             let miStat = this.rival().estadisticasDelPersonaje.find(
-              (e: any) => e.nombreEstadistica === estadistica.estadistica
+              (e: any) => e.nombreEstadistica === coste.estadistica,
             );
 
-            miStat.valorPropio = miStat.valorPropio - estadistica.valor;
+            if (miStat && miStat.valorPropio >= coste.valor) {
+              this.ambasEstatsBien = true;
+            } else {
+              this.ambasEstatsBien = false;
+              break;
+            }
           }
+        }
 
+        if (this.ambasEstatsBien == true) {
+          for (let estadistica of this.ataqueSeleccionado().statReducePropio) {
+            let miStat = this.rival().estadisticasDelPersonaje.find(
+              (e: any) => e.nombreEstadistica === estadistica.estadistica,
+            );
+
+            if (miStat) miStat.valorPropio = miStat.valorPropio - estadistica.valor;
+          }
         }
       }
 
       if (this.ambasEstatsBien == true) {
         let dano = this.ataqueSeleccionado().danoAtaque;
         const datosCanario = this.personajeTuyo();
-        
-        const rangoCritico = this.ataqueSeleccionado().ratioDado[0]; 
-        const rangoNormal = this.ataqueSeleccionado().ratioDado[1];
-        const dado = this.resultadoUltimoDado()
 
-        if(dado == rangoCritico) {
-          dano = dano * 2; 
-        } else if(dado == rangoNormal) { 
-          dano = dano * 1.5; 
+        const rangoCritico = this.ataqueSeleccionado().ratioDado[0];
+        const rangoNormal = this.ataqueSeleccionado().ratioDado[1];
+        const dado = this.resultadoUltimoDado();
+
+        if (dado == rangoCritico) {
+          dano = dano * 2;
+        } else if (dado == rangoNormal) {
+          dano = dano * 1.5;
         }
+
+        this.estaAtacandoRival = true;
+        setTimeout(() => {
+          this.estaAtacandoRival = false;
+        }, 200);
+
+        this.recibiendoTuyo = true;
+        setTimeout(() => {
+          this.recibiendoTuyo = false;
+          this.cdr.detectChanges();
+        }, 1000);
 
         datosCanario.vida = datosCanario.vida - dano;
 
         if (datosCanario.vida <= 0) {
-          alert("¡Has perdido la batalla!");
-          this.router.navigate(['/landing']); 
+          this.muerteTuyo = true;
+          setTimeout(() => {
+            alert('¡Has perdido la batalla!');
+            this.router.navigate(['/']);
+          }, 1500);
         }
 
-
         this.personajeTuyo.set(datosCanario);
-        
       } else {
-        alert("No tienes recursos suficientes para este ataque.");
+        alert('No tienes recursos suficientes para este ataque.');
       }
 
-      this.ataqueSeleccionado.set(null);
+      this.ataqueSeleccionado.set({
+        id: null,
+        nombre: '',
+        dadoBase: 0,
+        ratioDado: [],
+        statReducePropio: [],
+        statReduceRival: [],
+        danoAtaque: 0,
+      });
       this.turnoTuyo = true;
     }
   }
 
-  seleccionarAtaque(ataquePulsado: any) {
-    this.ataqueSeleccionado.set(ataquePulsado); 
-    console.log("Has seleccionado:", this.ataqueSeleccionado().nombre); 
+  togglePanelObjetos() {
+    this.mostrarObjetos = !this.mostrarObjetos;
   }
 
+  togglePanelObjetosRival() {
+    this.mostrarObjetosRival = !this.mostrarObjetosRival;
+  }
 
-  ngOnInit(): void {
-    //this.cargarPersonajesDePrueba();
-    this.combateId = this.route.snapshot.paramMap.get('id');
-    //this.cargarPartidaDePrueba();
-    if (this.combateId) {
-      this.servicioAPI.obtenerCombate(this.combateId).subscribe({
-        next: (partidaBackend) => {
-            this.combateDto = partidaBackend;
-            this.cargarPersonajesBD()
-            console.log(this.combateDto)
-        },
-      });
+  usarObjetoRival(objeto: Objeto) {
+    if (this.TuTurno) return; 
+
+    const yo = this.rival();
+    const objetivo = this.personajeTuyo();
+
+    for (const efecto of objeto.efectosPropios) {
+      const stat = yo.estadisticasDelPersonaje.find(
+        (e) => e.nombreEstadistica === efecto.estadistica,
+      );
+      if (stat) stat.valorPropio += efecto.valor;
+    }
+
+    const efectoVidaPropia = objeto.efectosPropios.find(
+      (e) => e.estadistica.toLowerCase() === 'vida',
+    );
+    if (efectoVidaPropia) {
+      yo.vida = Math.min(Math.max(yo.vida + efectoVidaPropia.valor, 0), this.vidaMaximaRival());
+    }
+
+    for (const efecto of objeto.efectosRival) {
+      const stat = objetivo.estadisticasDelPersonaje.find(
+        (e) => e.nombreEstadistica === efecto.estadistica,
+      );
+      if (stat) stat.valorPropio += efecto.valor;
+    }
+
+    const efectoVidaRival = objeto.efectosRival.find((e) => e.estadistica.toLowerCase() === 'vida');
+    if (efectoVidaRival) {
+      objetivo.vida = Math.min(
+        Math.max(objetivo.vida + efectoVidaRival.valor, 0),
+        this.vidaMaximaTuyo(),
+      );
+      if (objetivo.vida <= 0) {
+        this.muerteTuyo = true;
+        setTimeout(() => {
+          alert('¡Has perdido la batalla!');
+          this.router.navigate(['/']);
+        }, 1500);
+      }
+    }
+
+    this.rival.set({ ...yo });
+    this.personajeTuyo.set({ ...objetivo });
+
+    if (objeto.usos > 0) {
+      objeto.usos -= 1;
+      if (objeto.usos === 0) {
+        this.objetosDelRival = this.objetosDelRival.filter((o) => o !== objeto);
+      }
+    }
+
+    if (objeto.efectosPropios.length > 0 || efectoVidaPropia) {
+      this.buffRival = true;
+      setTimeout(() => {
+        this.buffRival = false;
+        this.cdr.detectChanges();
+      }, 1000);
+    }
+
+    if (objeto.efectosRival.length > 0 || efectoVidaRival) {
+      this.debilTuyo = true;
+      setTimeout(() => {
+        this.debilTuyo = false;
+        this.cdr.detectChanges();
+      }, 1000);
+    }
+
+    this.mensajeObjetoRival = `¡${objeto.nombre} usado!`;
+    this.objetoUsadoAnimacionRival = true;
+    setTimeout(() => {
+      this.objetoUsadoAnimacionRival = false;
+      this.mensajeObjetoRival = '';
+      this.cdr.detectChanges();
+    }, 1800);
+
+    this.TuTurno = true;
+    this.turnoTuyo = true;
+  }
+
+  usarObjeto(objeto: Objeto) {
+    if (!this.TuTurno) {
+      alert('¡No es tu turno!');
+      return;
+    }
+
+    const yo = this.personajeTuyo();
+    const rival = this.rival();
+
+    // Aplicar efectos propios
+    for (const efecto of objeto.efectosPropios) {
+      const stat = yo.estadisticasDelPersonaje.find(
+        (e) => e.nombreEstadistica === efecto.estadistica,
+      );
+      if (stat) stat.valorPropio += efecto.valor;
+      else if (efecto.estadistica === 'vida' || efecto.estadistica === 'Vida') {
+        yo.vida = Math.min(yo.vida + efecto.valor, this.vidaMaximaTuyo());
+      }
+    }
+
+    // Si algún efecto propio es sobre la vida directamente
+    const efectoVidaPropia = objeto.efectosPropios.find(
+      (e) => e.estadistica.toLowerCase() === 'vida',
+    );
+    if (efectoVidaPropia) {
+      yo.vida = Math.min(Math.max(yo.vida + efectoVidaPropia.valor, 0), this.vidaMaximaTuyo());
+    }
+
+    // Aplicar efectos al rival
+    for (const efecto of objeto.efectosRival) {
+      const stat = rival.estadisticasDelPersonaje.find(
+        (e) => e.nombreEstadistica === efecto.estadistica,
+      );
+      if (stat) stat.valorPropio += efecto.valor;
+    }
+
+    const efectoVidaRival = objeto.efectosRival.find((e) => e.estadistica.toLowerCase() === 'vida');
+    if (efectoVidaRival) {
+      rival.vida = Math.min(
+        Math.max(rival.vida + efectoVidaRival.valor, 0),
+        this.vidaMaximaRival(),
+      );
+      if (rival.vida <= 0) {
+        this.muerteRival = true;
+        setTimeout(() => {
+          alert('¡Has ganado la batalla!');
+          this.router.navigate(['/']);
+        }, 1500);
+      }
+    }
+
+    this.personajeTuyo.set({ ...yo });
+    this.rival.set({ ...rival });
+
+    // Quitar el objeto si usos llegan a 0
+    if (objeto.usos > 0) {
+      objeto.usos -= 1;
+      if (objeto.usos === 0) {
+        this.objetosDeTuPersonaje = this.objetosDeTuPersonaje.filter((o) => o !== objeto);
+      }
+    }
+
+    if (objeto.efectosPropios.length > 0 || efectoVidaPropia) {
+      this.buffTuyo = true;
+      setTimeout(() => {
+        this.buffTuyo = false;
+        this.cdr.detectChanges();
+      }, 1000);
+    }
+
+    if (objeto.efectosRival.length > 0 || efectoVidaRival) {
+      this.debilRival = true;
+      setTimeout(() => {
+        this.debilRival = false;
+        this.cdr.detectChanges();
+      }, 1000);
+    }
+    
+    // Animación de uso
+    this.mensajeObjeto = `¡${objeto.nombre} usado!`;
+    this.objetoUsadoAnimacion = true;
+    setTimeout(() => {
+      this.objetoUsadoAnimacion = false;
+      this.mensajeObjeto = '';
+      this.cdr.detectChanges();
+    }, 1800);
+
+    // El uso de objeto consume el turno
+    this.TuTurno = false;
+    this.turnoTuyo = false;
+    if (this.usarCpu && this.rival() && this.rival().vida > 0) {
+      setTimeout(() => this.ejecutarTurnoCpu(), 1200);
     }
   }
 
-
-  cargarPersonajesBD(){
-    //Supongo que deberia de hacer un GET a backend y recoger el combate por el id 
-    //Para hacerlo mas sencillo solo voy a recoger los personajes del combate 
-    let estadisticas1:any[] = []
-    let ataques1:any[] = []
-    let ataques1mana: any[] = []
-    let ataques1propio: any[] = []
-    let estadisticas2:any[] = []
-    let ataques2:any[] = []
-    let ataques2mana: any[] = []
-    let ataques2propio: any[] = []
-    this.combateDto?.personaje1.personajeEstadisticas.forEach(element => {
-      let estat = {
-          id: element.id, nombreEstadistica: element.nombre, valorPropio: Number(element.valor), consumible: element.consumible
-        }
-        estadisticas1.push(estat)
-    });
-    this.combateDto?.personaje1.personajeAtaques.forEach(element => {
-      let ataques1mana: any[] = []; 
-      let ataques1propio: any[] = [];
-
-      if (element.manaAtacante) {
-        Object.keys(element.manaAtacante as any).forEach(key => {
-          ataques1mana.push({
-            estadistica: key,
-            valor: Number((element.manaAtacante as any)[key])
-          });
-        });
-      }
-
-      if (element.estadisticasDefensor) {
-        Object.keys(element.estadisticasDefensor as any).forEach(key => {
-          ataques1propio.push({
-            estadistica: key,
-            valor: Number((element.estadisticasDefensor as any)[key])
-          });
-        });
-      }
-
-      if (element.estadisticasDefensor) {
-        Object.keys(element.estadisticasDefensor as any).forEach(key => {
-          ataques1propio.push({
-            estadistica: key,
-            valor: Number((element.estadisticasDefensor as any)[key])
-          });
-        });
-      }
-      let ataque = {
-            id: element.id,
-              nombre: element.nombre,
-              dadoBase: element.dadoBase,
-              ratioDado: element.ratioDado,
-              danoAtaque: element.danoAtaque,
-              statReducePropio: ataques1mana,
-              statReduceRival: ataques1propio,
-        }
-        ataques1.push(ataque)
-    });
-    this.combateDto?.personaje2.personajeEstadisticas.forEach(element => {
-      let estat = {
-          id: element.id, nombreEstadistica: element.nombre, valorPropio: Number(element.valor), consumible: element.consumible
-        }
-        estadisticas2.push(estat)
-    });
-    this.combateDto?.personaje2.personajeAtaques.forEach(element => {
-      let ataques2mana: any[] = []; 
-      let ataques2propio: any[] = [];
-
-      if (element.manaAtacante) {
-        Object.keys(element.manaAtacante as any).forEach(key => {
-          ataques2mana.push({
-            estadistica: key,
-            valor: Number((element.manaAtacante as any)[key])
-          });
-        });
-      }
-
-      if (element.estadisticasDefensor) {
-        Object.keys(element.estadisticasDefensor as any).forEach(key => {
-          ataques2propio.push({
-            estadistica: key,
-            valor: Number((element.estadisticasDefensor as any)[key])
-          });
-        });
-      }
-      for(let i in element.estadisticasDefensor.keys){
-        let estat = {
-          estadistica: i,
-          valor: element.estadisticasDefensor.get(i)
-        }
-        ataques2propio.push(estat)
-      }
-      let ataque = {
-            id: element.id,
-              nombre: element.nombre,
-              dadoBase: element.dadoBase,
-              ratioDado: element.ratioDado,
-              danoAtaque: element.danoAtaque,
-              statReducePropio: ataques2mana,
-              statReduceRival: ataques2propio,
-        }
-        ataques2.push(ataque)
-    });
-    this.personajeTuyo.set({
-      id: this.combateDto?.personaje1.id,
-      nombre: this.combateDto?.personaje1.personajeNombre,
-      fotoUrl: this.combateDto?.personaje1.personajeFotoUrl,
-      urlSprite: this.combateDto?.personaje1.personajeFotoUrl,
-      vidaMaxima: this.combateDto?.personaje1.personajeVida, 
-      vida: this.combateDto?.personaje1.personajeVida,
-      estadisticasDelPersonaje: estadisticas1,
-      ataquesDelPersonaje: ataques1
-    });
-    this.rival.set({
-      id: this.combateDto?.personaje2.id,
-      nombre: this.combateDto?.personaje2.personajeNombre,
-      fotoUrl: this.combateDto?.personaje2.personajeFotoUrl,
-      urlSprite: this.combateDto?.personaje2.personajeFotoUrl,
-      vidaMaxima: this.combateDto?.personaje2.personajeVida, 
-      vida: this.combateDto?.personaje2.personajeVida,
-      estadisticasDelPersonaje: estadisticas2,
-      ataquesDelPersonaje: ataques2
-    });
+  seleccionarAtaque(ataquePulsado: any) {
+    this.ataqueSeleccionado.set(ataquePulsado);
+    console.log('Has seleccionado:', this.ataqueSeleccionado().nombre);
   }
 
+  ngOnInit(): void {
+  // Nos suscribimos a los parámetros de la URL
+  this.route.paramMap.subscribe(params => {
+    const partidaIdParam = params.get('idPartida');
+    const combateIdParam = params.get('id');
+
+    // 1. CARGAMOS LOS OBJETOS (Solo si tenemos el ID de la partida)
+    if (partidaIdParam) {
+      this.partidaId = partidaIdParam;
+      console.log('ID Partida:', this.partidaId);
+
+      this.servicioAPI.obtenerObjetos(this.partidaId).subscribe({
+        next: (objetosDto) => {
+          this.objetosDeTuPersonaje = [];
+          this.objetosDelRival = [];
+          
+          for (let i of objetosDto) {
+            this.objetosDeTuPersonaje.push(toObjeto(i));
+            this.objetosDelRival.push(toObjeto(i));
+          }
+          console.log('Objetos cargados con éxito para la IA y para ti.');
+        },
+        error: (e) => console.log('Error al obtener objetos:', e)
+      });
+    }
+
+    // 2. CARGAMOS EL COMBATE (Solo si tenemos el ID del combate)
+    if (combateIdParam) {
+      this.combateId = combateIdParam;
+      console.log('ID Combate:', this.combateId);
+
+      this.servicioAPI.obtenerCombate(this.combateId).subscribe({
+        next: (partidaBackend) => {
+          this.cargarPersonajesBD(partidaBackend);
+          console.log('Personajes de combate cargados.');
+        },
+      });
+    }
+  });
+
+  // 3. CARGAMOS LA MÚSICA (Esto no necesita esperar a la BD)
+  const urlGuardada = this.musicaService.urlYoutube();
+  if (urlGuardada) {
+    this.musicaSegurizada = this.sanitizer.bypassSecurityTrustResourceUrl(urlGuardada);
+  }
 }
 
-export interface CombatePersonjaesDto{
-  id:number;
-  personaje1: PersonajeDto
-  personaje2: PersonajeDto
+  cargarPersonajesBD(dto: CombatePersonajesDto) {
+    let personajeTuyo = toPersonaje(dto.personaje1);
+    this.vidaMaximaTuyo.set(personajeTuyo.vida);
+    let rival = toPersonaje(dto.personaje2);
+    this.vidaMaximaRival.set(rival.vida);
+    this.personajeTuyo.set(personajeTuyo);
+    this.rival.set(rival);
+    // Cargar objetos de la partida si el backend los devuelve
+    if ((dto as any).objetos) {
+      this.objetosDeTuPersonaje = (dto as any).objetos;
+    }
+  }
 }

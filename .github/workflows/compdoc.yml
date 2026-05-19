@@ -1,0 +1,49 @@
+name: Publicar Documentación Angular 🚀
+
+on:
+  push:
+    branches:
+      - Frontend 
+      - main  
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clonar el código
+        uses: actions/checkout@v4
+
+      - name: Instalar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Instalar dependencias
+        run: cd Frontend/JuegoRolPagina && npm install
+
+      - name: Generar Compodoc
+        run: cd Frontend/JuegoRolPagina && npx compodoc -p tsconfig.json -d docs-html
+
+      - name: Configurar Páginas
+        uses: actions/configure-pages@v5
+
+      - name: Subir la documentación
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'Frontend/JuegoRolPagina/docs-html' 
+
+      - name: 🚀 Publicar en Internet
+        id: deployment
+        uses: actions/deploy-pages@v4

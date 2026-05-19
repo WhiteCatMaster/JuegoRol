@@ -165,4 +165,26 @@ class UsuarioServiceTests {
         verify(usuarioRepo).findById(1L)
         verify(usuarioRepo).save(usuarioExistente)
     }
+
+    @Test
+    fun testCambiarNombreUsuarioInexistente() {
+        whenever(usuarioRepo.findById(99L)).thenReturn(Optional.empty())
+
+        val resultado = usuarioService.cambiarNombreUsuario(99L, "Otro")
+
+        assertEquals(null, resultado)
+        verify(usuarioRepo, never()).save(any())
+    }
+
+    @Test
+    fun testCambiarEmailUsuarioInexistente() {
+        // El id no aparece en el repo, asi que ni siquiera deberia intentar guardar
+        whenever(usuarioRepo.findById(99L)).thenReturn(Optional.empty())
+
+        val resultado = usuarioService.cambiarEmailUsuario(99L, "noexiste@test.com")
+
+        assertEquals(null, resultado)
+        verify(usuarioRepo, never()).save(any())
+    }
+
 }

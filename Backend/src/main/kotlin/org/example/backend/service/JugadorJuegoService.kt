@@ -10,7 +10,7 @@ class JugadorJuegoService(private val jugadorJuegoRepo: JugadorJuegoRepository) 
 
     fun getAllJugadoresJuego() = jugadorJuegoRepo.findAll()
 
-    fun getJugadorJuegoById(id: Long) = jugadorJuegoRepo.findById(id).orElse(null)
+    fun getJugadorJuegoById(id: Long): JugadorJuego? = jugadorJuegoRepo.findById(id).orElse(null)
 
     @Transactional
     fun createJugadorJuego(jugadorJuego: JugadorJuego) = jugadorJuegoRepo.save(jugadorJuego)

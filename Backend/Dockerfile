@@ -2,10 +2,8 @@ FROM gradle:9.3.1-jdk21 AS build
 WORKDIR /workspace
 
 COPY build.gradle.kts settings.gradle.kts gradle.properties ./
-COPY gradle ./gradle
 COPY src ./src
-COPY gradlew ./gradlew
-RUN chmod +x ./gradlew && ./gradlew bootJar --no-daemon
+RUN gradle bootJar --no-daemon
 
 FROM eclipse-temurin:21-jre
 WORKDIR /app

@@ -1,5 +1,20 @@
 <div class="selector-container">
-  <h1 class="titulo-selector">Escoje personajes</h1>
+  <div class="cabecera-con-volver">
+    <button routerLink="" class="btn-volver-atras">⬅ Volver al Inicio</button>
+    <h1 class="titulo-selector">Escoje personajes</h1>
+  </div>
+  <div class="cpu-config">
+    <label>
+      <input type="checkbox" [(ngModel)]="cpu.usarCpu">
+      Rival controlado por CPU
+    </label>
+    @if (cpu.usarCpu) {
+      <label class="cpu-dificultad">
+        Dificultad: {{ cpu.dificultad.toFixed(2) }}
+        <input type="range" min="0" max="1" step="0.05" [(ngModel)]="cpu.dificultad">
+      </label>
+    }
+  </div>
 
   @if (partidaActual() === null) {
     <p class="cargando">No existe la partida actual</p>
@@ -10,7 +25,7 @@
       <div class="columna">
         <h2 class="titulo-columna">Tu Héroe</h2>
         <div class="personajes-grid">
-          @for (personaje of $any(partidaActual())?.personajes; track personaje.id) {
+          @for (personaje of personajesActual(); track personaje.id) {
             @if (personaje == null) {
 
             }
@@ -38,7 +53,7 @@
       <div class="columna">
         <h2 class="titulo-columna">Tu Enemigo</h2>
         <div class="personajes-grid">
-          @for (enemigo of $any(partidaActual())?.personajes; track enemigo.id) {
+          @for (enemigo of personajesActual(); track enemigo.id) {
             <div class="personaje-card" 
                  [class.selected]="enemigoSeleccionado === enemigo"
                  [class.disabled-card]="enemigo === heroeSeleccionado"> 
@@ -59,7 +74,10 @@
           }
         </div>
       </div>
-
     </div>
+    
+    <h2 class="titulo-musica">¿Música?</h2>
+    <p><strong>Añade un link de una canción de Youtube para escucharla durante el combate</strong></p>
+    <input class="barraYT" type="text" [(ngModel)]="enlace">
   }
 </div>

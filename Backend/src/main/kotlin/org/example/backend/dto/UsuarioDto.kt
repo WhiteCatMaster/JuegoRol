@@ -1,5 +1,6 @@
 package org.example.backend.dto
 
+import org.example.backend.entity.Usuario
 import java.io.Serializable
 
 
@@ -25,4 +26,5 @@ data class UsuarioDto(
         val idioma: String? = null,
         val maxJugadores: Int? = null,
     )
+
 }

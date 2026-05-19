@@ -1,4 +1,5 @@
 import { Partida } from "./partida";
+import { Personaje } from "./personaje";
 import { Usuario } from "./usuario";
 
 export enum Rol {
@@ -11,4 +12,5 @@ export interface JugadorJuego {
     usuario: Usuario;
     juego: Partida; 
     rol: Rol;
+    personaje: Personaje;
 }

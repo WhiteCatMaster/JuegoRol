@@ -2,7 +2,7 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Partida } from './models/partida';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { ServicioAPI } from './servicio-api';
+import { DatosPartidaDto, ServicioAPI, toPartida } from './servicio-api';
 
 @Component({
   selector: 'app-combate',
@@ -12,8 +12,13 @@ import { ServicioAPI } from './servicio-api';
   styleUrl: './selectorELIMINAR.component.css',
 })
 export class SelectorComponent implements OnInit {
-  partidaActual = signal<Partida | null>(null);
-  partidaDto: DatosPartidaDto|null = null;
+  partidaActual = signal<Partida>({
+    id: null,
+    nombre: '',
+    descripcion: '',
+    idioma: '',
+    maxJugadores: 0
+  });
   partidaID: string | null = null;
   constructor(
     private route: ActivatedRoute,
@@ -37,9 +42,7 @@ export class SelectorComponent implements OnInit {
     if (this.partidaID) {
       this.servicioAPI.obtenerDatosPartida(this.partidaID).subscribe({
         next: (partidaBackend) => {
-            this.partidaDto = partidaBackend;
-            
-            this.cargasPartidasBD()
+            this.cargasPartidasBD(partidaBackend)
             console.log(this.partidaActual)
         },
       });
@@ -101,82 +104,12 @@ export class SelectorComponent implements OnInit {
     } as any);
   }
 
-  cargasPartidasBD(){
-    let personajes: any[] = []
-    this.partidaDto?.jugadores.forEach(element => {
-      let estats:any[] = [];
-      let ataques:any[] = []
-      element.personajeEstadisticas.forEach(element => {
-        let estat = {
-          id: element.id, nombreEstadistica: element.nombre, valorPropio: element.valor, consumible: element.consumible
-        }
-        estats.push(estat)
-      });
-      element.personajeAtaques.forEach(element => {
-        let ataque = {
-            id: element.id,
-              nombre: element.nombre,
-              dadoBase: element.dadoBase,
-              ratioDado: element.ratioDado,
-              danoAtatque: element.danoAtaque,
-              statReducePropio: element.manaAtacante,
-              statReduceRival: element.estadisticasDefensor,
-        }
-        ataques.push(ataque)
-      });
-      let personaje = {
-        id: element.id,
-          nombre: element.personajeNombre,
-          urlSprite: element.personajeFotoUrl,
-          vida: element.personajeVida,
-          estadisticasDelPersonaje : estats,
-          ataquesDelPersonaje : ataques
-      }
-      personajes.push(personaje);
-    });
-    this.partidaActual.set({
-      id:this.partidaDto?.id,
-      nombre: this.partidaDto?.nombre,
-      descripcion: this.partidaDto?.descripcion,
-      idioma: this.partidaDto?.idioma,
-      maxJugadores: this.partidaDto?.maximoJugadores,
-      personajes: personajes
-    } as any)
+  cargasPartidasBD(partidaDto: DatosPartidaDto){
+    this.partidaActual.set(toPartida(partidaDto))
   }
 
 
 }
 
 
-export interface EstadisticaDto{
-  id: number;
-  nombre: string;
-  valor : number;
-  consumible: boolean;
-}
-export interface AtaqueDto{
-  id:number;
-  nombre : string;
-  manaAtacante: Map<string, number>
-  estadisticasDefensor: Map<string, number>
-  dadoBase: number;
-  ratioDado: number[];
-  danoAtaque: number;
-}
 
-export interface PersonajeDto {
-  id: number;
-  personajeNombre : string;
-  personajeVida: number;
-  personajeFotoUrl: string;
-  personajeEstadisticas: EstadisticaDto[];
-  personajeAtaques: AtaqueDto[];
-}
-export interface DatosPartidaDto{
-  id: number;
-  nombre: string;
-  descripcion: string;
-  idioma: string;
-  maximoJugadores: number;
-  jugadores: PersonajeDto[]
-}

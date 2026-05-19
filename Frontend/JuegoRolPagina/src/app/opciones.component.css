@@ -23,12 +23,12 @@
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    scrollbar-width: none; 
+    scrollbar-width: none;
     -ms-overflow-style: none;
 }
 #ContenedorDerecha::-webkit-scrollbar {
     width: 0px;
-    background: transparent; 
+    background: transparent;
 }
 
 #ContenedorDerecha p {
@@ -526,7 +526,7 @@ h2 {
     display: flex;
     flex-direction: row;
     justify-content: space-evenly; /* Reparte el espacio inteligentemente sin empujar contra los bordes */
-    align-items: flex-start; 
+    align-items: flex-start;
     width: 100%;
     margin-top: 20px;
 }
@@ -618,13 +618,14 @@ h2 {
     color: #E6D8BF;
     border: 2px solid #3e2723;
     border-radius: 10px;
-    padding: 10px 20px;
+    padding: 5px 10px;
     font-family: "Pirata One", system-ui;
-    font-size: 22px;
+    font-size: 18px;
     cursor: pointer;
     transition: all 0.2s ease;
-    margin-top: 15px;
+    margin-top: 10px;
     box-shadow: 2px 2px 6px rgba(0,0,0,0.5);
+    margin-left: 2px;
 }
 
 .btn-sellar-pergamino:hover {
@@ -689,4 +690,369 @@ h1 {
     align-items: center;
     gap: 5px;
     margin-bottom: 5px;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   PASO 6 – CREADOR DE OBJETOS
+══════════════════════════════════════════════════════════════════ */
+
+#creador-objetos {
+  height: auto;
+  width: 98%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr);
+  gap: 15px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+/* ── Columna 1: selector de estadísticas ── */
+#selector-objetos {
+  min-height: 70%;
+  height: auto;
+  width: 90%;
+  border-radius: 40px;
+  background-color: #61312E;
+  color: #E6D8BF;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.hint-objeto {
+  color: rgba(230, 216, 191, 0.65) !important;
+  font-size: 11px;
+  font-style: italic;
+  margin-top: -8px !important;
+  margin-bottom: 4px;
+}
+
+/* Variantes de color para los íconos arrastrables */
+.icono-verde {
+  background-color: #d4edda;
+  color: #2d6a4f;
+  border-color: #2d6a4f;
+}
+.icono-verde:hover {
+  background-color: #b7dfc5;
+}
+
+.icono-rojo {
+  background-color: #f8d7da;
+  color: #7b2230;
+  border-color: #7b2230;
+}
+.icono-rojo:hover {
+  background-color: #f1b8be;
+}
+
+/* ── Columna 2: mesa de trabajo objeto ── */
+#mezclador-objetos {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 2%;
+}
+
+#mesa-trabajo-objeto {
+  background-color: #3e2117;
+  border-radius: 20px;
+  padding: 20px;
+  color: #E6D8BF;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.fila-config-objeto {
+  display: flex;
+  flex-direction: row;
+  gap: 15px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.input-grupo-objeto {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: bold;
+  color: #E6D8BF;
+  flex: 1;
+  min-width: 140px;
+}
+
+.input-grupo-imagen {
+  flex: 3;
+}
+
+.input-objeto {
+  background-color: #61312E;
+  border: 2px solid #E6D8BF;
+  border-radius: 8px;
+  color: #E6D8BF;
+  font-size: 14px;
+  padding: 6px 10px;
+  font-family: inherit;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input-objeto::placeholder {
+  color: rgba(230, 216, 191, 0.45);
+  font-size: 12px;
+}
+
+.input-url {
+  width: 100%;
+}
+
+.input-corto {
+  width: 80px;
+}
+
+.check-grupo {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+.checkbox-objeto {
+  width: 20px;
+  height: 20px;
+  accent-color: #6C764C;
+  cursor: pointer;
+}
+
+/* Vista previa de la imagen en el formulario */
+.preview-imagen-objeto {
+  flex: 0 0 auto;
+}
+
+.img-preview-objeto {
+  width: 60px;
+  height: 60px;
+  border-radius: 10px;
+  border: 2px solid #E6D8BF;
+  object-fit: cover;
+  background-color: #61312E;
+}
+
+/* Zonas drop del objeto */
+.contenedor-zonas-objeto {
+  display: flex;
+  flex-direction: row;
+  gap: 15px;
+  flex: 1;
+  min-height: 130px;
+}
+
+.zona-drop-objeto {
+  flex: 1;
+  border-radius: 15px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 2px dashed rgba(230, 216, 191, 0.35);
+  box-sizing: border-box;
+  min-height: 120px;
+}
+
+.zona-verde {
+  background-color: rgba(45, 106, 79, 0.2);
+  border-color: rgba(45, 106, 79, 0.6);
+}
+.zona-verde:hover {
+  background-color: rgba(45, 106, 79, 0.3);
+}
+
+.zona-roja {
+  background-color: rgba(123, 34, 48, 0.2);
+  border-color: rgba(123, 34, 48, 0.6);
+}
+.zona-roja:hover {
+  background-color: rgba(123, 34, 48, 0.3);
+}
+
+.placeholder-zona {
+  color: rgba(230, 216, 191, 0.4);
+  font-style: italic;
+  font-size: 12px;
+  margin: auto;
+  text-align: center;
+}
+
+/* Items en las zonas del objeto */
+.item-objeto-verde {
+  background-color: #2d6a4f !important;
+  border-color: #52b788 !important;
+}
+
+.item-objeto-rojo {
+  background-color: #7b2230 !important;
+  border-color: #e07080 !important;
+}
+
+/* Botón de signo (+/−) */
+.btn-signo-objeto {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+  line-height: 1;
+}
+
+.signo-positivo {
+  background-color: #52b788;
+  color: #fff;
+}
+.signo-positivo:hover {
+  background-color: #74c69d;
+  transform: scale(1.2);
+}
+
+.signo-negativo {
+  background-color: #e07080;
+  color: #fff;
+}
+.signo-negativo:hover {
+  background-color: #f28b9a;
+  transform: scale(1.2);
+}
+
+/* ── Columna 3: pergamino del objeto ── */
+#resultado-objeto {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+#contenedor-pergamino-objeto {
+  background-image: url('https://i.imgur.com/BiORbcB.png');
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 100%;
+  max-width: 360px;
+  min-height: 530px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 15% 10% 10% 10%;
+  box-sizing: border-box;
+  color: #3e2723;
+  font-family: "Almendra", system-ui;
+}
+
+.label-pergamino-objeto {
+  font-size: 20px;
+  font-weight: bold;
+  color: #5B3124;
+  font-family: "Almendra", system-ui;
+  text-align: center;
+  border-bottom: 2px solid #5B3124;
+  width: 90%;
+  padding-bottom: 4px;
+  margin-top: 20px;
+}
+
+.imagen-en-pergamino {
+  margin: 10px 0 6px 0;
+}
+
+.img-pergamino-objeto {
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 3px solid #5B3124;
+  background-color: #f4e4bc;
+}
+
+.descripcion-objeto-pergamino {
+  color: #5B3124;
+  font-size: 13px;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+/* Lista de objetos forjados */
+.lista-objetos-creados {
+  width: 100%;
+  max-width: 360px;
+}
+
+.titulo-lista-objetos {
+  color: #392919;
+  font-family: "Almendra", system-ui;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.grid-objetos-creados {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.miniatura-objeto {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background-color: #61312E;
+  border: 2px solid #E6D8BF;
+  border-radius: 12px;
+  padding: 8px;
+  width: 75px;
+}
+
+.img-miniatura-objeto {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  object-fit: cover;
+  background-color: #f4e4bc;
+}
+
+.nombre-miniatura-objeto {
+  color: #E6D8BF;
+  font-size: 11px;
+  font-weight: bold;
+  text-align: center;
+  word-break: break-word;
+  max-width: 65px;
+}
+
+.btn-eliminar-objeto {
+  position: absolute;
+  top: 3px;
+  right: 6px;
+  cursor: pointer;
+  color: rgba(230, 216, 191, 0.5);
+  font-size: 11px;
+  transition: color 0.2s, transform 0.2s;
+}
+.btn-eliminar-objeto:hover {
+  color: #ff4c4c;
+  transform: scale(1.3);
 }

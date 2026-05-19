@@ -1,6 +1,9 @@
+@file:Suppress("UNCHECKED_CAST")
+
 package org.example.backend.unit.service
 
 import org.example.backend.dto.CrearPartidaDto
+import org.example.backend.dto.DatosPartidaDto
 import org.example.backend.entity.Juego
 import org.example.backend.entity.JugadorJuego
 import org.example.backend.repository.AtaqueRepository
@@ -11,14 +14,16 @@ import org.example.backend.repository.PersonajeRepository
 import org.example.backend.repository.UsuarioRepository
 import org.example.backend.entity.Ataque
 import org.example.backend.entity.Estadistica
+import org.example.backend.entity.ObjetoCompleto
 import org.example.backend.entity.Personaje
 import org.example.backend.entity.RolJugador
 import org.example.backend.entity.Usuario
+import org.example.backend.repository.ObjetoCompletoRepository
 import org.example.backend.service.EstadisticaService
 import org.example.backend.service.JuegoService
+import org.example.backend.service.PersonajeService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.mockito.kotlin.any
 import org.mockito.kotlin.atLeastOnce
 import org.mockito.kotlin.doReturn
@@ -26,17 +31,18 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import org.springframework.aot.hint.TypeReference.listOf
 import java.util.Optional
 
 class JuegoServiceTests {
 
+    private val personajeService: PersonajeService = mock<PersonajeService>()
     private val juegoRepository: JuegoRepository = mock<JuegoRepository>()
     private val usuarioRepository: UsuarioRepository = mock<UsuarioRepository>()
     private val jugadorJuegoRepository: JugadorJuegoRepository = mock<JugadorJuegoRepository>()
     private val personajeRepository: PersonajeRepository = mock<PersonajeRepository>()
     private val estadisticaRepository: EstadisticaRepository = mock<EstadisticaRepository>()
     private val ataqueRepository: AtaqueRepository = mock<AtaqueRepository>()
+    private val objetoCompletoRepository: ObjetoCompletoRepository = mock<ObjetoCompletoRepository>()
     private val estadisticaService = EstadisticaService(estadisticaRepository)
     private val juegoService = JuegoService(
         juegoRepository,
@@ -45,7 +51,9 @@ class JuegoServiceTests {
         personajeRepository,
         estadisticaRepository,
         ataqueRepository,
-        estadisticaService
+        objetoCompletoRepository,
+        estadisticaService,
+        personajeService
     )
 
     @Test
@@ -111,6 +119,35 @@ class JuegoServiceTests {
 
         whenever(juegoRepository.findById(1L)).thenReturn(Optional.of(partidaMock))
 
+        val estDtoFalsa = DatosPartidaDto.PersonajeDto.EstadisticaDto(
+            id = 10L,
+            nombre = "Vida",
+            valor = 100,
+            consumible = false
+        )
+
+        val atkDtoFalso = DatosPartidaDto.PersonajeDto.AtaqueDto(
+            id = 20L,
+            nombre = "Tajo",
+            manaAtacante = mutableMapOf("Fuerza" to 10),
+            estadisticasDefensor = mutableMapOf("Defensa" to 5.0),
+            dadoBase = 20,
+            ratioDado = mutableListOf(1, 2),
+            danoAtaque = 15
+        )
+
+        // 2. Creamos el DTO principal con los datos que espera el ASSERT
+        val personajeDtoFalso = DatosPartidaDto.PersonajeDto(
+            id = 100L,
+            personajeNombre = "Guerrero", // El assert buscará esta palabra exacta
+            personajeVida = 150,
+            personajeFotoUrl = "url_guerrero",
+            personajeEstadisticas = mutableListOf(estDtoFalsa),
+            personajeAtaques = mutableListOf(atkDtoFalso)
+        )
+
+        // 3. ¡Le entregamos el guion al actor!
+        whenever(personajeService.personajeToDto(personajeMock)).thenReturn(personajeDtoFalso)
         // 2. ACT
         val resultado = juegoService.obtenerDatosPartida(1L)
 
@@ -143,12 +180,11 @@ class JuegoServiceTests {
         // ARRANGE
         whenever(juegoRepository.findById(99L)).thenReturn(Optional.empty())
 
+        val resultado = juegoService.obtenerDatosPartida(99L)
         // ACT & ASSERT
         // Como el código usa .orElse(null) e inmediatamente después llama a `partida.personajes`,
         // al no encontrar la partida se producirá un NullPointerException.
-        assertThrows<NullPointerException> {
-            juegoService.obtenerDatosPartida(99L)
-        }
+        assertEquals(404, resultado.statusCode.value())
     }
 
     @Test
@@ -255,13 +291,24 @@ class JuegoServiceTests {
             adminId = 1L
         )
 
+        val personajeFalso = Personaje(
+            id = 100L,
+            nombre = "Paco",
+            vida = 100,
+            fotoUrl = "url",
+            estadisticas = mutableListOf(), // Lista vacía para que el bucle de estats no explote
+            ataques = mutableListOf()       // Lista vacía para que el bucle de ataques no explote
+        )
+
+        // 2. Le enseñamos al mock qué devolver cuando llamen a dtoToPersonaje
+        whenever(personajeService.dtoToPersonaje(any())).thenReturn(personajeFalso)
         //Mocks para las llamadas a la BD
         val juegoSimulado = Juego(1L, "Partida Test", "Desc", "ES", 4, mutableListOf())
 
         whenever(juegoRepository.save(any<Juego>())).thenReturn(juegoSimulado)
-        whenever(personajeRepository.saveAll(any<List<Personaje>>())).thenReturn(listOf() as List<Personaje>)
-        whenever(estadisticaRepository.saveAll(any<List<Estadistica>>())).thenReturn(listOf() as List<Estadistica>)
-        whenever(ataqueRepository.saveAll(any<List<Ataque>>())).thenReturn(listOf() as List<Ataque>)
+        whenever(personajeRepository.saveAll(any<List<Personaje>>())).thenAnswer { it.arguments[0] as List<Personaje> }
+        whenever(estadisticaRepository.saveAll(any<List<Estadistica>>())).thenReturn(emptyList())
+        whenever(ataqueRepository.saveAll(any<List<Ataque>>())).thenReturn(emptyList())
         whenever(usuarioRepository.findById(1L)).thenReturn(Optional.of(mock<Usuario>()))
         whenever(jugadorJuegoRepository.save(any())).thenAnswer { invocation -> invocation.arguments[0] }
 
@@ -354,6 +401,254 @@ class JuegoServiceTests {
         // 3. ASSERT
         // Al no encontrar coincidencia con RolJugador.ADMIN, la variable 'resultado' se queda en -1L
         assertEquals(-1L, resultado)
+    }
+
+    @Test
+    fun testObtenerIdAdminxPartida_AdminSinUsuarioDevuelveMenosUno() {
+        // Si el admin existe pero no tiene usuario asociado, el ?: -1 entra en juego
+        val idPartida = 1L
+        val juegoMock = mock<Juego> { on { id } doReturn idPartida }
+        val jugadorAdminSinUsuario = mock<JugadorJuego> {
+            on { juego } doReturn juegoMock
+            on { rol } doReturn RolJugador.ADMIN
+            on { usuario } doReturn null
+        }
+        whenever(juegoMock.jugadores).thenReturn(mutableListOf(jugadorAdminSinUsuario))
+        whenever(juegoRepository.findById(idPartida)).thenReturn(Optional.of(juegoMock))
+
+        val resultado = juegoService.obtenerIdAdminxPartida(idPartida)
+
+        assertEquals(-1L, resultado)
+    }
+
+    @Test
+    fun testObtenerIdAdminxPartida_AdminConJuegoSinIdSeIgnora() {
+        // El juego del jugador existe pero no tiene id (id=null) -> null == partidaId = false
+        val idPartida = 1L
+        val juegoBuscadoMock = mock<Juego> { on { id } doReturn idPartida }
+        val juegoSinIdMock = mock<Juego> { on { id } doReturn null }
+        val jugador = mock<JugadorJuego> {
+            on { juego } doReturn juegoSinIdMock
+            on { rol } doReturn RolJugador.ADMIN
+        }
+        whenever(juegoBuscadoMock.jugadores).thenReturn(mutableListOf(jugador))
+        whenever(juegoRepository.findById(idPartida)).thenReturn(Optional.of(juegoBuscadoMock))
+
+        val resultado = juegoService.obtenerIdAdminxPartida(idPartida)
+
+        assertEquals(-1L, resultado)
+    }
+
+    @Test
+    fun testObtenerIdAdminxPartida_JugadorSinJuegoSeIgnora() {
+        // El jugador no tiene juego asociado: el safe call ?.id devuelve null y no entra al if
+        val idPartida = 1L
+        val juegoBuscadoMock = mock<Juego> { on { id } doReturn idPartida }
+        val jugadorSinJuego = mock<JugadorJuego> {
+            on { juego } doReturn null
+            on { rol } doReturn RolJugador.ADMIN
+        }
+        whenever(juegoBuscadoMock.jugadores).thenReturn(mutableListOf(jugadorSinJuego))
+        whenever(juegoRepository.findById(idPartida)).thenReturn(Optional.of(juegoBuscadoMock))
+
+        val resultado = juegoService.obtenerIdAdminxPartida(idPartida)
+
+        assertEquals(-1L, resultado)
+    }
+
+    @Test
+    fun testObtenerIdAdminxPartida_JugadorDeOtraPartidaSeIgnora() {
+        // Cubre la rama del if cuando jugadorJuego.juego.id != partidaId
+        val idPartida = 1L
+        val juegoBuscadoMock = mock<Juego> { on { id } doReturn idPartida }
+        val juegoOtroMock = mock<Juego> { on { id } doReturn 42L } // distinto
+
+        val jugadorOtraPartida = mock<JugadorJuego> {
+            on { juego } doReturn juegoOtroMock
+            on { rol } doReturn RolJugador.ADMIN
+        }
+        whenever(juegoBuscadoMock.jugadores).thenReturn(mutableListOf(jugadorOtraPartida))
+        whenever(juegoRepository.findById(idPartida)).thenReturn(Optional.of(juegoBuscadoMock))
+
+        val resultado = juegoService.obtenerIdAdminxPartida(idPartida)
+
+        // El admin pertenece a otra partida, asi que no cuenta -> -1
+        assertEquals(-1L, resultado)
+    }
+
+    @Test
+    fun testModificarJuego_Exito() {
+        // El test que ya existia solo cubria el caso de id no encontrado,
+        // este cubre la rama feliz (rebautiza el nombre y guarda)
+        val juegoExistente = Juego(1L, "Antiguo", "Desc", "ES", 4, mutableListOf())
+        val datos = Juego(null, "Nombre Nuevo", "Desc", "ES", 4, mutableListOf())
+
+        whenever(juegoRepository.findById(1L)).thenReturn(Optional.of(juegoExistente))
+        whenever(juegoRepository.save(juegoExistente)).thenReturn(juegoExistente)
+
+        val resultado = juegoService.modificarJuego(1L, datos)
+
+        assertEquals("Nombre Nuevo", resultado?.nombre)
+        verify(juegoRepository).save(juegoExistente)
+    }
+
+    @Test
+    fun testCambiarIdiomaJuegoInexistente() {
+        whenever(juegoRepository.findById(99L)).thenReturn(Optional.empty())
+
+        val resultado = juegoService.cambiarIdiomaJuego(99L, "FR")
+
+        assertEquals(null, resultado)
+        verify(juegoRepository, never()).save(any())
+    }
+
+    @Test
+    fun testAsignarJugadorJuegoInexistente() {
+        whenever(juegoRepository.findById(99L)).thenReturn(Optional.empty())
+
+        val resultado = juegoService.asignarJugadorJuego(99L, JugadorJuego())
+
+        assertEquals(null, resultado)
+        verify(juegoRepository, never()).save(any())
+    }
+
+    @Test
+    fun testCrearJuegoxDTO_ConObjetosEnElDto() {
+        // El bucle de objetos del service no se ejecuta si pasamos la lista vacia.
+        // Aqui montamos un DTO con un objeto y comprobamos que se guardan vinculando estadisticas.
+        val estatDto = CrearPartidaDto.PersonajeDto.EstadisticaDto("Fuerza", 5, false)
+        val personajeDto = CrearPartidaDto.PersonajeDto(
+            personajeNombre = "Paco",
+            personajeVida = 100,
+            personajeFotoUrl = "url",
+            personajeEstadisticas = mutableListOf(estatDto),
+            personajeAtaques = mutableListOf()
+        )
+        val objetoDto = CrearPartidaDto.PersonajeDto.ObjetoDto(
+            nombre = "Espada",
+            descripcion = "Corta",
+            imagen = "espada.png",
+            usos = 1,
+            efectosPropios = mutableMapOf("Fuerza" to 3.0),
+            efectosRival = mutableMapOf("Fuerza" to -1.0)
+        )
+        val partidaDto = CrearPartidaDto(
+            nombre = "Partida con objetos",
+            idioma = "ES",
+            descripcion = "Desc",
+            maximoJugadores = 4,
+            jugadores = mutableListOf(personajeDto),
+            adminId = 1L,
+            objetos = mutableListOf(objetoDto)
+        )
+
+        // El personaje falso lleva la stat con el mismo nombre que la usada en los efectos
+        // para que el buscadorEstadisticas la encuentre y entre en el if
+        val estatFalsa = Estadistica(id = 1L, nombre = "Fuerza", valor = 5, consumible = false)
+        val personajeFalso = Personaje(
+            id = 100L,
+            nombre = "Paco",
+            vida = 100,
+            fotoUrl = "url",
+            estadisticas = mutableListOf(estatFalsa),
+            ataques = mutableListOf()
+        )
+        val juegoSimulado = Juego(1L, "Partida con objetos", "Desc", "ES", 4, mutableListOf())
+
+        whenever(personajeService.dtoToPersonaje(any())).thenReturn(personajeFalso)
+        whenever(juegoRepository.save(any<Juego>())).thenReturn(juegoSimulado)
+        whenever(personajeRepository.saveAll(any<List<Personaje>>())).thenAnswer { it.arguments[0] as List<Personaje> }
+        whenever(estadisticaRepository.saveAll(any<List<Estadistica>>())).thenAnswer { it.arguments[0] as List<Estadistica> }
+        whenever(ataqueRepository.saveAll(any<List<Ataque>>())).thenReturn(emptyList())
+        whenever(objetoCompletoRepository.saveAll(any<List<ObjetoCompleto>>())).thenAnswer { it.arguments[0] as List<ObjetoCompleto> }
+        whenever(usuarioRepository.findById(1L)).thenReturn(Optional.of(mock<Usuario>()))
+        whenever(jugadorJuegoRepository.save(any())).thenAnswer { it.arguments[0] }
+
+        val resultado = juegoService.crearJuegoxDTO(partidaDto)
+
+        assertEquals(1L, resultado.id)
+        assertEquals("Partida con objetos", resultado.nombre)
+        verify(objetoCompletoRepository).saveAll(any<List<ObjetoCompleto>>())
+    }
+
+    @Test
+    fun testCrearJuegoxDTO_SinNombreNiAdmin() {
+        // Cubre los ?: del juego.nombre, adminId null y la rama negativa de los let
+        val partidaDto = CrearPartidaDto(
+            nombre = null,
+            idioma = "ES",
+            descripcion = "Sin nombre",
+            maximoJugadores = 2,
+            jugadores = mutableListOf(),
+            adminId = null,
+            objetos = mutableListOf()
+        )
+        val juegoSimulado = Juego(7L, "", "Sin nombre", "ES", 2, mutableListOf())
+        whenever(juegoRepository.save(any<Juego>())).thenReturn(juegoSimulado)
+        whenever(personajeRepository.saveAll(any<List<Personaje>>())).thenReturn(emptyList())
+        whenever(estadisticaRepository.saveAll(any<List<Estadistica>>())).thenReturn(emptyList())
+        whenever(objetoCompletoRepository.saveAll(any<List<ObjetoCompleto>>())).thenReturn(emptyList())
+
+        val resultado = juegoService.crearJuegoxDTO(partidaDto)
+
+        assertEquals(7L, resultado.id)
+        // adminId queda null porque no se ha creado JugadorJuego admin
+        assertEquals(null, resultado.adminId)
+        // No deberia haber tocado jugadorJuegoRepo.save porque jugadorAdmin es null
+        verify(jugadorJuegoRepository, never()).save(any())
+    }
+
+    @Test
+    fun testCrearJuegoxDTO_ObjetoConEstatNoEncontrada() {
+        // Si el efecto referencia una stat que no esta en buscadorEstadisticas, el if se saltea
+        val estatDto = CrearPartidaDto.PersonajeDto.EstadisticaDto("Fuerza", 5, false)
+        val personajeDto = CrearPartidaDto.PersonajeDto(
+            personajeNombre = "Paco",
+            personajeVida = 100,
+            personajeFotoUrl = "url",
+            personajeEstadisticas = mutableListOf(estatDto),
+            personajeAtaques = mutableListOf()
+        )
+        // OJO: efectos apuntan a "Inexistente" que no esta en las estadisticas del personaje
+        // y de paso pasamos nombre/descripcion null para tocar los ?: "" del service
+        val objetoDto = CrearPartidaDto.PersonajeDto.ObjetoDto(
+            nombre = null,
+            descripcion = null,
+            imagen = "raro.png",
+            usos = 1,
+            efectosPropios = mutableMapOf("Inexistente" to 5.0),
+            efectosRival = mutableMapOf("Tampoco" to -1.0)
+        )
+        val partidaDto = CrearPartidaDto(
+            nombre = "Test",
+            idioma = "ES",
+            descripcion = "Desc",
+            maximoJugadores = 4,
+            jugadores = mutableListOf(personajeDto),
+            adminId = 1L,
+            objetos = mutableListOf(objetoDto)
+        )
+
+        val statFuerza = Estadistica(id = 1L, nombre = "Fuerza", valor = 5, consumible = false)
+        val personajeFalso = Personaje(
+            id = 100L, nombre = "Paco", vida = 100, fotoUrl = "url",
+            estadisticas = mutableListOf(statFuerza), ataques = mutableListOf()
+        )
+        val juegoSimulado = Juego(1L, "Test", "Desc", "ES", 4, mutableListOf())
+
+        whenever(personajeService.dtoToPersonaje(any())).thenReturn(personajeFalso)
+        whenever(juegoRepository.save(any<Juego>())).thenReturn(juegoSimulado)
+        whenever(personajeRepository.saveAll(any<List<Personaje>>())).thenAnswer { it.arguments[0] as List<Personaje> }
+        whenever(estadisticaRepository.saveAll(any<List<Estadistica>>())).thenAnswer { it.arguments[0] as List<Estadistica> }
+        whenever(ataqueRepository.saveAll(any<List<Ataque>>())).thenReturn(emptyList())
+        whenever(objetoCompletoRepository.saveAll(any<List<ObjetoCompleto>>())).thenAnswer { it.arguments[0] as List<ObjetoCompleto> }
+        whenever(usuarioRepository.findById(1L)).thenReturn(Optional.of(mock<Usuario>()))
+        whenever(jugadorJuegoRepository.save(any())).thenAnswer { it.arguments[0] }
+
+        val resultado = juegoService.crearJuegoxDTO(partidaDto)
+
+        // Aunque las estadisticas no coincidan, el juego se crea igual
+        assertEquals(1L, resultado.id)
     }
 
 }

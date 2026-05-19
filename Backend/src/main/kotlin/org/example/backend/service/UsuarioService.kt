@@ -9,7 +9,7 @@ class UsuarioService(private val usuarioRepo: UsuarioRepository){
 
     fun getAllUsuarios() = usuarioRepo.findAll()
 
-    fun getUsuarioById(id: Long) = usuarioRepo.findById(id).orElse(null)
+    fun getUsuarioById(id: Long): Usuario? = usuarioRepo.findById(id).orElse(null)
 
     fun createUsuario(usuario: Usuario) = usuarioRepo.save(usuario)
 

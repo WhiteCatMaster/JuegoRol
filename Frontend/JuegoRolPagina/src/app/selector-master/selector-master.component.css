@@ -100,3 +100,40 @@ height: 100vh;
   border-radius: 5px;
   cursor: pointer;
 }
+
+.cabecera-con-volver {
+  display: flex;
+  justify-content: center; 
+  align-items: center;     
+  width: 100%;
+  position: relative;     
+  margin-bottom: 20px;     
+}
+
+.btn-volver-atras {
+  position: absolute;
+  left: 0;
+  top: 0;
+  background: linear-gradient(90deg, #8c450f, #f18c09);
+  color: white;
+  border: 2px solid #4e3522;
+  padding: 8px 15px;
+  font-family: 'Pirata One', cursive; 
+  font-size: 1.1rem;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: transform 0.2s ease;
+  z-index: 10;
+}
+
+.cabecera-con-volver .titulo-seccion {
+  margin: 0;
+}
+
+.btn-volver-atras:hover {
+  transform: translateY(-2px) scale(1.05);
+}
+
+.btn-volver-atras:active {
+  transform: translateY(1px) scale(0.98);
+}

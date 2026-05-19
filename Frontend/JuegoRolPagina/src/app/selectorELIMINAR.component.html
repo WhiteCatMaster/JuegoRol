@@ -2,7 +2,7 @@
 <p>Este selector solo está mientras no haya sistema que detecte si eres admin o jugador</p>
 
 <button>Soy admin, bro</button>
-<button [routerLink]="['/selector-personaje', partidaActual()?.id]">Yo? Jugador, siempre</button>
+<button [routerLink]="['/selector-personaje', partidaActual().id]">Yo? Jugador, siempre</button>
 
 
 @if (partidaActual() === null) {

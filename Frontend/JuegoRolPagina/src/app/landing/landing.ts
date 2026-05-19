@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, OnInit, signal } from '@angular/core';
 import { RouterLink, RouterModule } from '@angular/router';
 
 import { Partida } from '../models/partida';
-import { ServicioAPI } from '../servicio-api';
+import { ServicioAPI, toPartida } from '../servicio-api';
 import { Usuario } from '../models/usuario';
 import { Rol } from '../models/jugador-juego';
 import { UsuarioService } from '../servicios/usuario-service';
@@ -66,22 +66,23 @@ export class Landing implements OnInit {
 
     this.servicioAPI.recogerPartidas().subscribe({
       next: (partidasBackend) => {
-        this.partidas.set(
-          partidasBackend.map((atributo) => ({
-            nombre: atributo.nombre,
-            descripcion: atributo.descripcion,
-            id: atributo.id,
-            idioma: atributo.idioma,
-            maxJugadores: atributo.maximoJugadores,
-          })),
-        );
+        let partidas: Partida[] = []
         for(let i of partidasBackend){
+          let partida: Partida = {
+            id: i.id,
+            nombre: i.nombre,
+            descripcion: i.descripcion,
+            idioma: i.idioma,
+            maxJugadores: i.maximoJugadores
+          }
+          partidas.push(partida);
           this.idsAdmin.update((array) => {
             let array1 = array;
             array1.push(i.adminId)
             return array1
           })
         }
+        this.partidas.set(partidas)
       },
       error: (error) => {
         console.log('Parece que ha ocurrido un error:', error);

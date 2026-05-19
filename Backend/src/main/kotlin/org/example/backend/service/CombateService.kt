@@ -3,12 +3,8 @@ package org.example.backend.service
 import jakarta.transaction.Transactional
 import org.example.backend.dto.CombatePersonajesDto
 import org.example.backend.dto.CrearCombateDto
-import org.example.backend.dto.CrearPartidaDto
-import org.example.backend.dto.DatosPartidaDto
 import org.example.backend.entity.Combate
-import org.example.backend.entity.Juego
 import org.example.backend.entity.JugadorJuego
-import org.example.backend.entity.Usuario
 import org.example.backend.repository.CombateRepository
 import org.example.backend.repository.JuegoRepository
 import org.example.backend.repository.JugadorJuegoRepository
@@ -23,7 +19,8 @@ class CombateService (
     private val juegoRepo: JuegoRepository,
     private val personajeRepo: PersonajeRepository,
     private val jugadorJuegoRepo: JugadorJuegoRepository,
-    private val usuarioRepo: UsuarioRepository
+    private val usuarioRepo: UsuarioRepository,
+    private val personajeService: PersonajeService
 ){
     @Transactional
     fun crearCombatexDTO(combateDTO: CrearCombateDto): CrearCombateDto {
@@ -44,14 +41,6 @@ class CombateService (
         val jugadorjuego1Guardado =jugadorJuegoRepo.save(jugadorjuego1)
         val jugadorjuego2Guardado = jugadorJuegoRepo.save(jugadorjuego2)
 
-        // Mantenemos la coherencia bidireccional en memoria
-        //usuarioGuardado.partidasParticipa.add(jugadorJuegoModelo1)
-        //usuarioGuardado.partidasParticipa.add(jugadorJuegoModelo2)
-
-        // ¡IMPORTANTE! Guardamos los jugadores para que tengan ID
-        //val jugadoresGuardados = jugadorJuegoRepo.saveAll(listOf(jugadorJuegoModelo1, jugadorJuegoModelo2))
-
-        // 3. CREAR Y GUARDAR EL NIETO (Depende de los hijos)
         val combateCreado = Combate(
             nombre = combateDTO.nombre,
             jugador1 = jugadorjuego1Guardado, // Usamos los que ya tienen ID
@@ -90,92 +79,10 @@ class CombateService (
 
     fun obtenerCombateById(id: Long): ResponseEntity<CombatePersonajesDto> {
         val combateGuardado = combateRepo.findById(id).get()
-        var estadisticas1Dto = mutableListOf<DatosPartidaDto.PersonajeDto.EstadisticaDto>()
-        var ataques1Dto = mutableListOf<DatosPartidaDto.PersonajeDto.AtaqueDto>()
-        var estadisticas2Dto = mutableListOf<DatosPartidaDto.PersonajeDto.EstadisticaDto>()
-        var ataques2Dto = mutableListOf<DatosPartidaDto.PersonajeDto.AtaqueDto>()
+        val personaje1Dto = personajeService.personajeToDto(combateGuardado.jugador1.personaje!!)
+        val personaje2Dto = personajeService.personajeToDto(combateGuardado.jugador2.personaje!!)
         println(combateGuardado.jugador1)
-        for(i in combateGuardado.jugador1.personaje?.estadisticas!!){
-            val estadistica1Dto = DatosPartidaDto.PersonajeDto.EstadisticaDto(
-                id = i.id,
-                nombre = i.nombre,
-                valor = i.valor,
-                consumible = i.consumible
-            )
-            estadisticas1Dto.add(estadistica1Dto)
-        }
-        for (i in combateGuardado.jugador1.personaje?.ataques!!){
-            var manaAtacanteDto = mutableMapOf<String, Int>()
-            var estadisticasDefensorDto = mutableMapOf<String, Double>()
-            for (j in i.manaAtacante.keys){
-                val clave = j.nombre
-                manaAtacanteDto[clave] = i.manaAtacante[j] ?: 0
-            }
-            for (j in i.estadisticasDefensor.keys){
-                val clave = j.nombre
-                estadisticasDefensorDto[clave] = i.estadisticasDefensor[j] ?: 0.0
-            }
-            val ataqueDto = DatosPartidaDto.PersonajeDto.AtaqueDto(
-                id = i.id,
-                nombre = i.nombre,
-                manaAtacante = manaAtacanteDto,
-                estadisticasDefensor = estadisticasDefensorDto,
-                dadoBase = i.dadoBase,
-                ratioDado = i.ratioDado,
-                danoAtaque = i.danioAtaque
-            )
-            ataques1Dto.add(ataqueDto)
-        }
-        val personaje1Dto = DatosPartidaDto.PersonajeDto(
-            id = combateGuardado.jugador1?.id,
-            personajeNombre = combateGuardado.jugador1.personaje?.nombre,
-            personajeVida = combateGuardado.jugador1.personaje?.vida,
-            personajeFotoUrl = combateGuardado.jugador1.personaje?.fotoUrl,
-            personajeEstadisticas = estadisticas1Dto,
-            personajeAtaques = ataques1Dto
-        )
-        for(i in combateGuardado.jugador2.personaje?.estadisticas!!){
-            val estadistica2Dto = DatosPartidaDto.PersonajeDto.EstadisticaDto(
-                id = i.id,
-                nombre = i.nombre,
-                valor = i.valor,
-                consumible = i.consumible
-            )
-            estadisticas2Dto.add(estadistica2Dto)
-        }
-        for (i in combateGuardado.jugador2.personaje?.ataques!!){
-            var manaAtacanteDto = mutableMapOf<String, Int>()
-            var estadisticasDefensorDto = mutableMapOf<String, Double>()
-            for (j in i.manaAtacante.keys){
-                val clave = j.nombre
-                manaAtacanteDto[clave] = i.manaAtacante[j] ?: 0
-            }
-            for (j in i.estadisticasDefensor.keys){
-                val clave = j.nombre
-                estadisticasDefensorDto[clave] = i.estadisticasDefensor[j] ?: 0.0
-            }
-            val ataqueDto = DatosPartidaDto.PersonajeDto.AtaqueDto(
-                id = i.id,
-                nombre = i.nombre,
-                manaAtacante = manaAtacanteDto,
-                estadisticasDefensor = estadisticasDefensorDto,
-                dadoBase = i.dadoBase,
-                ratioDado = i.ratioDado,
-                danoAtaque = i.danioAtaque
-            )
-            ataques2Dto.add(ataqueDto)
-        }
-        val personaje2Dto = DatosPartidaDto.PersonajeDto(
-            id = combateGuardado.jugador2?.id,
-            personajeNombre = combateGuardado.jugador2.personaje?.nombre,
-            personajeVida = combateGuardado.jugador2.personaje?.vida,
-            personajeFotoUrl = combateGuardado.jugador2.personaje?.fotoUrl,
-            personajeEstadisticas = estadisticas2Dto,
-            personajeAtaques = ataques2Dto
-        )
-
-
-        var resultado = CombatePersonajesDto(
+        val resultado = CombatePersonajesDto(
             id = combateGuardado.id ?: -1,
             personaje1 = personaje1Dto,
             personaje2 = personaje2Dto

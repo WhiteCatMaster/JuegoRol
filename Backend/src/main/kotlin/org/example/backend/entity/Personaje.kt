@@ -33,11 +33,14 @@ class Personaje(
 
     // Ataques
     @OneToMany(mappedBy = "owner", cascade = [CascadeType.ALL], orphanRemoval = true)
-    var ataques: MutableList<Ataque> = mutableListOf()
+    var ataques: MutableList<Ataque> = mutableListOf(),
 
+    //Objetos
+    @OneToMany(mappedBy = "personaje", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var inventario: MutableList<ObjetoCompleto> = mutableListOf(),
 ){
     override fun toString(): String {
-        return "Personaje(id=$id, nombre='$nombre', vida=$vida, fotoUrl=$fotoUrl, estadisticas=${estadisticas.size}, ataques=${ataques.size})"
+        return "Personaje(id=$id, nombre='$nombre', vida=$vida, fotoUrl=$fotoUrl, estadisticas=${estadisticas.size}, ataques=${ataques.size}, inventario=${inventario.size})"
     }
 }
 

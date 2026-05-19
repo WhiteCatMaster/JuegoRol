@@ -1,26 +1,45 @@
-[![CI Pipeline Juego Rol](https://github.com/WhiteCatMaster/JuegoRol/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/WhiteCatMaster/JuegoRol/actions/workflows/main.yml)
+Hondius : Juego de rol
 
-Dependencias: Docker, gradlew, jdk y node.js en el sistema operativo, Firebase (npm)
-Para anzar el Backend :
-```bash
-docker-compose up -d
-```
+Hondius is an Angular-based web application designed to provide a engaging role-playing game experience. The application features a robust routing system, allowing users to navigate between different components and interact with the game world.
+Description
 
-Se deberia de quedar en 85% para saber si se ha lanzado correctamente 
+This project is built using Angular and SpringBoot and utilizes various components to provide a seamless user experience. The application includes features such as:
 
-Para poder lanzar frontend (angular)
-Dentro de la carpeta frontend/JuegoRolPagina
-Para poder instalar dependencias de node 
-```bash
-npm install
-```
-Y para lanzar el proyecto 
-```bash
-ng serve
-```
+    Robust routing system with multiple routes and corresponding components
+    Standalone App component serving as the root component
+    Error handling for bootstrapping process
 
-CPU
+Features
 
-<img width="987" height="669" alt="imagen" src="https://github.com/user-attachments/assets/584467d0-ca12-4b2a-8162-274d0495edae" />
+    Interactive role-playing game experience
+    Multiple routes and components for navigation
+    Error handling for robust application stability
 
+Tech Stack
 
+    Angular
+    TypeScript
+    @angular/platform-browser
+    @angular/router
+    @angular/core
+    Gradle
+    Springboot
+    Kotlin
+    Docker
+    Firebase
+    Monte Carlo 
+
+Installation
+
+To install and run the project, follow these steps:
+
+1. Clone the repository using `git clone` 
+3. Navigate to the project directory using `cd JuegoRolPagina` 
+4. Install dependencies using `docker compose pull` 
+5. Run the application using `docker compose up` 
+
+Usage
+
+    Open a web browser and navigate to http://localhost:4200
+    Interact with the application by navigating between routes and components
+    Explore the role-playing game features and functionality

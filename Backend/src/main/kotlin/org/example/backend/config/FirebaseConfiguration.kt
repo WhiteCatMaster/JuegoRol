@@ -2,27 +2,39 @@ package org.example.backend.config
 
 import com.google.auth.oauth2.GoogleCredentials
 import jakarta.annotation.PostConstruct
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.io.ClassPathResource
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
+import java.io.File
+import java.io.InputStream
 
 
 @Configuration
-class FirebaseConfiguration {
+class FirebaseConfiguration(
+    @Value("\${firebase.credentials.path:/app/firebase-adminsdk.json}")
+    private val credentialsPath: String
+) {
     @PostConstruct
     fun initFirebase(){
         try {
-            val resource = ClassPathResource("firebase-adminsdk.json")
-            if (!resource.exists()) {
-                println("⚠️ Firebase credentials not found. Firebase will not be initialized.")
-                return
+            val external = File(credentialsPath)
+            val stream: InputStream = if (external.isFile) {
+                println("✅ Firebase credentials loaded from $credentialsPath")
+                external.inputStream()
+            } else {
+                val classpath = ClassPathResource("firebase-adminsdk.json")
+                if (!classpath.exists()) {
+                    println("⚠️ Firebase credentials not found (checked $credentialsPath and classpath). Firebase will not be initialized.")
+                    return
+                }
+                println("✅ Firebase credentials loaded from classpath")
+                classpath.inputStream
             }
 
-            val serviceAccount = resource.inputStream
-
             val options = FirebaseOptions.builder()
-                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                .setCredentials(GoogleCredentials.fromStream(stream))
                 .build()
 
             // Evitamos inicializarlo dos veces si el servidor se reinicia

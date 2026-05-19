@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { Usuario } from '../models/usuario';
 import { Rol } from '../models/jugador-juego';
 import { ServicioAPI } from '.././servicio-api';
+import { FirebaseAuthService } from '../../auth/firebase-auth.service';
+import { Router } from '@angular/router';
 import { UsuarioService } from '../servicios/usuario-service';
 
 @Component({
@@ -25,7 +27,9 @@ export class UsuarioWebComponent implements OnInit {
   constructor(
     private apiService: ServicioAPI,
     private cdRef: ChangeDetectorRef,
-    public usuarioService: UsuarioService
+    public usuarioService: UsuarioService,
+    private firebaseAuth: FirebaseAuthService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -61,9 +65,40 @@ export class UsuarioWebComponent implements OnInit {
       this.usuario.nombre = this.editNombre;
       this.usuario.fotoUrl = this.editFotoUrl;
       this.modoEdicion = false;
-
-      this.usuarioService.iniciarSesion(this.usuario);
-
+      this.enviarCambiosPerfil()
     }
   }
+
+  async logout() {
+    try {
+      await this.firebaseAuth.signOut(); 
+      this.usuarioService.cerrarSesion(); 
+      this.router.navigate(['/']);
+      
+      console.log('Sesión cerrada correctamente');
+    } catch (error) {
+      console.error('Error al cerrar sesión', error);
+    }
+  }
+
+  enviarCambiosPerfil(){
+    let payload: ActualizarUsuarioDto = {
+      nombre: this.editNombre,
+      fotoUrl: this.editFotoUrl
+    }
+    this.apiService.actualizarUsuario(this.usuarioService.usuarioActual()?.googleId, payload).subscribe({
+      next: (respuesta) => {
+        console.log("Se actualizo el usuario con exito")
+        console.log(respuesta)
+        this.usuarioService.usuarioActual.set(respuesta)
+      },
+      error: (e)=> {
+        console.log('Ha ocurrido un error: ', e)
+      }
+    })
+  }
+}
+export interface ActualizarUsuarioDto{
+  nombre: string, 
+  fotoUrl: string
 }
