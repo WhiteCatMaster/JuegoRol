@@ -162,8 +162,8 @@ export interface PartidaDto{
   idioma: string;
   maximoJugadores: number;
   adminId: number;
-  jugadoresActuales: number;
-  jugadoresUnidos: JugadorUnidoDto[];
+  jugadoresActuales?: number;
+  jugadoresUnidos?: JugadorUnidoDto[];
 }
 
 export function toEstadistica(dto: EstadisticaDto) : Estadistica{
