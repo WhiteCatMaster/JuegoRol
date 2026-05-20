@@ -63,6 +63,8 @@
 
                 @if (usuarioService.usuarioActual()?.id === idsAdmin()[partidas().indexOf(partida)]) {
                   <button [routerLink]="['/selector-master', partida.id]">Administrar</button>
+                } @else if (yaEstoyDentro(partida)) {
+                  <button (click)="unirseYJugar(partida)">Entrar</button>
                 } @else if (partidaLlena(partida)) {
                   <button disabled>Partida llena</button>
                 } @else {

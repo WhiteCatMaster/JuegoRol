@@ -96,6 +96,12 @@ export class Landing implements OnInit {
     return actuales >= partida.maxJugadores;
   }
 
+  yaEstoyDentro(partida: Partida): boolean {
+    const usuarioId = this.usuarioService.usuarioActual()?.id;
+    if (!usuarioId) return false;
+    return (partida.jugadoresUnidos ?? []).some(j => j.usuarioId === usuarioId);
+  }
+
   unirseYJugar(partida: Partida) {
     const usuarioId = this.usuarioService.usuarioActual()?.id;
     if (!partida.id || !usuarioId) {
