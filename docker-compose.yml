@@ -16,7 +16,7 @@ services:
     restart: unless-stopped
 
   backend:
-    image: ghcr.io/whitecatmaster/hondius-backend:debug
+    image: ghcr.io/whitecatmaster/hondius-backend:produccion
     build:
       context: ./Backend
       dockerfile: Dockerfile
@@ -37,7 +37,7 @@ services:
     restart: unless-stopped
 
   frontend:
-    image: ghcr.io/whitecatmaster/hondius-frontend:debug
+    image: ghcr.io/whitecatmaster/hondius-frontend:produccion
     build:
       context: ./Frontend/JuegoRolPagina
       dockerfile: Dockerfile

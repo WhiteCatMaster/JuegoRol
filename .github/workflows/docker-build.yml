@@ -5,6 +5,7 @@ on:
     branches:
       - Debug
       - main
+      - Produccion
     paths:
       - 'Backend/**'
       - 'Frontend/**'
