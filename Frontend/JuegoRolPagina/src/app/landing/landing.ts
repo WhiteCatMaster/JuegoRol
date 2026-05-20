@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit, signal } from '@angular/core';
-import { RouterLink, RouterModule } from '@angular/router';
+import { Router, RouterLink, RouterModule } from '@angular/router';
 
 import { Partida } from '../models/partida';
 import { ServicioAPI, toPartida } from '../servicio-api';
@@ -21,6 +21,7 @@ export class Landing implements OnInit {
   constructor(
     private servicioAPI: ServicioAPI,
     private cdRef: ChangeDetectorRef,
+    private router: Router,
     public usuarioService: UsuarioService
   ) {}
 
@@ -67,26 +68,59 @@ export class Landing implements OnInit {
     this.servicioAPI.recogerPartidas().subscribe({
       next: (partidasBackend) => {
         let partidas: Partida[] = []
+        let admins: number[] = []
         for(let i of partidasBackend){
           let partida: Partida = {
             id: i.id,
             nombre: i.nombre,
             descripcion: i.descripcion,
             idioma: i.idioma,
-            maxJugadores: i.maximoJugadores
+            maxJugadores: i.maximoJugadores,
+            jugadoresActuales: i.jugadoresActuales ?? 0,
+            jugadoresUnidos: i.jugadoresUnidos ?? []
           }
           partidas.push(partida);
-          this.idsAdmin.update((array) => {
-            let array1 = array;
-            array1.push(i.adminId)
-            return array1
-          })
+          admins.push(i.adminId)
         }
+        this.idsAdmin.set(admins)
         this.partidas.set(partidas)
       },
       error: (error) => {
         console.log('Parece que ha ocurrido un error:', error);
       },
+    });
+  }
+
+  partidaLlena(partida: Partida): boolean {
+    const actuales = partida.jugadoresActuales ?? 0;
+    return actuales >= partida.maxJugadores;
+  }
+
+  yaEstoyDentro(partida: Partida): boolean {
+    const usuarioId = this.usuarioService.usuarioActual()?.id;
+    if (!usuarioId) return false;
+    return (partida.jugadoresUnidos ?? []).some(j => j.usuarioId === usuarioId);
+  }
+
+  unirseYJugar(partida: Partida) {
+    const usuarioId = this.usuarioService.usuarioActual()?.id;
+    if (!partida.id || !usuarioId) {
+      this.router.navigate(['/selector-personaje', partida.id]);
+      return;
+    }
+    this.servicioAPI.unirsePartida(partida.id, usuarioId).subscribe({
+      next: () => {
+        this.router.navigate(['/selector-personaje', partida.id]);
+      },
+      error: (err) => {
+        if (err?.status === 409) {
+          alert('La partida está llena.');
+          this.cargarPartidasBD();
+        } else {
+          console.log('No se pudo unir a la partida:', err);
+          alert('No se pudo unir a la partida.');
+        }
+      }
     });
   }
 }

@@ -47,14 +47,82 @@ class JuegoService(
     }
     fun getAllPartidas(): List<PartidaDto> {
         return juegoRepo.findAll().map { juego ->
+            val resumen = resumenJugadores(juego)
             PartidaDto(
                 id = juego.id,
                 nombre = juego.nombre,
                 descripcion = juego.descripcion,
                 idioma = juego.idioma,
-                maximoJugadores = juego.maximoJugadores
+                maximoJugadores = juego.maximoJugadores,
+                adminId = resumen.adminId,
+                jugadoresActuales = resumen.unidos.size,
+                jugadoresUnidos = resumen.unidos,
             )
         }
+    }
+
+    private data class ResumenJugadores(
+        val adminId: Long?,
+        val unidos: List<PartidaDto.JugadorUnidoDto>,
+    )
+
+    private fun resumenJugadores(juego: Juego): ResumenJugadores {
+        val adminId = juego.jugadores.firstOrNull { it.rol == RolJugador.ADMIN }?.usuario?.id
+        val unidos = juego.jugadores
+            .mapNotNull { it.usuario }
+            .filter { it.id != null && it.id != adminId }
+            .distinctBy { it.id }
+            .map {
+                PartidaDto.JugadorUnidoDto(
+                    usuarioId = it.id,
+                    nombre = it.nombre,
+                    fotoUrl = it.fotoUrl,
+                )
+            }
+        return ResumenJugadores(adminId, unidos)
+    }
+
+    class PartidaLlenaException(mensaje: String) : RuntimeException(mensaje)
+
+    @Transactional
+    fun unirseAPartida(juegoId: Long, usuarioId: Long): PartidaDto {
+        val juego = juegoRepo.findById(juegoId).orElseThrow {
+            NoSuchElementException("Partida no encontrada")
+        }
+        val usuario = usuarioRepo.findById(usuarioId).orElseThrow {
+            NoSuchElementException("Usuario no encontrado")
+        }
+
+        val resumenPrevio = resumenJugadores(juego)
+        val esAdmin = resumenPrevio.adminId == usuarioId
+        val yaUnido = resumenPrevio.unidos.any { it.usuarioId == usuarioId }
+
+        if (!esAdmin && !yaUnido) {
+            val limite = juego.maximoJugadores ?: Int.MAX_VALUE
+            if (resumenPrevio.unidos.size >= limite) {
+                throw PartidaLlenaException("La partida está llena")
+            }
+            val nuevo = JugadorJuego(
+                usuario = usuario,
+                juego = juego,
+                rol = RolJugador.JUGADOR,
+                personaje = null,
+            )
+            val guardado = jugadorJuegoRepo.save(nuevo)
+            juego.jugadores.add(guardado)
+        }
+
+        val resumen = resumenJugadores(juego)
+        return PartidaDto(
+            id = juego.id,
+            nombre = juego.nombre,
+            descripcion = juego.descripcion,
+            idioma = juego.idioma,
+            maximoJugadores = juego.maximoJugadores,
+            adminId = resumen.adminId,
+            jugadoresActuales = resumen.unidos.size,
+            jugadoresUnidos = resumen.unidos,
+        )
     }
 
     fun obtenerDatosPartida(id: Long): ResponseEntity<DatosPartidaDto> {
