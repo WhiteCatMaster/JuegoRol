@@ -1,11 +1,14 @@
 package org.example.backend.unit.facade
 
 import org.example.backend.dto.CrearPartidaDto
+import org.example.backend.dto.DatosPartidaDto
 import org.example.backend.dto.PartidaDto
+import org.example.backend.entity.ObjetoCompleto
 import org.example.backend.facade.PartidaController
 import org.example.backend.service.JuegoService
 import org.example.backend.service.ObjetoService
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
@@ -101,6 +104,167 @@ class PartidaControllerTests {
             // Si la normalización funcionó, el DTO tendrá un 42 numérico
             assertEquals(42L, dtoCapturado.adminId)
         })
+    }
+
+    @Test
+    fun testObtenerObjetos() {
+        val juegoId = 7L
+        val objeto1 = ObjetoCompleto(
+            id = 100L,
+            nombre = "Espada",
+            descripcion = "Filosa",
+            imagen = "espada.png",
+            usos = 3
+        )
+        val dtoFalso = DatosPartidaDto.PersonajeDto.ObjetoDto(
+            id = 100L,
+            nombre = "Espada",
+            descripcion = "Filosa",
+            imagen = "espada.png",
+            efectosPropios = mutableMapOf(),
+            efectosRival = mutableMapOf(),
+            usos = 3
+        )
+
+        whenever(objetoService.obtenerObjetosByJuegoId(juegoId)).thenReturn(listOf(objeto1))
+        whenever(objetoService.toObjetoDto(objeto1)).thenReturn(dtoFalso)
+
+        val result = partidaController.obtenerObjetos(juegoId)
+
+        assertEquals(HttpStatus.OK, result.statusCode)
+        assertEquals(1, result.body?.size)
+        assertEquals(dtoFalso, result.body!![0])
+        verify(objetoService).obtenerObjetosByJuegoId(juegoId)
+        verify(objetoService).toObjetoDto(objeto1)
+    }
+
+    @Test
+    fun testObtenerObjetos_ListaVacia() {
+        val juegoId = 8L
+        whenever(objetoService.obtenerObjetosByJuegoId(juegoId)).thenReturn(emptyList())
+
+        val result = partidaController.obtenerObjetos(juegoId)
+
+        assertEquals(HttpStatus.OK, result.statusCode)
+        assertEquals(0, result.body?.size)
+    }
+
+    @Test
+    fun testCrearPartida_SinNodoJuego() {
+        // Cubre la rama Elvis: payload.get("juego") ?: payload
+        // Cuando el payload no tiene un nodo "juego", se usa el payload entero
+        val payload = jsonMapper.createObjectNode().apply {
+            put("nombre", "Partida directa")
+            put("maximoJugadores", 3)
+        }
+
+        val partidaCreada = PartidaDto(id = 99L, nombre = "Partida directa")
+        whenever(partidaService.crearJuegoxDTO(any())).thenReturn(partidaCreada)
+
+        val result = partidaController.crearPartida(payload)
+
+        assertEquals(HttpStatus.CREATED, result.statusCode)
+        assertEquals(partidaCreada, result.body)
+    }
+
+    @Test
+    fun testCrearPartida_NodoNoEsObjectNode() {
+        // Cubre la rama del `as? ObjectNode` cuando el nodo no es un ObjectNode
+        // Se pasa un payload donde "juego" es un nodo de texto, no un objeto
+        val payload = jsonMapper.createObjectNode()
+        payload.put("juego", "esto-no-es-un-objeto")
+
+        // El controlador intentará deserializar un texto como CrearPartidaDto y fallará
+        val result = partidaController.crearPartida(payload)
+
+        // Caemos en el catch -> 400 Bad Request
+        assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
+        val body = result.body as Map<*, *>
+        assertNotNull(body["error"])
+    }
+
+    @Test
+    fun testCrearPartida_AdminIdNulo() {
+        // Cubre las ramas: adminIdNode == null y la eliminación del campo
+        val payload = jsonMapper.createObjectNode()
+        val juegoNode = jsonMapper.createObjectNode().apply {
+            put("nombre", "Partida sin admin")
+            put("maximoJugadores", 4)
+            putNull("adminId") // <-- isNull == true
+        }
+        payload.set("juego", juegoNode)
+
+        val partidaCreada = PartidaDto(id = 1L, nombre = "Partida sin admin")
+        whenever(partidaService.crearJuegoxDTO(any())).thenReturn(partidaCreada)
+
+        val result = partidaController.crearPartida(payload)
+
+        assertEquals(HttpStatus.CREATED, result.statusCode)
+        verify(partidaService).crearJuegoxDTO(check { dto ->
+            assertEquals(null, dto.adminId)
+        })
+    }
+
+    @Test
+    fun testCrearPartida_SinCampoAdminId() {
+        // Cubre la rama: adminIdNode == null (cuando no existe el campo)
+        val payload = jsonMapper.createObjectNode()
+        val juegoNode = jsonMapper.createObjectNode().apply {
+            put("nombre", "Partida sin campo admin")
+            put("maximoJugadores", 4)
+            // No incluimos adminId
+        }
+        payload.set("juego", juegoNode)
+
+        val partidaCreada = PartidaDto(id = 2L, nombre = "Partida sin campo admin")
+        whenever(partidaService.crearJuegoxDTO(any())).thenReturn(partidaCreada)
+
+        val result = partidaController.crearPartida(payload)
+
+        assertEquals(HttpStatus.CREATED, result.statusCode)
+    }
+
+    @Test
+    fun testCrearPartida_ServicioLanzaExcepcion() {
+        // Cubre el catch -> 400 Bad Request
+        val payload = jsonMapper.createObjectNode()
+        val juegoNode = jsonMapper.createObjectNode().apply {
+            put("nombre", "Partida con error")
+            put("maximoJugadores", 4)
+        }
+        payload.set("juego", juegoNode)
+
+        whenever(partidaService.crearJuegoxDTO(any())).thenThrow(RuntimeException("Fallo en BD"))
+
+        val result = partidaController.crearPartida(payload)
+
+        assertEquals(HttpStatus.BAD_REQUEST, result.statusCode)
+        val body = result.body as Map<*, *>
+        assertEquals("Fallo en BD", body["error"])
+    }
+
+    @Test
+    fun testObtenerPartidas_ConPartidaIdNulo() {
+        // Cubre la rama Elvis: partida.id ?: -1L
+        val partidaSinId = PartidaDto(id = null, nombre = "Sin Id", descripcion = "x", idioma = "ES", maximoJugadores = 4, adminId = 0)
+        whenever(partidaService.getAllPartidas()).thenReturn(listOf(partidaSinId))
+        whenever(partidaService.obtenerIdAdminxPartida(-1L)).thenReturn(0)
+
+        val result = partidaController.obtenerPartidas()
+
+        assertEquals(HttpStatus.OK, result.statusCode)
+        verify(partidaService).obtenerIdAdminxPartida(-1L)
+    }
+
+    @Test
+    fun testObtenerDatosPartida() {
+        val id = 5L
+        val datos = mock<org.springframework.http.ResponseEntity<DatosPartidaDto>>()
+        whenever(partidaService.obtenerDatosPartida(id)).thenReturn(datos)
+
+        val result = partidaController.obtenerDatosPartida(id)
+
+        assertEquals(datos, result)
     }
 
     @Test

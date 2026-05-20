@@ -142,13 +142,21 @@ export class CombateComponent implements OnInit {
         return;
       }
 
+      // Estimación del daño que el jugador puede infligir en un turno medio.
+      // Sirve para que la IA modele el contraataque y valore curar/sobrevivir.
+      const ataquesJugador = this.personajeTuyo()?.ataquesDelPersonaje ?? [];
+      const danoMedioJugador = ataquesJugador.length > 0
+        ? ataquesJugador.reduce((sum, a) => sum + (a.danoAtaque ?? 0), 0) / ataquesJugador.length
+        : 0;
+
       const accionIA = this.cpu.elegirAccion(
         rivalActual.ataquesDelPersonaje,
         this.objetosDelRival,
         this.dificultadCpu,
         rivalActual.estadisticasDelPersonaje,
         this.personajeTuyo()?.vida ?? 100,
-        rivalActual.vida
+        rivalActual.vida,
+        danoMedioJugador
       );
 
       if (!accionIA) {

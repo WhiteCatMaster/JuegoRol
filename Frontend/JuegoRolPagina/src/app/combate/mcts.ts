@@ -24,7 +24,9 @@ export class GameState {
     public readonly turnosAtacados: number = 0,
     public readonly victoria: boolean = false,
     public readonly quedadoSeco: boolean = false,
-    public readonly usoObjetoUtil: boolean = false 
+    public readonly usoObjetoUtil: boolean = false,
+    public readonly danoRivalEsperado: number = 0,
+    public readonly danoTotalHecho: number = 0
   ) {}
 
   getLegalActions(): AccionIA[] {
@@ -39,11 +41,24 @@ export class GameState {
     });
 
     const objetosLegales = this.objetos.filter(obj => {
-      if (obj.usos > 0 || obj.usos === 0) {
-          const curaVida = obj.efectosPropios.find(e => e.estadistica.toLowerCase() === 'vida');
-          if (curaVida && this.hpPropio > 80) return false; 
-          return true;
+      if (obj.usos <= 0) return false;
+
+      // Daño al rival → siempre aporta algo
+      for (const ef of obj.efectosRival) {
+        if (ef.estadistica.toLowerCase() === 'vida' && ef.valor < 0) return true;
       }
+
+      // Curación útil solo si estamos heridos; buffs útiles solo si la stat está baja
+      for (const ef of obj.efectosPropios) {
+        const nombre = ef.estadistica.toLowerCase();
+        if (nombre === 'vida') {
+          if (ef.valor > 0 && this.hpPropio < 70) return true;
+        } else if (ef.valor > 0) {
+          const stat = this.stats.find(s => s.nombreEstadistica.toLowerCase() === nombre);
+          if (stat && stat.valorPropio < 30) return true;
+        }
+      }
+
       return false;
     });
 
@@ -55,8 +70,9 @@ export class GameState {
     let newHpEnemigo = this.hpEnemigo;
     const newStats = this.stats.map(s => ({ ...s }));
     const newObjetos = this.objetos.map(o => ({ ...o, efectosPropios: [...o.efectosPropios], efectosRival: [...o.efectosRival] }));
-    
-    let objetoUtilUsado = false; 
+
+    let objetoUtilUsado = false;
+    let danoEsteHecho = 0;
 
     if ('usos' in accion) {
         const objIndex = newObjetos.findIndex(o => o.nombre === accion.nombre);
@@ -71,9 +87,9 @@ export class GameState {
                 if (stat.valorPropio < 20) objetoUtilUsado = true;
                 stat.valorPropio += ef.valor;
             }
-            
+
             if (ef.estadistica.toLowerCase() === 'vida') {
-                if (newHpPropio < 50) objetoUtilUsado = true;
+                if (newHpPropio < 70) objetoUtilUsado = true;
                 newHpPropio += ef.valor;
             }
         }
@@ -81,7 +97,8 @@ export class GameState {
         for (const ef of accion.efectosRival) {
             if (ef.estadistica.toLowerCase() === 'vida') {
                 newHpEnemigo += ef.valor; // Suponiendo daño en negativo
-                objetoUtilUsado = true; 
+                if (ef.valor < 0) danoEsteHecho += -ef.valor;
+                objetoUtilUsado = true;
             }
         }
     } else {
@@ -101,20 +118,30 @@ export class GameState {
 
         dano *= Math.max(0.05, this.dificultad);
         newHpEnemigo -= dano;
+        danoEsteHecho = Math.max(0, dano);
     }
 
     const victoria  = newHpEnemigo <= 0;
+
+    // Contraataque del rival: el combate real es por turnos alternos, así que
+    // si la IA no ha rematado, el jugador devuelve un golpe de daño esperado.
+    if (!victoria && this.danoRivalEsperado > 0) {
+        newHpPropio -= this.danoRivalEsperado;
+    }
+
     const newTurno  = this.turno + 1;
-    
+    const newDanoTotal = this.danoTotalHecho + danoEsteHecho;
+
     // Calculamos si se quedó seco para el SIGUIENTE turno
     const dummyState = new GameState(newHpPropio, newStats, newHpEnemigo, this.dificultad, this.ataques, newObjetos, newTurno, this.maxTurnos, this.turnosAtacados + 1, victoria, false);
     const quedadoSeco = !victoria && newTurno < this.maxTurnos && dummyState.getLegalActions().length === 0;
 
     return new GameState(
-        newHpPropio, newStats, newHpEnemigo, this.dificultad, this.ataques, newObjetos, 
-        newTurno, this.maxTurnos, 
+        newHpPropio, newStats, newHpEnemigo, this.dificultad, this.ataques, newObjetos,
+        newTurno, this.maxTurnos,
         'usos' in accion ? this.turnosAtacados : this.turnosAtacados + 1,
-        victoria, quedadoSeco, objetoUtilUsado
+        victoria, quedadoSeco, this.usoObjetoUtil || objetoUtilUsado,
+        this.danoRivalEsperado, newDanoTotal
     );
   }
 
@@ -128,8 +155,14 @@ export class GameState {
     const statsRestantes = this.stats.reduce(
       (sum, s) => (s.consumible ? sum + Math.max(0, s.valorPropio) : sum), 0
     );
-    let base = this.victoria ? 100 + (this.maxTurnos - this.turno) * 2 : this.turnosAtacados;
-    if (this.usoObjetoUtil) base += 20; 
+    // Señal continua: damos crédito por daño infligido, no solo por sobrevivir turnos.
+    // Así MCTS distingue ataques fuertes de débiles aunque ninguno gane el combate.
+    let base = this.victoria
+      ? 100 + (this.maxTurnos - this.turno) * 2
+      : this.danoTotalHecho * 0.5 + this.turnosAtacados * 0.5;
+    if (this.usoObjetoUtil) base += 20;
+    // Bonus por HP propio restante: incentiva curarse / sobrevivir cuando hay contraataque.
+    base += 0.2 * Math.max(0, this.hpPropio);
     return base - 50 * (this.quedadoSeco ? 1 : 0) + 0.1 * statsRestantes;
   }
 }
