@@ -41,16 +41,34 @@
   
             @for (partida of partidas(); track partida.id) {
               <div class="card">
-                <h2>{{ partida.nombre }}</h2>
+                <h2>{{ partida.nombre }} ({{ partida.jugadoresActuales ?? 0 }}/{{ partida.maxJugadores }})</h2>
                 <p>{{ partida.descripcion }}</p>
                 <p><strong>Idioma:</strong> {{ partida.idioma }}</p>
-                <p><strong>Máx jugadores:</strong> {{ partida.maxJugadores }}</p>
+
+                @if ((partida.jugadoresUnidos?.length ?? 0) > 0) {
+                  <div class="jugadoresUnidos">
+                    <strong>Unidos:</strong>
+                    <ul>
+                      @for (jugador of partida.jugadoresUnidos; track jugador.usuarioId) {
+                        <li>
+                          @if (jugador.fotoUrl) {
+                            <img [src]="jugador.fotoUrl" alt="" class="fotoMini">
+                          }
+                          <span>{{ jugador.nombre }}</span>
+                        </li>
+                      }
+                    </ul>
+                  </div>
+                }
+
                 @if (usuarioService.usuarioActual()?.id === idsAdmin()[partidas().indexOf(partida)]) {
                   <button [routerLink]="['/selector-master', partida.id]">Administrar</button>
-                }@else {
-                  <button [routerLink]="['/selector-personaje', partida.id]">Unirme</button>
+                } @else if (partidaLlena(partida)) {
+                  <button disabled>Partida llena</button>
+                } @else {
+                  <button (click)="unirseYJugar(partida)">Unirme</button>
                 }
-                
+
               </div>
             }
           }

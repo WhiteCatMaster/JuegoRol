@@ -9,6 +9,7 @@ import org.example.backend.dto.CrearPartidaDto
 import org.example.backend.dto.DatosPartidaDto
 import org.example.backend.dto.PartidaDto
 import org.example.backend.service.JuegoService
+import org.example.backend.service.JuegoService.PartidaLlenaException
 import org.example.backend.service.ObjetoService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -110,11 +111,44 @@ class PartidaController(
                 descripcion = partida.descripcion,
                 idioma = partida.idioma,
                 maximoJugadores = partida.maximoJugadores,
-                adminId = partidaService.obtenerIdAdminxPartida(partida.id?: -1L)
+                adminId = partidaService.obtenerIdAdminxPartida(partida.id?: -1L),
+                jugadoresActuales = partida.jugadoresActuales,
+                jugadoresUnidos = partida.jugadoresUnidos,
             )
             partidasDto.add(partidaDto)
         }
         return ResponseEntity.status(HttpStatus.OK).body(partidasDto)
+    }
+
+    @Operation(
+        summary = "Unirse a una partida",
+        description = "Registra al usuario indicado como jugador de la partida. Es idempotente: si el usuario ya estaba unido o es el admin, no añade duplicados. Devuelve 409 si la partida ha alcanzado su límite de jugadores."
+    )
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "200", description = "Usuario unido (o ya estaba)"),
+        ApiResponse(responseCode = "404", description = "Partida o usuario no encontrados"),
+        ApiResponse(responseCode = "409", description = "La partida está llena")
+    ])
+    @PostMapping("/{id}/unirse")
+    fun unirseAPartida(
+        @Parameter(description = "ID de la partida", example = "1") @PathVariable id: Long,
+        @RequestBody body: Map<String, Any?>
+    ): ResponseEntity<Any> {
+        val usuarioId = when (val raw = body["usuarioId"]) {
+            is Number -> raw.toLong()
+            is String -> raw.toLongOrNull()
+            else -> null
+        } ?: return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(mapOf("error" to "usuarioId es obligatorio"))
+
+        return try {
+            val partidaActualizada = partidaService.unirseAPartida(id, usuarioId)
+            ResponseEntity.ok(partidaActualizada)
+        } catch (e: PartidaLlenaException) {
+            ResponseEntity.status(HttpStatus.CONFLICT).body(mapOf("error" to (e.message ?: "Partida llena")))
+        } catch (e: NoSuchElementException) {
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body(mapOf("error" to (e.message ?: "No encontrado")))
+        }
     }
     @Operation(
         summary = "Obtener los datos detallados de una partida concreta",
