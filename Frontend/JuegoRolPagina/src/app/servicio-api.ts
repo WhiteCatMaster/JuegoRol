@@ -78,6 +78,10 @@ export class ServicioAPI {
     return this.http.get<any[]>(`${this.apiUrl}/partida/${idPartida}/objeto`);
   }
 
+  unirsePartida(idPartida: number|string, usuarioId: number): Observable<PartidaDto>{
+    return this.http.post<any>(`${this.apiUrl}/partida/${idPartida}/unirse`, { usuarioId });
+  }
+
 
 }
 export interface EstadisticaDto{
@@ -147,6 +151,11 @@ export interface CombatePersonajesDto{
 export interface CrearPartidaDto extends DatosPartidaDto{
   adminId: number
 }
+export interface JugadorUnidoDto{
+  usuarioId: number;
+  nombre: string;
+  fotoUrl: string;
+}
 export interface PartidaDto{
   id: number;
   nombre: string;
@@ -154,6 +163,8 @@ export interface PartidaDto{
   idioma: string;
   maximoJugadores: number;
   adminId: number;
+  jugadoresActuales?: number;
+  jugadoresUnidos?: JugadorUnidoDto[];
 }
 
 export function toEstadistica(dto: EstadisticaDto) : Estadistica{

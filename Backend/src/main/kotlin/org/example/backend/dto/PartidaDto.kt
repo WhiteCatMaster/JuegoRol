@@ -9,4 +9,12 @@ data class PartidaDto(
     val idioma: String? = null,
     val maximoJugadores: Int? = null,
     val adminId: Long? = null,
-) : Serializable
+    val jugadoresActuales: Int = 0,
+    val jugadoresUnidos: List<JugadorUnidoDto> = emptyList(),
+) : Serializable {
+    data class JugadorUnidoDto(
+        val usuarioId: Long? = null,
+        val nombre: String? = null,
+        val fotoUrl: String? = null,
+    ) : Serializable
+}
