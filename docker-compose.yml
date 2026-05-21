@@ -89,8 +89,8 @@ services:
       - datos_grafana:/var/lib/grafana
       - ./Backend/grafana/provisioning:/etc/grafana/provisioning:ro,Z
       - ./Backend/grafana/dashboards:/var/lib/grafana/dashboards:ro,Z
-    expose:
-      - "3000"
+    ports:
+      - "127.0.0.1:3000:3000"
     restart: unless-stopped
 
 volumes:
